@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { QueryRunner } from 'typeorm';
 import { DomainRankRepository } from './rank.repository';
 import { BaseService } from '../../../../libs/common/services/base.service';
 import { Rank } from '../../../../libs/database/entities';
@@ -110,5 +111,54 @@ export class DomainRankService extends BaseService<Rank> {
             return true;
         }
         return false;
+    }
+
+    // ==================== 아키텍처 규칙 적용 메서드 (Setter 활용) ====================
+
+    /**
+     * 직급을생성한다
+     */
+    async 직급을생성한다(
+        params: {
+            rankName: string;
+            rankCode: string;
+            level: number;
+        },
+        queryRunner?: QueryRunner,
+    ): Promise<Rank> {
+        const rank = new Rank();
+
+        rank.직급명을설정한다(params.rankName);
+        rank.직급코드를설정한다(params.rankCode);
+        rank.레벨을설정한다(params.level);
+
+        return await this.save(rank, { queryRunner });
+    }
+
+    /**
+     * 직급을수정한다
+     */
+    async 직급을수정한다(
+        rank: Rank,
+        params: {
+            rankName?: string;
+            rankCode?: string;
+            level?: number;
+        },
+        queryRunner?: QueryRunner,
+    ): Promise<Rank> {
+        if (params.rankName !== undefined) {
+            rank.직급명을설정한다(params.rankName);
+        }
+
+        if (params.rankCode !== undefined) {
+            rank.직급코드를설정한다(params.rankCode);
+        }
+
+        if (params.level !== undefined) {
+            rank.레벨을설정한다(params.level);
+        }
+
+        return await this.save(rank, { queryRunner });
     }
 }

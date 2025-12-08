@@ -16,7 +16,7 @@ export const typeOrmConfig = (configService: ConfigService): TypeOrmModuleOption
         database: configService.get('database.database'),
         entities: Entities,
         schema: configService.get('database.schema'),
-        // synchronize: false, // 마이그레이션 사용을 위해 false로 설정
+        synchronize: true, // 마이그레이션 사용을 위해 false로 설정
         // logging: !isProduction,
         // migrations: [join(__dirname, '../common/migrations/*.ts')],
         // migrationsRun: isVercel, // Vercel 환경에서 자동 마이그레이션

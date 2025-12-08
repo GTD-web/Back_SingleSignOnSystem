@@ -1,9 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { QueryRunner } from 'typeorm';
 import { DomainEmployeeDepartmentPositionRepository } from './employee-department-position.repository';
 import { BaseService } from '../../../../libs/common/services/base.service';
 import { EmployeeDepartmentPosition } from './employee-department-position.entity';
 import { In } from 'typeorm';
-import { DepartmentType } from 'libs/database/entities';
+import { DepartmentType } from '../department/department.entity';
 
 @Injectable()
 export class DomainEmployeeDepartmentPositionService extends BaseService<EmployeeDepartmentPosition> {
@@ -174,5 +175,56 @@ export class DomainEmployeeDepartmentPositionService extends BaseService<Employe
     // 배치 삭제
     async deleteAssignment(assignmentId: string): Promise<void> {
         return this.delete(assignmentId);
+    }
+
+    // ==================== 아키텍처 규칙 적용 메서드 (Setter 활용) ====================
+
+    /**
+     * 배치를생성한다
+     */
+    async 배치를생성한다(
+        params: {
+            employeeId: string;
+            departmentId: string;
+            positionId: string;
+            isManager: boolean;
+        },
+        queryRunner?: QueryRunner,
+    ): Promise<EmployeeDepartmentPosition> {
+        const assignment = new EmployeeDepartmentPosition();
+
+        assignment.employeeId = params.employeeId;
+        assignment.부서를설정한다(params.departmentId);
+        assignment.직책을설정한다(params.positionId);
+        assignment.관리자권한을설정한다(params.isManager);
+
+        return await this.save(assignment, { queryRunner });
+    }
+
+    /**
+     * 배치를수정한다
+     */
+    async 배치를수정한다(
+        assignment: EmployeeDepartmentPosition,
+        params: {
+            departmentId?: string;
+            positionId?: string;
+            isManager?: boolean;
+        },
+        queryRunner?: QueryRunner,
+    ): Promise<EmployeeDepartmentPosition> {
+        if (params.departmentId !== undefined) {
+            assignment.부서를설정한다(params.departmentId);
+        }
+
+        if (params.positionId !== undefined) {
+            assignment.직책을설정한다(params.positionId);
+        }
+
+        if (params.isManager !== undefined) {
+            assignment.관리자권한을설정한다(params.isManager);
+        }
+
+        return await this.save(assignment, { queryRunner });
     }
 }

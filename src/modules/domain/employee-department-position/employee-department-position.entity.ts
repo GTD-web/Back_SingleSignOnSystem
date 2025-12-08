@@ -60,4 +60,27 @@ export class EmployeeDepartmentPosition {
     @ManyToOne(() => Position)
     @JoinColumn({ name: 'positionId' })
     position: Position;
+
+    // ==================== Setter 메서드 ====================
+
+    /**
+     * 부서를설정한다
+     */
+    부서를설정한다(departmentId: string): void {
+        this.departmentId = departmentId;
+    }
+
+    /**
+     * 직책을설정한다
+     */
+    직책을설정한다(positionId: string): void {
+        this.positionId = positionId;
+    }
+
+    /**
+     * 관리자권한을설정한다
+     */
+    관리자권한을설정한다(isManager: boolean): void {
+        this.isManager = isManager;
+    }
 }

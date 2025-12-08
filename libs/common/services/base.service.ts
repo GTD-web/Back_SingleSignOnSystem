@@ -1,12 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { IRepository } from '../interfaces/repository.interface';
 import { IService } from '../interfaces/service.interface';
 import { IRepositoryOptions } from '../interfaces/repository.interface';
 import { ObjectLiteral, DeepPartial } from 'typeorm';
+import { BaseRepository } from '../repositories/base.repository';
 
 @Injectable()
 export abstract class BaseService<T extends ObjectLiteral> implements IService<T> {
     protected constructor(protected readonly repository: IRepository<T>) {}
+
+    // QueryBuilder 접근을 위한 메서드
+    createQueryBuilder(alias?: string) {
+        return (this.repository as BaseRepository<T>).createQueryBuilder(alias);
+    }
+
+    // Transaction Manager 접근을 위한 메서드
+    get manager() {
+        return (this.repository as BaseRepository<T>).manager;
+    }
 
     async create(entity: DeepPartial<T>, options?: IRepositoryOptions<T>): Promise<T> {
         return this.repository.create(entity, options);

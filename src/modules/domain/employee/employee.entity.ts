@@ -90,4 +90,106 @@ export class Employee {
 
     @UpdateDateColumn({ comment: '수정일' })
     updatedAt: Date;
+
+    // ==================== Setter 메서드 ====================
+
+    /**
+     * 사번을설정한다
+     */
+    사번을설정한다(employeeNumber: string): void {
+        this.employeeNumber = employeeNumber;
+    }
+
+    /**
+     * 이름을설정한다
+     */
+    이름을설정한다(name: string): void {
+        this.name = name;
+    }
+
+    /**
+     * 이메일을설정한다
+     */
+    이메일을설정한다(email: string): void {
+        this.email = email;
+    }
+
+    /**
+     * 비밀번호를설정한다
+     */
+    비밀번호를설정한다(password: string): void {
+        this.password = password;
+    }
+
+    /**
+     * 전화번호를설정한다
+     */
+    전화번호를설정한다(phoneNumber: string): void {
+        this.phoneNumber = phoneNumber;
+    }
+
+    /**
+     * 생년월일을설정한다
+     */
+    생년월일을설정한다(dateOfBirth: Date): void {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    /**
+     * 성별을설정한다
+     */
+    성별을설정한다(gender: Gender): void {
+        this.gender = gender;
+    }
+
+    /**
+     * 입사일을설정한다
+     */
+    입사일을설정한다(hireDate: Date): void {
+        this.hireDate = hireDate;
+    }
+
+    /**
+     * 현재직급을설정한다
+     */
+    현재직급을설정한다(currentRankId: string): void {
+        this.currentRankId = currentRankId;
+    }
+
+    /**
+     * 메타데이터를설정한다
+     */
+    메타데이터를설정한다(metadata: Record<string, any>): void {
+        this.metadata = metadata;
+    }
+
+    /**
+     * 활성화한다
+     */
+    활성화한다(): void {
+        this.status = EmployeeStatus.Active;
+    }
+
+    /**
+     * 휴직처리한다
+     */
+    휴직처리한다(): void {
+        this.status = EmployeeStatus.Leave;
+    }
+
+    /**
+     * 퇴사처리한다
+     */
+    퇴사처리한다(terminationDate: Date, terminationReason?: string): void {
+        this.status = EmployeeStatus.Terminated;
+        this.terminationDate = terminationDate;
+        this.terminationReason = terminationReason;
+    }
+
+    /**
+     * 초기비밀번호를설정완료한다
+     */
+    초기비밀번호를설정완료한다(): void {
+        this.isInitialPasswordSet = true;
+    }
 }

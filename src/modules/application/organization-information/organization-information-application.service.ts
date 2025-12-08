@@ -24,7 +24,7 @@ import {
     ManagerInfoDto,
 } from './dto';
 import { Employee, Department, Position, Rank, DepartmentType } from '../../../../libs/database/entities';
-import { EmployeeStatus } from 'libs/common/enums';
+import { EmployeeStatus } from '../../../../libs/common/enums';
 
 @Injectable()
 export class OrganizationInformationApplicationService {
