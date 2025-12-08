@@ -898,7 +898,7 @@ const typeOrmConfig = (configService) => {
         database: configService.get('database.database'),
         entities: entities_1.Entities,
         schema: configService.get('database.schema'),
-        synchronize: true,
+        synchronize: false,
     };
 };
 exports.typeOrmConfig = typeOrmConfig;
