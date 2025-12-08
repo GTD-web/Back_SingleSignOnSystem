@@ -128,6 +128,7 @@ export class CreateDepartmentHistory1757500000010 implements MigrationInterface 
         );
 
         // 기존 Department 데이터를 DepartmentHistory로 마이그레이션
+        // enum 타입이 다르므로 text로 캐스팅 후 다시 캐스팅
         await queryRunner.query(`
             INSERT INTO department_history (
                 "departmentId",
@@ -147,7 +148,7 @@ export class CreateDepartmentHistory1757500000010 implements MigrationInterface 
                 id,
                 "departmentName",
                 "departmentCode",
-                type,
+                type::text::department_history_type_enum,
                 "parentDepartmentId",
                 "order",
                 "isActive",
@@ -165,4 +166,3 @@ export class CreateDepartmentHistory1757500000010 implements MigrationInterface 
         await queryRunner.dropTable('department_history');
     }
 }
-
