@@ -950,9 +950,9 @@ const system_role_entity_1 = __webpack_require__(/*! ../../../src/modules/domain
 Object.defineProperty(exports, "SystemRole", ({ enumerable: true, get: function () { return system_role_entity_1.SystemRole; } }));
 const employee_system_role_entity_1 = __webpack_require__(/*! ../../../src/modules/domain/employee-system-role/employee-system-role.entity */ "./src/modules/domain/employee-system-role/employee-system-role.entity.ts");
 Object.defineProperty(exports, "EmployeeSystemRole", ({ enumerable: true, get: function () { return employee_system_role_entity_1.EmployeeSystemRole; } }));
-const employee_department_position_history_entity_1 = __webpack_require__(/*! src/modules/domain/employee-department-position-history/employee-department-position-history.entity */ "./src/modules/domain/employee-department-position-history/employee-department-position-history.entity.ts");
+const employee_department_position_history_entity_1 = __webpack_require__(/*! ../../../src/modules/domain/employee-department-position-history/employee-department-position-history.entity */ "./src/modules/domain/employee-department-position-history/employee-department-position-history.entity.ts");
 Object.defineProperty(exports, "EmployeeDepartmentPositionHistory", ({ enumerable: true, get: function () { return employee_department_position_history_entity_1.EmployeeDepartmentPositionHistory; } }));
-const department_history_entity_1 = __webpack_require__(/*! src/modules/domain/department-history/department-history.entity */ "./src/modules/domain/department-history/department-history.entity.ts");
+const department_history_entity_1 = __webpack_require__(/*! ../../../src/modules/domain/department-history/department-history.entity */ "./src/modules/domain/department-history/department-history.entity.ts");
 Object.defineProperty(exports, "DepartmentHistory", ({ enumerable: true, get: function () { return department_history_entity_1.DepartmentHistory; } }));
 exports.Entities = [
     employee_entity_1.Employee,

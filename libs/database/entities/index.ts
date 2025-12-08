@@ -15,8 +15,8 @@ import { FcmToken } from '../../../src/modules/domain/fcm-token/fcm-token.entity
 import { EmployeeFcmToken } from '../../../src/modules/domain/employee-fcm-token/employee-fcm-token.entity';
 import { SystemRole } from '../../../src/modules/domain/system-role/system-role.entity';
 import { EmployeeSystemRole } from '../../../src/modules/domain/employee-system-role/employee-system-role.entity';
-import { EmployeeDepartmentPositionHistory } from 'src/modules/domain/employee-department-position-history/employee-department-position-history.entity';
-import { DepartmentHistory } from 'src/modules/domain/department-history/department-history.entity';
+import { EmployeeDepartmentPositionHistory } from '../../../src/modules/domain/employee-department-position-history/employee-department-position-history.entity';
+import { DepartmentHistory } from '../../../src/modules/domain/department-history/department-history.entity';
 
 export {
     Employee,
