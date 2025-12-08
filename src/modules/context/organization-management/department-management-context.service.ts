@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { QueryRunner } from 'typeorm';
 import { DomainDepartmentService } from '../../domain/department/department.service';
-import { DomainDepartmentRepository } from '../../domain/department/department.repository';
 import { DomainEmployeeDepartmentPositionService } from '../../domain/employee-department-position/employee-department-position.service';
 import { Department } from '../../../../libs/database/entities';
 
@@ -13,7 +12,6 @@ import { Department } from '../../../../libs/database/entities';
 export class DepartmentManagementContextService {
     constructor(
         private readonly 부서서비스: DomainDepartmentService,
-        private readonly 부서레포지토리: DomainDepartmentRepository,
         private readonly 직원부서직책서비스: DomainEmployeeDepartmentPositionService,
     ) {}
 
@@ -283,53 +281,18 @@ export class DepartmentManagementContextService {
             maxOrderRange,
         );
 
-        // 5. 순서 업데이트 실행 (unique 제약 충돌 회피)
-        const executeLogic = async (manager: any) => {
-            // Step 1: 이동할 부서를 임시 음수 값으로 변경
-            await manager.update(Department, { id: departmentId }, { order: -999 });
-
-            // Step 2: 나머지 부서들의 순서 업데이트
-            const updates: { id: string; order: number }[] = [];
-            if (currentOrder < newOrder) {
-                // 아래로 이동: 현재 순서보다 크고 새로운 순서 이하인 부서들을 -1
-                for (const dept of affectedDepartments) {
-                    if (dept.id !== departmentId && dept.order > currentOrder && dept.order <= newOrder) {
-                        updates.push({ id: dept.id, order: dept.order - 1 });
-                    }
-                }
-            } else {
-                // 위로 이동: 새로운 순서 이상이고 현재 순서보다 작은 부서들을 +1
-                for (const dept of affectedDepartments) {
-                    if (dept.id !== departmentId && dept.order >= newOrder && dept.order < currentOrder) {
-                        updates.push({ id: dept.id, order: dept.order + 1 });
-                    }
-                }
-            }
-
-            // Step 3: 나머지 부서들 일괄 업데이트
-            if (updates.length > 0) {
-                const tempOffset = -1000000;
-                for (let i = 0; i < updates.length; i++) {
-                    await manager.update(Department, { id: updates[i].id }, { order: tempOffset - i });
-                }
-                for (const update of updates) {
-                    await manager.update(Department, { id: update.id }, { order: update.order });
-                }
-            }
-
-            // Step 4: 이동할 부서를 최종 순서로 변경
-            await manager.update(Department, { id: departmentId }, { order: newOrder });
-        };
-
-        // queryRunner가 제공되면 사용, 아니면 내부 트랜잭션 생성
-        if (queryRunner) {
-            await executeLogic(queryRunner.manager);
-        } else {
-            await this.부서레포지토리.manager.transaction(executeLogic);
-        }
+        // 5. 도메인 서비스를 통해 순서 재배치 실행
+        await this.부서서비스.부서순서를재배치한다(
+            {
+                departmentId,
+                currentOrder,
+                newOrder,
+                affectedDepartments,
+            },
+            queryRunner,
+        );
 
         // 6. 업데이트된 부서 반환
         return await this.부서서비스.findById(departmentId);
     }
 }
-

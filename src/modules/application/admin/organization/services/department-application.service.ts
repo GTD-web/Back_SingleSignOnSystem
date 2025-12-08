@@ -14,6 +14,7 @@ import {
     DepartmentEmployeeInfoDto,
 } from '../dto';
 import { OrganizationManagementContextService } from '../../../../context/organization-management/organization-management-context.service';
+import { OrganizationHistoryContextService } from '../../../../context/organization-history/organization-history-context.service';
 import { DepartmentType } from '../../../../domain/department/department.entity';
 import { Department } from '../../../../domain/department/department.entity';
 import { Employee } from '../../../../domain/employee/employee.entity';
@@ -31,6 +32,7 @@ export class DepartmentApplicationService {
     constructor(
         private readonly dataSource: DataSource,
         private readonly organizationContext: OrganizationManagementContextService,
+        private readonly historyContext: OrganizationHistoryContextService,
     ) {}
 
     // ==================== 조회 (트랜잭션 불필요) ====================
@@ -95,7 +97,10 @@ export class DepartmentApplicationService {
 
     // ==================== 명령 (트랜잭션 필요) ====================
 
-    async 부서생성(createDepartmentDto: CreateDepartmentRequestDto): Promise<DepartmentResponseDto> {
+    async 부서생성(
+        createDepartmentDto: CreateDepartmentRequestDto,
+        executedBy?: string,
+    ): Promise<DepartmentResponseDto> {
         return await withTransaction(this.dataSource, async (queryRunner) => {
             const newDepartment = await this.organizationContext.부서를_생성한다(
                 {
@@ -108,34 +113,109 @@ export class DepartmentApplicationService {
                 queryRunner,
             );
 
+            // 부서 생성 이력 기록
+            await this.historyContext.부서를_생성하고_이력을_생성한다(
+                {
+                    departmentId: newDepartment.id,
+                    departmentName: newDepartment.departmentName,
+                    departmentCode: newDepartment.departmentCode,
+                    type: newDepartment.type,
+                    parentDepartmentId: newDepartment.parentDepartmentId,
+                    order: newDepartment.order,
+                    isActive: newDepartment.isActive,
+                    isException: newDepartment.isException,
+                    effectiveDate: new Date(),
+                    changeReason: '부서 생성',
+                    changedBy: executedBy,
+                },
+                queryRunner,
+            );
+
             return this.부서를_응답DTO로_변환한다(newDepartment);
         });
     }
 
-    async 부서수정(id: string, updateDepartmentDto: UpdateDepartmentRequestDto): Promise<DepartmentResponseDto> {
+    async 부서수정(
+        id: string,
+        updateDepartmentDto: UpdateDepartmentRequestDto,
+        executedBy?: string,
+    ): Promise<DepartmentResponseDto> {
         return await withTransaction(this.dataSource, async (queryRunner) => {
             const updatedDepartment = await this.organizationContext.부서를_수정한다(
                 id,
                 updateDepartmentDto,
                 queryRunner,
             );
+
+            // 부서 수정 이력 기록
+            await this.historyContext.부서정보를_변경하고_이력을_생성한다(
+                {
+                    departmentId: updatedDepartment.id,
+                    departmentName: updatedDepartment.departmentName,
+                    departmentCode: updatedDepartment.departmentCode,
+                    type: updatedDepartment.type,
+                    parentDepartmentId: updatedDepartment.parentDepartmentId,
+                    order: updatedDepartment.order,
+                    isActive: updatedDepartment.isActive,
+                    isException: updatedDepartment.isException,
+                    effectiveDate: new Date(),
+                    changeReason: '부서 정보 수정',
+                    changedBy: executedBy,
+                },
+                queryRunner,
+            );
+
             return this.부서를_응답DTO로_변환한다(updatedDepartment);
         });
     }
 
-    async 부서삭제(id: string): Promise<void> {
+    async 부서삭제(id: string, executedBy?: string): Promise<void> {
         await withTransaction(this.dataSource, async (queryRunner) => {
+            // 부서 삭제 이력 기록 (삭제 전에 이력 종료)
+            await this.historyContext.부서이력을_종료한다(
+                {
+                    departmentId: id,
+                    effectiveDate: new Date(),
+                    changeReason: '부서 삭제',
+                    changedBy: executedBy,
+                },
+                queryRunner,
+            );
+
             await this.organizationContext.부서를_삭제한다(id, queryRunner);
         });
     }
 
-    async 부서순서변경(id: string, updateOrderDto: UpdateDepartmentOrderRequestDto): Promise<DepartmentResponseDto> {
+    async 부서순서변경(
+        id: string,
+        updateOrderDto: UpdateDepartmentOrderRequestDto,
+        executedBy?: string,
+    ): Promise<DepartmentResponseDto> {
         return await withTransaction(this.dataSource, async (queryRunner) => {
             const updatedDepartment = await this.organizationContext.부서순서를_변경한다(
                 id,
                 updateOrderDto.newOrder,
                 queryRunner,
             );
+
+            // 부서 순서 변경 이력 기록
+            await this.historyContext.부서정보를_변경하고_이력을_생성한다(
+                {
+                    departmentId: updatedDepartment.id,
+                    departmentName: updatedDepartment.departmentName,
+                    departmentCode: updatedDepartment.departmentCode,
+                    type: updatedDepartment.type,
+                    parentDepartmentId: updatedDepartment.parentDepartmentId,
+                    order: updatedDepartment.order,
+                    isActive: updatedDepartment.isActive,
+                    isException: updatedDepartment.isException,
+                    effectiveDate: new Date(),
+                    changeReason: '부서 순서 변경',
+                    changedBy: executedBy,
+                },
+                queryRunner,
+            );
+
             return this.부서를_응답DTO로_변환한다(updatedDepartment);
         });
     }
@@ -143,6 +223,7 @@ export class DepartmentApplicationService {
     async 부서상위부서변경(
         id: string,
         updateParentDto: UpdateDepartmentParentRequestDto,
+        executedBy?: string,
     ): Promise<DepartmentResponseDto> {
         return await withTransaction(this.dataSource, async (queryRunner) => {
             const updatedDepartment = await this.organizationContext.부서를_수정한다(
@@ -152,6 +233,25 @@ export class DepartmentApplicationService {
                 },
                 queryRunner,
             );
+
+            // 부서 상위부서 변경 이력 기록
+            await this.historyContext.부서정보를_변경하고_이력을_생성한다(
+                {
+                    departmentId: updatedDepartment.id,
+                    departmentName: updatedDepartment.departmentName,
+                    departmentCode: updatedDepartment.departmentCode,
+                    type: updatedDepartment.type,
+                    parentDepartmentId: updatedDepartment.parentDepartmentId,
+                    order: updatedDepartment.order,
+                    isActive: updatedDepartment.isActive,
+                    isException: updatedDepartment.isException,
+                    effectiveDate: new Date(),
+                    changeReason: '상위 부서 변경',
+                    changedBy: executedBy,
+                },
+                queryRunner,
+            );
+
             return this.부서를_응답DTO로_변환한다(updatedDepartment);
         });
     }
@@ -159,12 +259,32 @@ export class DepartmentApplicationService {
     async 부서활성화상태변경(
         id: string,
         updateActiveStatusDto: UpdateDepartmentActiveStatusRequestDto,
+        executedBy?: string,
     ): Promise<DepartmentResponseDto> {
         return await withTransaction(this.dataSource, async (queryRunner) => {
             const updatedDepartment = await this.organizationContext.부서를_수정한다(
                 id,
                 {
                     isActive: updateActiveStatusDto.isActive,
+                },
+                queryRunner,
+            );
+
+            // 부서 활성화 상태 변경 이력 기록
+            const changeReason = updateActiveStatusDto.isActive ? '부서 활성화' : '부서 비활성화';
+            await this.historyContext.부서정보를_변경하고_이력을_생성한다(
+                {
+                    departmentId: updatedDepartment.id,
+                    departmentName: updatedDepartment.departmentName,
+                    departmentCode: updatedDepartment.departmentCode,
+                    type: updatedDepartment.type,
+                    parentDepartmentId: updatedDepartment.parentDepartmentId,
+                    order: updatedDepartment.order,
+                    isActive: updatedDepartment.isActive,
+                    isException: updatedDepartment.isException,
+                    effectiveDate: new Date(),
+                    changeReason,
+                    changedBy: executedBy,
                 },
                 queryRunner,
             );
@@ -179,6 +299,26 @@ export class DepartmentApplicationService {
                 await this.organizationContext.여러_부서를_일괄_수정한다(childDepartmentIds, {
                     isActive: updateActiveStatusDto.isActive,
                 });
+
+                // 하위 부서들의 이력도 기록
+                for (const childDept of allChildDepartments) {
+                    await this.historyContext.부서정보를_변경하고_이력을_생성한다(
+                        {
+                            departmentId: childDept.id,
+                            departmentName: childDept.departmentName,
+                            departmentCode: childDept.departmentCode,
+                            type: childDept.type,
+                            parentDepartmentId: childDept.parentDepartmentId,
+                            order: childDept.order,
+                            isActive: false,
+                            isException: childDept.isException,
+                            effectiveDate: new Date(),
+                            changeReason: '상위 부서 비활성화로 인한 자동 비활성화',
+                            changedBy: executedBy,
+                        },
+                        queryRunner,
+                    );
+                }
             }
 
             return this.부서를_응답DTO로_변환한다(updatedDepartment);

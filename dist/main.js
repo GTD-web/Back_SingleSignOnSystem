@@ -4369,11 +4369,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AssignmentController = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 const swagger_1 = __webpack_require__(/*! @nestjs/swagger */ "@nestjs/swagger");
+const user_decorator_1 = __webpack_require__(/*! ../../../../../../libs/common/decorators/user.decorator */ "./libs/common/decorators/user.decorator.ts");
 const assignment_application_service_1 = __webpack_require__(/*! ../services/assignment-application.service */ "./src/modules/application/admin/organization/services/assignment-application.service.ts");
 const dto_1 = __webpack_require__(/*! ../dto */ "./src/modules/application/admin/organization/dto/index.ts");
 let AssignmentController = class AssignmentController {
@@ -4386,17 +4387,17 @@ let AssignmentController = class AssignmentController {
     async getEmployeeAssignments(employeeId) {
         return await this.assignmentApplicationService.직원배치현황조회(employeeId);
     }
-    async assignEmployee(assignEmployeeDto) {
-        return await this.assignmentApplicationService.직원배치(assignEmployeeDto);
+    async assignEmployee(assignEmployeeDto, user) {
+        return await this.assignmentApplicationService.직원배치(assignEmployeeDto, user?.id);
     }
-    async updateEmployeeAssignment(id, updateAssignmentDto) {
-        return await this.assignmentApplicationService.직원배치변경(id, updateAssignmentDto);
+    async updateEmployeeAssignment(id, updateAssignmentDto, user) {
+        return await this.assignmentApplicationService.직원배치변경(id, updateAssignmentDto, user?.id);
     }
-    async updateManagerStatus(id, updateManagerStatusDto) {
-        return await this.assignmentApplicationService.직원배치_관리자상태변경(id, updateManagerStatusDto);
+    async updateManagerStatus(id, updateManagerStatusDto, user) {
+        return await this.assignmentApplicationService.직원배치_관리자상태변경(id, updateManagerStatusDto, user?.id);
     }
-    async removeEmployeeAssignment(id) {
-        return await this.assignmentApplicationService.직원배치해제(id);
+    async removeEmployeeAssignment(id, user) {
+        return await this.assignmentApplicationService.직원배치해제(id, user?.id);
     }
 };
 exports.AssignmentController = AssignmentController;
@@ -4424,9 +4425,10 @@ __decorate([
     (0, swagger_1.ApiBody)({ type: dto_1.AssignEmployeeRequestDto }),
     (0, swagger_1.ApiResponse)({ status: 201, type: dto_1.EmployeeAssignmentResponseDto }),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_d = typeof dto_1.AssignEmployeeRequestDto !== "undefined" && dto_1.AssignEmployeeRequestDto) === "function" ? _d : Object]),
-    __metadata("design:returntype", typeof (_e = typeof Promise !== "undefined" && Promise) === "function" ? _e : Object)
+    __metadata("design:paramtypes", [typeof (_d = typeof dto_1.AssignEmployeeRequestDto !== "undefined" && dto_1.AssignEmployeeRequestDto) === "function" ? _d : Object, typeof (_e = typeof user_decorator_1.AuthenticatedUser !== "undefined" && user_decorator_1.AuthenticatedUser) === "function" ? _e : Object]),
+    __metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
 ], AssignmentController.prototype, "assignEmployee", null);
 __decorate([
     (0, common_1.Put)('employee-assignments/:id'),
@@ -4436,9 +4438,10 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 200, type: dto_1.EmployeeAssignmentResponseDto }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, typeof (_f = typeof dto_1.UpdateEmployeeAssignmentRequestDto !== "undefined" && dto_1.UpdateEmployeeAssignmentRequestDto) === "function" ? _f : Object]),
-    __metadata("design:returntype", typeof (_g = typeof Promise !== "undefined" && Promise) === "function" ? _g : Object)
+    __metadata("design:paramtypes", [String, typeof (_g = typeof dto_1.UpdateEmployeeAssignmentRequestDto !== "undefined" && dto_1.UpdateEmployeeAssignmentRequestDto) === "function" ? _g : Object, typeof (_h = typeof user_decorator_1.AuthenticatedUser !== "undefined" && user_decorator_1.AuthenticatedUser) === "function" ? _h : Object]),
+    __metadata("design:returntype", typeof (_j = typeof Promise !== "undefined" && Promise) === "function" ? _j : Object)
 ], AssignmentController.prototype, "updateEmployeeAssignment", null);
 __decorate([
     (0, common_1.Patch)('employee-assignments/:id/manager-status'),
@@ -4449,9 +4452,10 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 404, description: '배치 정보를 찾을 수 없음' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, typeof (_h = typeof dto_1.UpdateManagerStatusRequestDto !== "undefined" && dto_1.UpdateManagerStatusRequestDto) === "function" ? _h : Object]),
-    __metadata("design:returntype", typeof (_j = typeof Promise !== "undefined" && Promise) === "function" ? _j : Object)
+    __metadata("design:paramtypes", [String, typeof (_k = typeof dto_1.UpdateManagerStatusRequestDto !== "undefined" && dto_1.UpdateManagerStatusRequestDto) === "function" ? _k : Object, typeof (_l = typeof user_decorator_1.AuthenticatedUser !== "undefined" && user_decorator_1.AuthenticatedUser) === "function" ? _l : Object]),
+    __metadata("design:returntype", typeof (_m = typeof Promise !== "undefined" && Promise) === "function" ? _m : Object)
 ], AssignmentController.prototype, "updateManagerStatus", null);
 __decorate([
     (0, common_1.Delete)('employee-assignments/:id'),
@@ -4459,9 +4463,10 @@ __decorate([
     (0, swagger_1.ApiParam)({ name: 'id', description: '배치 ID' }),
     (0, swagger_1.ApiResponse)({ status: 200 }),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", typeof (_k = typeof Promise !== "undefined" && Promise) === "function" ? _k : Object)
+    __metadata("design:paramtypes", [String, typeof (_o = typeof user_decorator_1.AuthenticatedUser !== "undefined" && user_decorator_1.AuthenticatedUser) === "function" ? _o : Object]),
+    __metadata("design:returntype", typeof (_p = typeof Promise !== "undefined" && Promise) === "function" ? _p : Object)
 ], AssignmentController.prototype, "removeEmployeeAssignment", null);
 exports.AssignmentController = AssignmentController = __decorate([
     (0, swagger_1.ApiTags)('Admin - 조직 관리 > 배치'),
@@ -4491,11 +4496,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DepartmentController = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 const swagger_1 = __webpack_require__(/*! @nestjs/swagger */ "@nestjs/swagger");
+const user_decorator_1 = __webpack_require__(/*! ../../../../../../libs/common/decorators/user.decorator */ "./libs/common/decorators/user.decorator.ts");
 const department_application_service_1 = __webpack_require__(/*! ../services/department-application.service */ "./src/modules/application/admin/organization/services/department-application.service.ts");
 const dto_1 = __webpack_require__(/*! ../dto */ "./src/modules/application/admin/organization/dto/index.ts");
 let DepartmentController = class DepartmentController {
@@ -4514,23 +4520,23 @@ let DepartmentController = class DepartmentController {
     async getDepartment(id) {
         return await this.departmentApplicationService.부서상세조회(id);
     }
-    async createDepartment(createDepartmentDto) {
-        return await this.departmentApplicationService.부서생성(createDepartmentDto);
+    async createDepartment(createDepartmentDto, user) {
+        return await this.departmentApplicationService.부서생성(createDepartmentDto, user?.id);
     }
-    async updateDepartment(id, updateDepartmentDto) {
-        return await this.departmentApplicationService.부서수정(id, updateDepartmentDto);
+    async updateDepartment(id, updateDepartmentDto, user) {
+        return await this.departmentApplicationService.부서수정(id, updateDepartmentDto, user?.id);
     }
-    async deleteDepartment(id) {
-        return await this.departmentApplicationService.부서삭제(id);
+    async deleteDepartment(id, user) {
+        return await this.departmentApplicationService.부서삭제(id, user?.id);
     }
-    async updateDepartmentOrder(id, updateOrderDto) {
-        return await this.departmentApplicationService.부서순서변경(id, updateOrderDto);
+    async updateDepartmentOrder(id, updateOrderDto, user) {
+        return await this.departmentApplicationService.부서순서변경(id, updateOrderDto, user?.id);
     }
-    async updateDepartmentParent(id, updateParentDto) {
-        return await this.departmentApplicationService.부서상위부서변경(id, updateParentDto);
+    async updateDepartmentParent(id, updateParentDto, user) {
+        return await this.departmentApplicationService.부서상위부서변경(id, updateParentDto, user?.id);
     }
-    async updateDepartmentActiveStatus(id, updateActiveStatusDto) {
-        return await this.departmentApplicationService.부서활성화상태변경(id, updateActiveStatusDto);
+    async updateDepartmentActiveStatus(id, updateActiveStatusDto, user) {
+        return await this.departmentApplicationService.부서활성화상태변경(id, updateActiveStatusDto, user?.id);
     }
 };
 exports.DepartmentController = DepartmentController;
@@ -4591,9 +4597,10 @@ __decorate([
     (0, swagger_1.ApiBody)({ type: dto_1.CreateDepartmentRequestDto }),
     (0, swagger_1.ApiResponse)({ status: 201, type: dto_1.DepartmentResponseDto }),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_f = typeof dto_1.CreateDepartmentRequestDto !== "undefined" && dto_1.CreateDepartmentRequestDto) === "function" ? _f : Object]),
-    __metadata("design:returntype", typeof (_g = typeof Promise !== "undefined" && Promise) === "function" ? _g : Object)
+    __metadata("design:paramtypes", [typeof (_f = typeof dto_1.CreateDepartmentRequestDto !== "undefined" && dto_1.CreateDepartmentRequestDto) === "function" ? _f : Object, typeof (_g = typeof user_decorator_1.AuthenticatedUser !== "undefined" && user_decorator_1.AuthenticatedUser) === "function" ? _g : Object]),
+    __metadata("design:returntype", typeof (_h = typeof Promise !== "undefined" && Promise) === "function" ? _h : Object)
 ], DepartmentController.prototype, "createDepartment", null);
 __decorate([
     (0, common_1.Put)('departments/:id'),
@@ -4603,9 +4610,10 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 200, type: dto_1.DepartmentResponseDto }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, typeof (_h = typeof dto_1.UpdateDepartmentRequestDto !== "undefined" && dto_1.UpdateDepartmentRequestDto) === "function" ? _h : Object]),
-    __metadata("design:returntype", typeof (_j = typeof Promise !== "undefined" && Promise) === "function" ? _j : Object)
+    __metadata("design:paramtypes", [String, typeof (_j = typeof dto_1.UpdateDepartmentRequestDto !== "undefined" && dto_1.UpdateDepartmentRequestDto) === "function" ? _j : Object, typeof (_k = typeof user_decorator_1.AuthenticatedUser !== "undefined" && user_decorator_1.AuthenticatedUser) === "function" ? _k : Object]),
+    __metadata("design:returntype", typeof (_l = typeof Promise !== "undefined" && Promise) === "function" ? _l : Object)
 ], DepartmentController.prototype, "updateDepartment", null);
 __decorate([
     (0, common_1.Delete)('departments/:id'),
@@ -4613,9 +4621,10 @@ __decorate([
     (0, swagger_1.ApiParam)({ name: 'id', description: '부서 ID' }),
     (0, swagger_1.ApiResponse)({ status: 200 }),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", typeof (_k = typeof Promise !== "undefined" && Promise) === "function" ? _k : Object)
+    __metadata("design:paramtypes", [String, typeof (_m = typeof user_decorator_1.AuthenticatedUser !== "undefined" && user_decorator_1.AuthenticatedUser) === "function" ? _m : Object]),
+    __metadata("design:returntype", typeof (_o = typeof Promise !== "undefined" && Promise) === "function" ? _o : Object)
 ], DepartmentController.prototype, "deleteDepartment", null);
 __decorate([
     (0, common_1.Patch)('departments/:id/order'),
@@ -4625,9 +4634,10 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 200, type: dto_1.DepartmentResponseDto }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, typeof (_l = typeof dto_1.UpdateDepartmentOrderRequestDto !== "undefined" && dto_1.UpdateDepartmentOrderRequestDto) === "function" ? _l : Object]),
-    __metadata("design:returntype", typeof (_m = typeof Promise !== "undefined" && Promise) === "function" ? _m : Object)
+    __metadata("design:paramtypes", [String, typeof (_p = typeof dto_1.UpdateDepartmentOrderRequestDto !== "undefined" && dto_1.UpdateDepartmentOrderRequestDto) === "function" ? _p : Object, typeof (_q = typeof user_decorator_1.AuthenticatedUser !== "undefined" && user_decorator_1.AuthenticatedUser) === "function" ? _q : Object]),
+    __metadata("design:returntype", typeof (_r = typeof Promise !== "undefined" && Promise) === "function" ? _r : Object)
 ], DepartmentController.prototype, "updateDepartmentOrder", null);
 __decorate([
     (0, common_1.Patch)('departments/:id/parent'),
@@ -4637,9 +4647,10 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 200, type: dto_1.DepartmentResponseDto }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, typeof (_o = typeof dto_1.UpdateDepartmentParentRequestDto !== "undefined" && dto_1.UpdateDepartmentParentRequestDto) === "function" ? _o : Object]),
-    __metadata("design:returntype", typeof (_p = typeof Promise !== "undefined" && Promise) === "function" ? _p : Object)
+    __metadata("design:paramtypes", [String, typeof (_s = typeof dto_1.UpdateDepartmentParentRequestDto !== "undefined" && dto_1.UpdateDepartmentParentRequestDto) === "function" ? _s : Object, typeof (_t = typeof user_decorator_1.AuthenticatedUser !== "undefined" && user_decorator_1.AuthenticatedUser) === "function" ? _t : Object]),
+    __metadata("design:returntype", typeof (_u = typeof Promise !== "undefined" && Promise) === "function" ? _u : Object)
 ], DepartmentController.prototype, "updateDepartmentParent", null);
 __decorate([
     (0, common_1.Patch)('departments/:id/active-status'),
@@ -4650,9 +4661,10 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 404, description: '부서를 찾을 수 없음' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, typeof (_q = typeof dto_1.UpdateDepartmentActiveStatusRequestDto !== "undefined" && dto_1.UpdateDepartmentActiveStatusRequestDto) === "function" ? _q : Object]),
-    __metadata("design:returntype", typeof (_r = typeof Promise !== "undefined" && Promise) === "function" ? _r : Object)
+    __metadata("design:paramtypes", [String, typeof (_v = typeof dto_1.UpdateDepartmentActiveStatusRequestDto !== "undefined" && dto_1.UpdateDepartmentActiveStatusRequestDto) === "function" ? _v : Object, typeof (_w = typeof user_decorator_1.AuthenticatedUser !== "undefined" && user_decorator_1.AuthenticatedUser) === "function" ? _w : Object]),
+    __metadata("design:returntype", typeof (_x = typeof Promise !== "undefined" && Promise) === "function" ? _x : Object)
 ], DepartmentController.prototype, "updateDepartmentActiveStatus", null);
 exports.DepartmentController = DepartmentController = __decorate([
     (0, swagger_1.ApiTags)('Admin - 조직 관리 > 부서'),
@@ -6452,17 +6464,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b;
+var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AssignmentApplicationService = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 const typeorm_1 = __webpack_require__(/*! typeorm */ "typeorm");
 const transaction_util_1 = __webpack_require__(/*! ../../../../../../libs/common/utils/transaction.util */ "./libs/common/utils/transaction.util.ts");
 const organization_management_context_service_1 = __webpack_require__(/*! ../../../../context/organization-management/organization-management-context.service */ "./src/modules/context/organization-management/organization-management-context.service.ts");
+const organization_history_context_service_1 = __webpack_require__(/*! ../../../../context/organization-history/organization-history-context.service */ "./src/modules/context/organization-history/organization-history-context.service.ts");
 let AssignmentApplicationService = class AssignmentApplicationService {
-    constructor(dataSource, organizationContext) {
+    constructor(dataSource, organizationContext, historyContext) {
         this.dataSource = dataSource;
         this.organizationContext = organizationContext;
+        this.historyContext = historyContext;
         this.직원배치를_응답DTO로_변환한다 = (assignment) => ({
             id: assignment.id,
             employeeId: assignment.employeeId,
@@ -6499,26 +6513,61 @@ let AssignmentApplicationService = class AssignmentApplicationService {
         const assignments = await this.organizationContext.직원의_모든_배치정보를_조회한다(employeeId);
         return assignments.map(this.직원배치를_응답DTO로_변환한다);
     }
-    async 직원배치(assignEmployeeDto) {
+    async 직원배치(assignEmployeeDto, executedBy) {
         return await (0, transaction_util_1.withTransaction)(this.dataSource, async (queryRunner) => {
             const assignment = await this.organizationContext.직원을_부서에_배치한다(assignEmployeeDto, queryRunner);
+            await this.historyContext.직원을_발령하고_이력을_생성한다({
+                employeeId: assignment.employeeId,
+                departmentId: assignment.departmentId,
+                positionId: assignment.positionId,
+                isManager: assignment.isManager,
+                effectiveDate: new Date(),
+                assignmentReason: '직원 배치',
+                assignedBy: executedBy,
+            }, queryRunner);
             return this.직원배치를_응답DTO로_변환한다(assignment);
         });
     }
-    async 직원배치변경(id, updateAssignmentDto) {
+    async 직원배치변경(id, updateAssignmentDto, executedBy) {
         return await (0, transaction_util_1.withTransaction)(this.dataSource, async (queryRunner) => {
             const updatedAssignment = await this.organizationContext.직원배치정보를_수정한다(id, updateAssignmentDto, queryRunner);
+            await this.historyContext.직원을_발령하고_이력을_생성한다({
+                employeeId: updatedAssignment.employeeId,
+                departmentId: updatedAssignment.departmentId,
+                positionId: updatedAssignment.positionId,
+                isManager: updatedAssignment.isManager,
+                effectiveDate: new Date(),
+                assignmentReason: '배치 정보 변경',
+                assignedBy: executedBy,
+            }, queryRunner);
             return this.직원배치를_응답DTO로_변환한다(updatedAssignment);
         });
     }
-    async 직원배치해제(id) {
+    async 직원배치해제(id, executedBy) {
         await (0, transaction_util_1.withTransaction)(this.dataSource, async (queryRunner) => {
+            const assignment = await this.organizationContext.배치_ID로_배치정보를_조회한다(id);
+            await this.historyContext.직원배치이력을_종료한다({
+                employeeId: assignment.employeeId,
+                effectiveDate: new Date(),
+                assignmentReason: '배치 해제',
+                assignedBy: executedBy,
+            }, queryRunner);
             await this.organizationContext.직원배치를_해제한다(id, queryRunner);
         });
     }
-    async 직원배치_관리자상태변경(id, updateManagerStatusDto) {
+    async 직원배치_관리자상태변경(id, updateManagerStatusDto, executedBy) {
         return await (0, transaction_util_1.withTransaction)(this.dataSource, async (queryRunner) => {
             const updatedAssignment = await this.organizationContext.직원배치_관리자상태를_변경한다(id, updateManagerStatusDto.isManager, queryRunner);
+            const changeReason = updateManagerStatusDto.isManager ? '관리자 지정' : '관리자 해제';
+            await this.historyContext.직원을_발령하고_이력을_생성한다({
+                employeeId: updatedAssignment.employeeId,
+                departmentId: updatedAssignment.departmentId,
+                positionId: updatedAssignment.positionId,
+                isManager: updatedAssignment.isManager,
+                effectiveDate: new Date(),
+                assignmentReason: changeReason,
+                assignedBy: executedBy,
+            }, queryRunner);
             return this.직원배치를_응답DTO로_변환한다(updatedAssignment);
         });
     }
@@ -6526,7 +6575,7 @@ let AssignmentApplicationService = class AssignmentApplicationService {
 exports.AssignmentApplicationService = AssignmentApplicationService;
 exports.AssignmentApplicationService = AssignmentApplicationService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_1.DataSource !== "undefined" && typeorm_1.DataSource) === "function" ? _a : Object, typeof (_b = typeof organization_management_context_service_1.OrganizationManagementContextService !== "undefined" && organization_management_context_service_1.OrganizationManagementContextService) === "function" ? _b : Object])
+    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_1.DataSource !== "undefined" && typeorm_1.DataSource) === "function" ? _a : Object, typeof (_b = typeof organization_management_context_service_1.OrganizationManagementContextService !== "undefined" && organization_management_context_service_1.OrganizationManagementContextService) === "function" ? _b : Object, typeof (_c = typeof organization_history_context_service_1.OrganizationHistoryContextService !== "undefined" && organization_history_context_service_1.OrganizationHistoryContextService) === "function" ? _c : Object])
 ], AssignmentApplicationService);
 
 
@@ -6548,17 +6597,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b;
+var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DepartmentApplicationService = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 const typeorm_1 = __webpack_require__(/*! typeorm */ "typeorm");
 const transaction_util_1 = __webpack_require__(/*! ../../../../../../libs/common/utils/transaction.util */ "./libs/common/utils/transaction.util.ts");
 const organization_management_context_service_1 = __webpack_require__(/*! ../../../../context/organization-management/organization-management-context.service */ "./src/modules/context/organization-management/organization-management-context.service.ts");
+const organization_history_context_service_1 = __webpack_require__(/*! ../../../../context/organization-history/organization-history-context.service */ "./src/modules/context/organization-history/organization-history-context.service.ts");
 let DepartmentApplicationService = class DepartmentApplicationService {
-    constructor(dataSource, organizationContext) {
+    constructor(dataSource, organizationContext, historyContext) {
         this.dataSource = dataSource;
         this.organizationContext = organizationContext;
+        this.historyContext = historyContext;
         this.부서를_응답DTO로_변환한다 = (department) => ({
             id: department.id,
             departmentName: department.departmentName,
@@ -6597,7 +6648,7 @@ let DepartmentApplicationService = class DepartmentApplicationService {
         const department = await this.organizationContext.부서_ID로_부서를_조회한다(id);
         return this.부서를_응답DTO로_변환한다(department);
     }
-    async 부서생성(createDepartmentDto) {
+    async 부서생성(createDepartmentDto, executedBy) {
         return await (0, transaction_util_1.withTransaction)(this.dataSource, async (queryRunner) => {
             const newDepartment = await this.organizationContext.부서를_생성한다({
                 departmentName: createDepartmentDto.departmentName,
@@ -6606,38 +6657,110 @@ let DepartmentApplicationService = class DepartmentApplicationService {
                 parentDepartmentId: createDepartmentDto.parentDepartmentId,
                 order: createDepartmentDto.order,
             }, queryRunner);
+            await this.historyContext.부서를_생성하고_이력을_생성한다({
+                departmentId: newDepartment.id,
+                departmentName: newDepartment.departmentName,
+                departmentCode: newDepartment.departmentCode,
+                type: newDepartment.type,
+                parentDepartmentId: newDepartment.parentDepartmentId,
+                order: newDepartment.order,
+                isActive: newDepartment.isActive,
+                isException: newDepartment.isException,
+                effectiveDate: new Date(),
+                changeReason: '부서 생성',
+                changedBy: executedBy,
+            }, queryRunner);
             return this.부서를_응답DTO로_변환한다(newDepartment);
         });
     }
-    async 부서수정(id, updateDepartmentDto) {
+    async 부서수정(id, updateDepartmentDto, executedBy) {
         return await (0, transaction_util_1.withTransaction)(this.dataSource, async (queryRunner) => {
             const updatedDepartment = await this.organizationContext.부서를_수정한다(id, updateDepartmentDto, queryRunner);
-            return this.부서를_응답DTO로_변환한다(updatedDepartment);
-        });
-    }
-    async 부서삭제(id) {
-        await (0, transaction_util_1.withTransaction)(this.dataSource, async (queryRunner) => {
-            await this.organizationContext.부서를_삭제한다(id, queryRunner);
-        });
-    }
-    async 부서순서변경(id, updateOrderDto) {
-        return await (0, transaction_util_1.withTransaction)(this.dataSource, async (queryRunner) => {
-            const updatedDepartment = await this.organizationContext.부서순서를_변경한다(id, updateOrderDto.newOrder, queryRunner);
-            return this.부서를_응답DTO로_변환한다(updatedDepartment);
-        });
-    }
-    async 부서상위부서변경(id, updateParentDto) {
-        return await (0, transaction_util_1.withTransaction)(this.dataSource, async (queryRunner) => {
-            const updatedDepartment = await this.organizationContext.부서를_수정한다(id, {
-                parentDepartmentId: updateParentDto.newParentDepartmentId,
+            await this.historyContext.부서정보를_변경하고_이력을_생성한다({
+                departmentId: updatedDepartment.id,
+                departmentName: updatedDepartment.departmentName,
+                departmentCode: updatedDepartment.departmentCode,
+                type: updatedDepartment.type,
+                parentDepartmentId: updatedDepartment.parentDepartmentId,
+                order: updatedDepartment.order,
+                isActive: updatedDepartment.isActive,
+                isException: updatedDepartment.isException,
+                effectiveDate: new Date(),
+                changeReason: '부서 정보 수정',
+                changedBy: executedBy,
             }, queryRunner);
             return this.부서를_응답DTO로_변환한다(updatedDepartment);
         });
     }
-    async 부서활성화상태변경(id, updateActiveStatusDto) {
+    async 부서삭제(id, executedBy) {
+        await (0, transaction_util_1.withTransaction)(this.dataSource, async (queryRunner) => {
+            await this.historyContext.부서이력을_종료한다({
+                departmentId: id,
+                effectiveDate: new Date(),
+                changeReason: '부서 삭제',
+                changedBy: executedBy,
+            }, queryRunner);
+            await this.organizationContext.부서를_삭제한다(id, queryRunner);
+        });
+    }
+    async 부서순서변경(id, updateOrderDto, executedBy) {
+        return await (0, transaction_util_1.withTransaction)(this.dataSource, async (queryRunner) => {
+            const updatedDepartment = await this.organizationContext.부서순서를_변경한다(id, updateOrderDto.newOrder, queryRunner);
+            await this.historyContext.부서정보를_변경하고_이력을_생성한다({
+                departmentId: updatedDepartment.id,
+                departmentName: updatedDepartment.departmentName,
+                departmentCode: updatedDepartment.departmentCode,
+                type: updatedDepartment.type,
+                parentDepartmentId: updatedDepartment.parentDepartmentId,
+                order: updatedDepartment.order,
+                isActive: updatedDepartment.isActive,
+                isException: updatedDepartment.isException,
+                effectiveDate: new Date(),
+                changeReason: '부서 순서 변경',
+                changedBy: executedBy,
+            }, queryRunner);
+            return this.부서를_응답DTO로_변환한다(updatedDepartment);
+        });
+    }
+    async 부서상위부서변경(id, updateParentDto, executedBy) {
+        return await (0, transaction_util_1.withTransaction)(this.dataSource, async (queryRunner) => {
+            const updatedDepartment = await this.organizationContext.부서를_수정한다(id, {
+                parentDepartmentId: updateParentDto.newParentDepartmentId,
+            }, queryRunner);
+            await this.historyContext.부서정보를_변경하고_이력을_생성한다({
+                departmentId: updatedDepartment.id,
+                departmentName: updatedDepartment.departmentName,
+                departmentCode: updatedDepartment.departmentCode,
+                type: updatedDepartment.type,
+                parentDepartmentId: updatedDepartment.parentDepartmentId,
+                order: updatedDepartment.order,
+                isActive: updatedDepartment.isActive,
+                isException: updatedDepartment.isException,
+                effectiveDate: new Date(),
+                changeReason: '상위 부서 변경',
+                changedBy: executedBy,
+            }, queryRunner);
+            return this.부서를_응답DTO로_변환한다(updatedDepartment);
+        });
+    }
+    async 부서활성화상태변경(id, updateActiveStatusDto, executedBy) {
         return await (0, transaction_util_1.withTransaction)(this.dataSource, async (queryRunner) => {
             const updatedDepartment = await this.organizationContext.부서를_수정한다(id, {
                 isActive: updateActiveStatusDto.isActive,
+            }, queryRunner);
+            const changeReason = updateActiveStatusDto.isActive ? '부서 활성화' : '부서 비활성화';
+            await this.historyContext.부서정보를_변경하고_이력을_생성한다({
+                departmentId: updatedDepartment.id,
+                departmentName: updatedDepartment.departmentName,
+                departmentCode: updatedDepartment.departmentCode,
+                type: updatedDepartment.type,
+                parentDepartmentId: updatedDepartment.parentDepartmentId,
+                order: updatedDepartment.order,
+                isActive: updatedDepartment.isActive,
+                isException: updatedDepartment.isException,
+                effectiveDate: new Date(),
+                changeReason,
+                changedBy: executedBy,
             }, queryRunner);
             const allChildDepartments = await this.organizationContext.부서의_모든_하위부서들을_재귀적으로_조회한다(id);
             if (updateActiveStatusDto.isActive === false && allChildDepartments.length > 0) {
@@ -6645,6 +6768,21 @@ let DepartmentApplicationService = class DepartmentApplicationService {
                 await this.organizationContext.여러_부서를_일괄_수정한다(childDepartmentIds, {
                     isActive: updateActiveStatusDto.isActive,
                 });
+                for (const childDept of allChildDepartments) {
+                    await this.historyContext.부서정보를_변경하고_이력을_생성한다({
+                        departmentId: childDept.id,
+                        departmentName: childDept.departmentName,
+                        departmentCode: childDept.departmentCode,
+                        type: childDept.type,
+                        parentDepartmentId: childDept.parentDepartmentId,
+                        order: childDept.order,
+                        isActive: false,
+                        isException: childDept.isException,
+                        effectiveDate: new Date(),
+                        changeReason: '상위 부서 비활성화로 인한 자동 비활성화',
+                        changedBy: executedBy,
+                    }, queryRunner);
+                }
             }
             return this.부서를_응답DTO로_변환한다(updatedDepartment);
         });
@@ -6697,7 +6835,7 @@ let DepartmentApplicationService = class DepartmentApplicationService {
 exports.DepartmentApplicationService = DepartmentApplicationService;
 exports.DepartmentApplicationService = DepartmentApplicationService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_1.DataSource !== "undefined" && typeorm_1.DataSource) === "function" ? _a : Object, typeof (_b = typeof organization_management_context_service_1.OrganizationManagementContextService !== "undefined" && organization_management_context_service_1.OrganizationManagementContextService) === "function" ? _b : Object])
+    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_1.DataSource !== "undefined" && typeorm_1.DataSource) === "function" ? _a : Object, typeof (_b = typeof organization_management_context_service_1.OrganizationManagementContextService !== "undefined" && organization_management_context_service_1.OrganizationManagementContextService) === "function" ? _b : Object, typeof (_c = typeof organization_history_context_service_1.OrganizationHistoryContextService !== "undefined" && organization_history_context_service_1.OrganizationHistoryContextService) === "function" ? _c : Object])
 ], DepartmentApplicationService);
 
 
@@ -13226,6 +13364,23 @@ let OrganizationHistoryContextService = OrganizationHistoryContextService_1 = cl
         result.setDate(result.getDate() - days);
         return result;
     }
+    async 부서를_생성하고_이력을_생성한다(dto, queryRunner) {
+        const savedHistory = await this.departmentHistoryService.부서이력을생성한다({
+            departmentId: dto.departmentId,
+            departmentName: dto.departmentName,
+            departmentCode: dto.departmentCode,
+            type: dto.type,
+            parentDepartmentId: dto.parentDepartmentId,
+            order: dto.order ?? 0,
+            isActive: dto.isActive ?? true,
+            isException: dto.isException ?? false,
+            effectiveStartDate: this.formatDate(dto.effectiveDate),
+            changeReason: dto.changeReason || '부서 생성',
+            changedBy: dto.changedBy,
+        }, queryRunner);
+        this.logger.log(`부서 생성 이력 완료: ${dto.departmentId}`);
+        return savedHistory;
+    }
     async 부서정보를_변경하고_이력을_생성한다(dto, queryRunner) {
         const newStartDate = dto.effectiveDate;
         const previousEndDate = this.formatDate(this.subtractDays(newStartDate, 1));
@@ -13249,6 +13404,17 @@ let OrganizationHistoryContextService = OrganizationHistoryContextService_1 = cl
         this.logger.log(`부서 이력 생성 완료: ${dto.departmentId}`);
         return savedHistory;
     }
+    async 부서이력을_종료한다(dto, queryRunner) {
+        const endDate = this.formatDate(dto.effectiveDate);
+        const currentDept = await this.departmentHistoryService.findCurrentByDepartmentId(dto.departmentId);
+        if (currentDept) {
+            await this.departmentHistoryService.이력을종료한다(currentDept, endDate, queryRunner);
+            this.logger.log(`부서 이력 종료 완료: ${dto.departmentId}`);
+        }
+        else {
+            this.logger.warn(`종료할 부서 이력이 없습니다: ${dto.departmentId}`);
+        }
+    }
     async 직원을_발령하고_이력을_생성한다(dto, queryRunner) {
         const newStartDate = dto.effectiveDate;
         const previousEndDate = this.formatDate(this.subtractDays(newStartDate, 1));
@@ -13268,6 +13434,17 @@ let OrganizationHistoryContextService = OrganizationHistoryContextService_1 = cl
         }, queryRunner);
         this.logger.log(`직원 발령 이력 생성 완료: ${dto.employeeId}`);
         return savedAssignment;
+    }
+    async 직원배치이력을_종료한다(dto, queryRunner) {
+        const endDate = this.formatDate(dto.effectiveDate);
+        const currentAssignment = await this.empDeptPosHistoryService.findCurrentByEmployeeId(dto.employeeId);
+        if (currentAssignment) {
+            await this.empDeptPosHistoryService.이력을종료한다(currentAssignment, endDate, queryRunner);
+            this.logger.log(`직원 배치 이력 종료 완료: ${dto.employeeId}`);
+        }
+        else {
+            this.logger.warn(`종료할 직원 배치 이력이 없습니다: ${dto.employeeId}`);
+        }
     }
     async 특정시점의_조직도를_조회한다(targetDate) {
         const departments = await this.dataSource
@@ -13430,18 +13607,15 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b, _c;
+var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DepartmentManagementContextService = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 const department_service_1 = __webpack_require__(/*! ../../domain/department/department.service */ "./src/modules/domain/department/department.service.ts");
-const department_repository_1 = __webpack_require__(/*! ../../domain/department/department.repository */ "./src/modules/domain/department/department.repository.ts");
 const employee_department_position_service_1 = __webpack_require__(/*! ../../domain/employee-department-position/employee-department-position.service */ "./src/modules/domain/employee-department-position/employee-department-position.service.ts");
-const entities_1 = __webpack_require__(/*! ../../../../libs/database/entities */ "./libs/database/entities/index.ts");
 let DepartmentManagementContextService = class DepartmentManagementContextService {
-    constructor(부서서비스, 부서레포지토리, 직원부서직책서비스) {
+    constructor(부서서비스, 직원부서직책서비스) {
         this.부서서비스 = 부서서비스;
-        this.부서레포지토리 = 부서레포지토리;
         this.직원부서직책서비스 = 직원부서직책서비스;
     }
     async 부서_ID로_부서를_조회한다(departmentId) {
@@ -13579,47 +13753,19 @@ let DepartmentManagementContextService = class DepartmentManagementContextServic
         const minOrderRange = Math.min(currentOrder, newOrder);
         const maxOrderRange = Math.max(currentOrder, newOrder);
         const affectedDepartments = await this.부서서비스.findDepartmentsInOrderRange(parentDepartmentId, minOrderRange, maxOrderRange);
-        const executeLogic = async (manager) => {
-            await manager.update(entities_1.Department, { id: departmentId }, { order: -999 });
-            const updates = [];
-            if (currentOrder < newOrder) {
-                for (const dept of affectedDepartments) {
-                    if (dept.id !== departmentId && dept.order > currentOrder && dept.order <= newOrder) {
-                        updates.push({ id: dept.id, order: dept.order - 1 });
-                    }
-                }
-            }
-            else {
-                for (const dept of affectedDepartments) {
-                    if (dept.id !== departmentId && dept.order >= newOrder && dept.order < currentOrder) {
-                        updates.push({ id: dept.id, order: dept.order + 1 });
-                    }
-                }
-            }
-            if (updates.length > 0) {
-                const tempOffset = -1000000;
-                for (let i = 0; i < updates.length; i++) {
-                    await manager.update(entities_1.Department, { id: updates[i].id }, { order: tempOffset - i });
-                }
-                for (const update of updates) {
-                    await manager.update(entities_1.Department, { id: update.id }, { order: update.order });
-                }
-            }
-            await manager.update(entities_1.Department, { id: departmentId }, { order: newOrder });
-        };
-        if (queryRunner) {
-            await executeLogic(queryRunner.manager);
-        }
-        else {
-            await this.부서레포지토리.manager.transaction(executeLogic);
-        }
+        await this.부서서비스.부서순서를재배치한다({
+            departmentId,
+            currentOrder,
+            newOrder,
+            affectedDepartments,
+        }, queryRunner);
         return await this.부서서비스.findById(departmentId);
     }
 };
 exports.DepartmentManagementContextService = DepartmentManagementContextService;
 exports.DepartmentManagementContextService = DepartmentManagementContextService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [typeof (_a = typeof department_service_1.DomainDepartmentService !== "undefined" && department_service_1.DomainDepartmentService) === "function" ? _a : Object, typeof (_b = typeof department_repository_1.DomainDepartmentRepository !== "undefined" && department_repository_1.DomainDepartmentRepository) === "function" ? _b : Object, typeof (_c = typeof employee_department_position_service_1.DomainEmployeeDepartmentPositionService !== "undefined" && employee_department_position_service_1.DomainEmployeeDepartmentPositionService) === "function" ? _c : Object])
+    __metadata("design:paramtypes", [typeof (_a = typeof department_service_1.DomainDepartmentService !== "undefined" && department_service_1.DomainDepartmentService) === "function" ? _a : Object, typeof (_b = typeof employee_department_position_service_1.DomainEmployeeDepartmentPositionService !== "undefined" && employee_department_position_service_1.DomainEmployeeDepartmentPositionService) === "function" ? _b : Object])
 ], DepartmentManagementContextService);
 
 
@@ -15966,12 +16112,10 @@ let Department = class Department {
         this.isException = isException;
     }
     소프트삭제한다() {
-        this.isDeleted = true;
         this.deletedAt = new Date();
         this.isActive = false;
     }
     삭제를복구한다() {
-        this.isDeleted = false;
         this.deletedAt = null;
     }
 };
@@ -16009,11 +16153,7 @@ __decorate([
     __metadata("design:type", Boolean)
 ], Department.prototype, "isException", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ comment: '삭제 여부', default: false }),
-    __metadata("design:type", Boolean)
-], Department.prototype, "isDeleted", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ comment: '삭제일', type: 'timestamp', nullable: true }),
+    (0, typeorm_1.DeleteDateColumn)({ comment: '삭제일' }),
     __metadata("design:type", typeof (_a = typeof Date !== "undefined" && Date) === "function" ? _a : Object)
 ], Department.prototype, "deletedAt", void 0);
 __decorate([
@@ -16374,6 +16514,43 @@ let DomainDepartmentService = class DomainDepartmentService extends base_service
     async 부서삭제를복구한다(department, queryRunner) {
         department.삭제를복구한다();
         return await this.save(department, { queryRunner });
+    }
+    async 부서순서를재배치한다(params, queryRunner) {
+        const { departmentId, currentOrder, newOrder, affectedDepartments } = params;
+        const executeLogic = async (manager) => {
+            await manager.update(entities_1.Department, { id: departmentId }, { order: -999 });
+            const updates = [];
+            if (currentOrder < newOrder) {
+                for (const dept of affectedDepartments) {
+                    if (dept.id !== departmentId && dept.order > currentOrder && dept.order <= newOrder) {
+                        updates.push({ id: dept.id, order: dept.order - 1 });
+                    }
+                }
+            }
+            else {
+                for (const dept of affectedDepartments) {
+                    if (dept.id !== departmentId && dept.order >= newOrder && dept.order < currentOrder) {
+                        updates.push({ id: dept.id, order: dept.order + 1 });
+                    }
+                }
+            }
+            if (updates.length > 0) {
+                const tempOffset = -1000000;
+                for (let i = 0; i < updates.length; i++) {
+                    await manager.update(entities_1.Department, { id: updates[i].id }, { order: tempOffset - i });
+                }
+                for (const update of updates) {
+                    await manager.update(entities_1.Department, { id: update.id }, { order: update.order });
+                }
+            }
+            await manager.update(entities_1.Department, { id: departmentId }, { order: newOrder });
+        };
+        if (queryRunner) {
+            await executeLogic(queryRunner.manager);
+        }
+        else {
+            await this.departmentRepository.manager.transaction(executeLogic);
+        }
     }
 };
 exports.DomainDepartmentService = DomainDepartmentService;

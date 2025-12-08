@@ -35,6 +35,48 @@ export class OrganizationHistoryContextService {
     }
 
     /**
+     * 부서를 생성하고 이력을 생성한다
+     * ⚠️ queryRunner는 Business Layer에서 전달받아야 함
+     */
+    async 부서를_생성하고_이력을_생성한다(
+        dto: {
+            departmentId: string;
+            departmentName: string;
+            departmentCode: string;
+            type: any;
+            parentDepartmentId?: string;
+            order?: number;
+            isActive?: boolean;
+            isException?: boolean;
+            effectiveDate: Date;
+            changeReason?: string;
+            changedBy?: string;
+        },
+        queryRunner: QueryRunner,
+    ): Promise<DepartmentHistory> {
+        // Domain Service를 통해 새 이력 레코드 생성
+        const savedHistory = await this.departmentHistoryService.부서이력을생성한다(
+            {
+                departmentId: dto.departmentId,
+                departmentName: dto.departmentName,
+                departmentCode: dto.departmentCode,
+                type: dto.type,
+                parentDepartmentId: dto.parentDepartmentId,
+                order: dto.order ?? 0,
+                isActive: dto.isActive ?? true,
+                isException: dto.isException ?? false,
+                effectiveStartDate: this.formatDate(dto.effectiveDate),
+                changeReason: dto.changeReason || '부서 생성',
+                changedBy: dto.changedBy,
+            },
+            queryRunner,
+        );
+
+        this.logger.log(`부서 생성 이력 완료: ${dto.departmentId}`);
+        return savedHistory;
+    }
+
+    /**
      * 부서 정보를 변경하고 이력을 생성한다
      * ⚠️ 날짜 범위 중복 방지: effectiveEndDate는 새로운 effectiveStartDate의 하루 전
      * ⚠️ queryRunner는 Business Layer에서 전달받아야 함
@@ -89,6 +131,33 @@ export class OrganizationHistoryContextService {
     }
 
     /**
+     * 부서 이력을 종료한다 (삭제 시 사용)
+     * ⚠️ queryRunner는 Business Layer에서 전달받아야 함
+     */
+    async 부서이력을_종료한다(
+        dto: {
+            departmentId: string;
+            effectiveDate: Date;
+            changeReason?: string;
+            changedBy?: string;
+        },
+        queryRunner: QueryRunner,
+    ): Promise<void> {
+        const endDate = this.formatDate(dto.effectiveDate);
+
+        // 현재 부서 이력 조회
+        const currentDept = await this.departmentHistoryService.findCurrentByDepartmentId(dto.departmentId);
+
+        if (currentDept) {
+            // 이력 종료 처리
+            await this.departmentHistoryService.이력을종료한다(currentDept, endDate, queryRunner);
+            this.logger.log(`부서 이력 종료 완료: ${dto.departmentId}`);
+        } else {
+            this.logger.warn(`종료할 부서 이력이 없습니다: ${dto.departmentId}`);
+        }
+    }
+
+    /**
      * 직원을 발령하고 이력을 생성한다
      * ⚠️ 날짜 범위 중복 방지: effectiveEndDate는 새로운 effectiveStartDate의 하루 전
      * ⚠️ queryRunner는 Business Layer에서 전달받아야 함
@@ -134,6 +203,33 @@ export class OrganizationHistoryContextService {
 
         this.logger.log(`직원 발령 이력 생성 완료: ${dto.employeeId}`);
         return savedAssignment;
+    }
+
+    /**
+     * 직원 배치 이력을 종료한다 (배치 해제 시 사용)
+     * ⚠️ queryRunner는 Business Layer에서 전달받아야 함
+     */
+    async 직원배치이력을_종료한다(
+        dto: {
+            employeeId: string;
+            effectiveDate: Date;
+            assignmentReason?: string;
+            assignedBy?: string;
+        },
+        queryRunner: QueryRunner,
+    ): Promise<void> {
+        const endDate = this.formatDate(dto.effectiveDate);
+
+        // 현재 배치 이력 조회
+        const currentAssignment = await this.empDeptPosHistoryService.findCurrentByEmployeeId(dto.employeeId);
+
+        if (currentAssignment) {
+            // 이력 종료 처리
+            await this.empDeptPosHistoryService.이력을종료한다(currentAssignment, endDate, queryRunner);
+            this.logger.log(`직원 배치 이력 종료 완료: ${dto.employeeId}`);
+        } else {
+            this.logger.warn(`종료할 직원 배치 이력이 없습니다: ${dto.employeeId}`);
+        }
     }
 
     /**

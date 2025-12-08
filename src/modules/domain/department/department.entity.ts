@@ -4,6 +4,7 @@ import {
     Column,
     CreateDateColumn,
     UpdateDateColumn,
+    DeleteDateColumn,
     OneToMany,
     ManyToOne,
     JoinColumn,
@@ -51,10 +52,7 @@ export class Department {
     isException: boolean;
 
     // Soft Delete 필드
-    @Column({ comment: '삭제 여부', default: false })
-    isDeleted: boolean;
-
-    @Column({ comment: '삭제일', type: 'timestamp', nullable: true })
+    @DeleteDateColumn({ comment: '삭제일' })
     deletedAt?: Date;
 
     // 부서장 관계는 별도 이력 테이블로 관리
@@ -134,7 +132,6 @@ export class Department {
      * 소프트삭제한다
      */
     소프트삭제한다(): void {
-        this.isDeleted = true;
         this.deletedAt = new Date();
         this.isActive = false;
     }
@@ -143,7 +140,6 @@ export class Department {
      * 삭제를복구한다
      */
     삭제를복구한다(): void {
-        this.isDeleted = false;
         this.deletedAt = null;
     }
 }

@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Put, Delete, Patch, Param, Body } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
+import { User, AuthenticatedUser } from '../../../../../../libs/common/decorators/user.decorator';
 import { AssignmentApplicationService } from '../services/assignment-application.service';
 import {
     AssignEmployeeRequestDto,
@@ -33,8 +34,11 @@ export class AssignmentController {
     @ApiOperation({ summary: '직원 부서/직책 배치' })
     @ApiBody({ type: AssignEmployeeRequestDto })
     @ApiResponse({ status: 201, type: EmployeeAssignmentResponseDto })
-    async assignEmployee(@Body() assignEmployeeDto: AssignEmployeeRequestDto): Promise<EmployeeAssignmentResponseDto> {
-        return await this.assignmentApplicationService.직원배치(assignEmployeeDto);
+    async assignEmployee(
+        @Body() assignEmployeeDto: AssignEmployeeRequestDto,
+        @User() user?: AuthenticatedUser,
+    ): Promise<EmployeeAssignmentResponseDto> {
+        return await this.assignmentApplicationService.직원배치(assignEmployeeDto, user?.id);
     }
 
     @Put('employee-assignments/:id')
@@ -45,8 +49,9 @@ export class AssignmentController {
     async updateEmployeeAssignment(
         @Param('id') id: string,
         @Body() updateAssignmentDto: UpdateEmployeeAssignmentRequestDto,
+        @User() user?: AuthenticatedUser,
     ): Promise<EmployeeAssignmentResponseDto> {
-        return await this.assignmentApplicationService.직원배치변경(id, updateAssignmentDto);
+        return await this.assignmentApplicationService.직원배치변경(id, updateAssignmentDto, user?.id);
     }
 
     @Patch('employee-assignments/:id/manager-status')
@@ -58,15 +63,16 @@ export class AssignmentController {
     async updateManagerStatus(
         @Param('id') id: string,
         @Body() updateManagerStatusDto: UpdateManagerStatusRequestDto,
+        @User() user?: AuthenticatedUser,
     ): Promise<EmployeeAssignmentResponseDto> {
-        return await this.assignmentApplicationService.직원배치_관리자상태변경(id, updateManagerStatusDto);
+        return await this.assignmentApplicationService.직원배치_관리자상태변경(id, updateManagerStatusDto, user?.id);
     }
 
     @Delete('employee-assignments/:id')
     @ApiOperation({ summary: '직원 부서/직책 해제' })
     @ApiParam({ name: 'id', description: '배치 ID' })
     @ApiResponse({ status: 200 })
-    async removeEmployeeAssignment(@Param('id') id: string): Promise<void> {
-        return await this.assignmentApplicationService.직원배치해제(id);
+    async removeEmployeeAssignment(@Param('id') id: string, @User() user?: AuthenticatedUser): Promise<void> {
+        return await this.assignmentApplicationService.직원배치해제(id, user?.id);
     }
 }

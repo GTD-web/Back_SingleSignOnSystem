@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Put, Delete, Patch, Body, Param, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../../../../libs/common/guards/jwt-auth.guard';
+import { User, AuthenticatedUser } from '../../../../../../libs/common/decorators/user.decorator';
 import { DepartmentApplicationService } from '../services/department-application.service';
 import {
     CreateDepartmentRequestDto,
@@ -69,8 +70,11 @@ export class DepartmentController {
     @ApiOperation({ summary: '부서 생성' })
     @ApiBody({ type: CreateDepartmentRequestDto })
     @ApiResponse({ status: 201, type: DepartmentResponseDto })
-    async createDepartment(@Body() createDepartmentDto: CreateDepartmentRequestDto): Promise<DepartmentResponseDto> {
-        return await this.departmentApplicationService.부서생성(createDepartmentDto);
+    async createDepartment(
+        @Body() createDepartmentDto: CreateDepartmentRequestDto,
+        @User() user?: AuthenticatedUser,
+    ): Promise<DepartmentResponseDto> {
+        return await this.departmentApplicationService.부서생성(createDepartmentDto, user?.id);
     }
 
     @Put('departments/:id')
@@ -81,16 +85,17 @@ export class DepartmentController {
     async updateDepartment(
         @Param('id') id: string,
         @Body() updateDepartmentDto: UpdateDepartmentRequestDto,
+        @User() user?: AuthenticatedUser,
     ): Promise<DepartmentResponseDto> {
-        return await this.departmentApplicationService.부서수정(id, updateDepartmentDto);
+        return await this.departmentApplicationService.부서수정(id, updateDepartmentDto, user?.id);
     }
 
     @Delete('departments/:id')
     @ApiOperation({ summary: '부서 삭제' })
     @ApiParam({ name: 'id', description: '부서 ID' })
     @ApiResponse({ status: 200 })
-    async deleteDepartment(@Param('id') id: string): Promise<void> {
-        return await this.departmentApplicationService.부서삭제(id);
+    async deleteDepartment(@Param('id') id: string, @User() user?: AuthenticatedUser): Promise<void> {
+        return await this.departmentApplicationService.부서삭제(id, user?.id);
     }
 
     @Patch('departments/:id/order')
@@ -101,8 +106,9 @@ export class DepartmentController {
     async updateDepartmentOrder(
         @Param('id') id: string,
         @Body() updateOrderDto: UpdateDepartmentOrderRequestDto,
+        @User() user?: AuthenticatedUser,
     ): Promise<DepartmentResponseDto> {
-        return await this.departmentApplicationService.부서순서변경(id, updateOrderDto);
+        return await this.departmentApplicationService.부서순서변경(id, updateOrderDto, user?.id);
     }
 
     @Patch('departments/:id/parent')
@@ -113,8 +119,9 @@ export class DepartmentController {
     async updateDepartmentParent(
         @Param('id') id: string,
         @Body() updateParentDto: UpdateDepartmentParentRequestDto,
+        @User() user?: AuthenticatedUser,
     ): Promise<DepartmentResponseDto> {
-        return await this.departmentApplicationService.부서상위부서변경(id, updateParentDto);
+        return await this.departmentApplicationService.부서상위부서변경(id, updateParentDto, user?.id);
     }
 
     @Patch('departments/:id/active-status')
@@ -126,8 +133,8 @@ export class DepartmentController {
     async updateDepartmentActiveStatus(
         @Param('id') id: string,
         @Body() updateActiveStatusDto: UpdateDepartmentActiveStatusRequestDto,
+        @User() user?: AuthenticatedUser,
     ): Promise<DepartmentResponseDto> {
-        return await this.departmentApplicationService.부서활성화상태변경(id, updateActiveStatusDto);
+        return await this.departmentApplicationService.부서활성화상태변경(id, updateActiveStatusDto, user?.id);
     }
 }
-

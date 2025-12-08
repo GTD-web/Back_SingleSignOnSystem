@@ -344,4 +344,63 @@ export class DomainDepartmentService extends BaseService<Department> {
         department.삭제를복구한다();
         return await this.save(department, { queryRunner });
     }
+
+    /**
+     * 부서순서를재배치한다
+     * 단일 부서의 순서를 변경하고 영향받는 다른 부서들의 순서도 함께 조정한다
+     */
+    async 부서순서를재배치한다(
+        params: {
+            departmentId: string;
+            currentOrder: number;
+            newOrder: number;
+            affectedDepartments: Department[];
+        },
+        queryRunner?: QueryRunner,
+    ): Promise<void> {
+        const { departmentId, currentOrder, newOrder, affectedDepartments } = params;
+
+        const executeLogic = async (manager: any) => {
+            // Step 1: 이동할 부서를 임시 음수 값으로 변경
+            await manager.update(Department, { id: departmentId }, { order: -999 });
+
+            // Step 2: 나머지 부서들의 순서 업데이트
+            const updates: { id: string; order: number }[] = [];
+            if (currentOrder < newOrder) {
+                // 아래로 이동: 현재 순서보다 크고 새로운 순서 이하인 부서들을 -1
+                for (const dept of affectedDepartments) {
+                    if (dept.id !== departmentId && dept.order > currentOrder && dept.order <= newOrder) {
+                        updates.push({ id: dept.id, order: dept.order - 1 });
+                    }
+                }
+            } else {
+                // 위로 이동: 새로운 순서 이상이고 현재 순서보다 작은 부서들을 +1
+                for (const dept of affectedDepartments) {
+                    if (dept.id !== departmentId && dept.order >= newOrder && dept.order < currentOrder) {
+                        updates.push({ id: dept.id, order: dept.order + 1 });
+                    }
+                }
+            }
+
+            // Step 3: 나머지 부서들 일괄 업데이트
+            if (updates.length > 0) {
+                const tempOffset = -1000000;
+                for (let i = 0; i < updates.length; i++) {
+                    await manager.update(Department, { id: updates[i].id }, { order: tempOffset - i });
+                }
+                for (const update of updates) {
+                    await manager.update(Department, { id: update.id }, { order: update.order });
+                }
+            }
+
+            // Step 4: 이동할 부서를 최종 순서로 변경
+            await manager.update(Department, { id: departmentId }, { order: newOrder });
+        };
+
+        if (queryRunner) {
+            await executeLogic(queryRunner.manager);
+        } else {
+            await this.departmentRepository.manager.transaction(executeLogic);
+        }
+    }
 }

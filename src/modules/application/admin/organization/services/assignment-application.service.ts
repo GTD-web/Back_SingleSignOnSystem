@@ -9,6 +9,7 @@ import {
     EmployeeAssignmentDetailResponseDto,
 } from '../dto';
 import { OrganizationManagementContextService } from '../../../../context/organization-management/organization-management-context.service';
+import { OrganizationHistoryContextService } from '../../../../context/organization-history/organization-history-context.service';
 
 /**
  * 배치 관리 Business Service
@@ -21,6 +22,7 @@ export class AssignmentApplicationService {
     constructor(
         private readonly dataSource: DataSource,
         private readonly organizationContext: OrganizationManagementContextService,
+        private readonly historyContext: OrganizationHistoryContextService,
     ) {}
 
     // ==================== 조회 (트랜잭션 불필요) ====================
@@ -37,9 +39,27 @@ export class AssignmentApplicationService {
 
     // ==================== 명령 (트랜잭션 필요) ====================
 
-    async 직원배치(assignEmployeeDto: AssignEmployeeRequestDto): Promise<EmployeeAssignmentResponseDto> {
+    async 직원배치(
+        assignEmployeeDto: AssignEmployeeRequestDto,
+        executedBy?: string,
+    ): Promise<EmployeeAssignmentResponseDto> {
         return await withTransaction(this.dataSource, async (queryRunner) => {
             const assignment = await this.organizationContext.직원을_부서에_배치한다(assignEmployeeDto, queryRunner);
+
+            // 직원 배치 이력 기록
+            await this.historyContext.직원을_발령하고_이력을_생성한다(
+                {
+                    employeeId: assignment.employeeId,
+                    departmentId: assignment.departmentId,
+                    positionId: assignment.positionId,
+                    isManager: assignment.isManager,
+                    effectiveDate: new Date(),
+                    assignmentReason: '직원 배치',
+                    assignedBy: executedBy,
+                },
+                queryRunner,
+            );
+
             return this.직원배치를_응답DTO로_변환한다(assignment);
         });
     }
@@ -47,6 +67,7 @@ export class AssignmentApplicationService {
     async 직원배치변경(
         id: string,
         updateAssignmentDto: UpdateEmployeeAssignmentRequestDto,
+        executedBy?: string,
     ): Promise<EmployeeAssignmentResponseDto> {
         return await withTransaction(this.dataSource, async (queryRunner) => {
             const updatedAssignment = await this.organizationContext.직원배치정보를_수정한다(
@@ -54,12 +75,41 @@ export class AssignmentApplicationService {
                 updateAssignmentDto,
                 queryRunner,
             );
+
+            // 직원 배치 변경 이력 기록
+            await this.historyContext.직원을_발령하고_이력을_생성한다(
+                {
+                    employeeId: updatedAssignment.employeeId,
+                    departmentId: updatedAssignment.departmentId,
+                    positionId: updatedAssignment.positionId,
+                    isManager: updatedAssignment.isManager,
+                    effectiveDate: new Date(),
+                    assignmentReason: '배치 정보 변경',
+                    assignedBy: executedBy,
+                },
+                queryRunner,
+            );
+
             return this.직원배치를_응답DTO로_변환한다(updatedAssignment);
         });
     }
 
-    async 직원배치해제(id: string): Promise<void> {
+    async 직원배치해제(id: string, executedBy?: string): Promise<void> {
         await withTransaction(this.dataSource, async (queryRunner) => {
+            // 배치 해제 전 배치 정보 조회 (이력 기록용)
+            const assignment = await this.organizationContext.배치_ID로_배치정보를_조회한다(id);
+
+            // 직원 배치 이력 종료 (해제 전에 기록)
+            await this.historyContext.직원배치이력을_종료한다(
+                {
+                    employeeId: assignment.employeeId,
+                    effectiveDate: new Date(),
+                    assignmentReason: '배치 해제',
+                    assignedBy: executedBy,
+                },
+                queryRunner,
+            );
+
             await this.organizationContext.직원배치를_해제한다(id, queryRunner);
         });
     }
@@ -67,6 +117,7 @@ export class AssignmentApplicationService {
     async 직원배치_관리자상태변경(
         id: string,
         updateManagerStatusDto: UpdateManagerStatusRequestDto,
+        executedBy?: string,
     ): Promise<EmployeeAssignmentResponseDto> {
         return await withTransaction(this.dataSource, async (queryRunner) => {
             const updatedAssignment = await this.organizationContext.직원배치_관리자상태를_변경한다(
@@ -74,6 +125,22 @@ export class AssignmentApplicationService {
                 updateManagerStatusDto.isManager,
                 queryRunner,
             );
+
+            // 관리자 상태 변경 이력 기록
+            const changeReason = updateManagerStatusDto.isManager ? '관리자 지정' : '관리자 해제';
+            await this.historyContext.직원을_발령하고_이력을_생성한다(
+                {
+                    employeeId: updatedAssignment.employeeId,
+                    departmentId: updatedAssignment.departmentId,
+                    positionId: updatedAssignment.positionId,
+                    isManager: updatedAssignment.isManager,
+                    effectiveDate: new Date(),
+                    assignmentReason: changeReason,
+                    assignedBy: executedBy,
+                },
+                queryRunner,
+            );
+
             return this.직원배치를_응답DTO로_변환한다(updatedAssignment);
         });
     }
