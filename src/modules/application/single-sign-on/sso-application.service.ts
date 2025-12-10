@@ -11,6 +11,8 @@ import {
     CheckPasswordRequestDto,
     CheckPasswordResponseDto,
     SystemAuthResponseDto,
+    ResetPasswordRequestDto,
+    ResetPasswordResponseDto,
 } from './dto';
 import { Employee, Token } from '../../../../libs/database/entities';
 
@@ -88,6 +90,7 @@ export class SsoApplicationService {
             department: department?.departmentName || '',
             position: position?.positionTitle || '',
             rank: rank?.rankName || '',
+            isInitialPasswordSet: employee.isInitialPasswordSet,
             systemRoles: systemRolesMap,
         };
     }
@@ -141,6 +144,16 @@ export class SsoApplicationService {
         const isPasswordValid = await this.authorizationContextService.비밀번호를_검증한다(employee, currentPassword);
         return {
             isValid: isPasswordValid,
+        };
+    }
+
+    async resetPassword(body: ResetPasswordRequestDto): Promise<ResetPasswordResponseDto> {
+        const { employeeNumber } = body;
+        const temporaryPassword = await this.authorizationContextService.비밀번호를_초기화한다(employeeNumber);
+
+        return {
+            message: '비밀번호가 임시 비밀번호로 초기화되었습니다.',
+            temporaryPassword,
         };
     }
 

@@ -74,7 +74,7 @@ export class Employee {
     @Column({ comment: '메타데이터', type: 'jsonb', nullable: true })
     metadata?: Record<string, any>;
 
-    @Column({ comment: '초기 비밀번호 설정 여부', default: false })
+    @Column({ comment: '초기 비밀번호로 설정되었는지 여부', default: true })
     isInitialPasswordSet: boolean;
 
     // 매니저 관계는 EmployeeDepartmentPosition에서 관리
@@ -189,7 +189,14 @@ export class Employee {
     /**
      * 초기비밀번호를설정완료한다
      */
-    초기비밀번호를설정완료한다(): void {
+    초기비밀번호로설정완료한다(): void {
         this.isInitialPasswordSet = true;
+    }
+
+    /**
+     * 초기비밀번호로 설정되지 않았다
+     */
+    비밀번호가변경되었다(): void {
+        this.isInitialPasswordSet = false;
     }
 }

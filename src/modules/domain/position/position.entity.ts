@@ -17,11 +17,11 @@ export class Position {
     @Column({ comment: '관리 권한 여부', default: false })
     hasManagementAuthority: boolean;
 
-    @CreateDateColumn({ comment: '생성일' })
-    createdAt: Date;
+    // @CreateDateColumn({ comment: '생성일' })
+    // createdAt: Date;
 
-    @UpdateDateColumn({ comment: '수정일' })
-    updatedAt: Date;
+    // @UpdateDateColumn({ comment: '수정일' })
+    // updatedAt: Date;
 
     // 직원 관계는 이력 테이블로 분리
     // 현재 직책은 EmployeeDepartmentPosition 테이블에서 관리

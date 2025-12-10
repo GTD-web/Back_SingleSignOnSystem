@@ -46,9 +46,6 @@ export class EmployeeManagementContextService {
         private readonly 직원부서직책서비스: DomainEmployeeDepartmentPositionService,
         private readonly 직원직급이력서비스: DomainEmployeeRankHistoryService,
         private readonly 직원검증서비스: DomainEmployeeValidationService,
-        private readonly 직원토큰서비스: DomainEmployeeTokenService,
-        private readonly 직원FCM토큰서비스: DomainEmployeeFcmTokenService,
-        private readonly 직원시스템역할서비스: DomainEmployeeSystemRoleService,
     ) {}
 
     // ==================== 직원 조회 ====================

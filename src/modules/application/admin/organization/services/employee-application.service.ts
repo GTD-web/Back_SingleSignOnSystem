@@ -14,6 +14,7 @@ import {
     BulkUpdateResultDto,
 } from '../dto';
 import { OrganizationManagementContextService } from '../../../../context/organization-management/organization-management-context.service';
+import { OrganizationHistoryContextService } from '../../../../context/organization-history/organization-history-context.service';
 import { SystemManagementContextService } from '../../../../context/system-management/system-management-context.service';
 import { DepartmentType } from '../../../../domain/department/department.entity';
 import { Employee } from '../../../../domain/employee/employee.entity';
@@ -30,6 +31,7 @@ export class EmployeeApplicationService {
     constructor(
         private readonly dataSource: DataSource,
         private readonly organizationContext: OrganizationManagementContextService,
+        private readonly historyContext: OrganizationHistoryContextService,
         private readonly systemContext: SystemManagementContextService,
     ) {}
 
@@ -131,9 +133,12 @@ export class EmployeeApplicationService {
 
     // ==================== 명령 (트랜잭션 필요) ====================
 
-    async 직원생성(createEmployeeDto: CreateEmployeeRequestDto): Promise<AdminEmployeeResponseDto> {
+    async 직원생성(
+        createEmployeeDto: CreateEmployeeRequestDto,
+        executedBy?: string,
+    ): Promise<AdminEmployeeResponseDto> {
         const result = await withTransaction(this.dataSource, async (queryRunner) => {
-            return await this.organizationContext.직원을_생성한다(
+            const createResult = await this.organizationContext.직원을_생성한다(
                 {
                     employeeNumber: createEmployeeDto.employeeNumber,
                     name: createEmployeeDto.name,
@@ -149,6 +154,25 @@ export class EmployeeApplicationService {
                 },
                 queryRunner,
             );
+
+            // 직원 생성 시 배치 이력 기록 (부서와 직책이 있는 경우)
+            if (createEmployeeDto.departmentId && createEmployeeDto.positionId) {
+                await this.historyContext.직원을_발령하고_이력을_생성한다(
+                    {
+                        employeeId: createResult.employee.id,
+                        departmentId: createEmployeeDto.departmentId,
+                        positionId: createEmployeeDto.positionId,
+                        rankId: createEmployeeDto.currentRankId,
+                        isManager: createEmployeeDto.isManager || false,
+                        effectiveDate: new Date(createEmployeeDto.hireDate),
+                        assignmentReason: '직원 입사',
+                        assignedBy: executedBy,
+                    },
+                    queryRunner,
+                );
+            }
+
+            return createResult;
         });
 
         // 직원 생성 후 기본 역할 자동 할당 (트랜잭션 외부에서 처리 - 실패해도 직원 생성은 유지)

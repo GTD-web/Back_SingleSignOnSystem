@@ -4694,11 +4694,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.EmployeeController = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 const swagger_1 = __webpack_require__(/*! @nestjs/swagger */ "@nestjs/swagger");
+const user_decorator_1 = __webpack_require__(/*! ../../../../../../libs/common/decorators/user.decorator */ "./libs/common/decorators/user.decorator.ts");
 const employee_application_service_1 = __webpack_require__(/*! ../services/employee-application.service */ "./src/modules/application/admin/organization/services/employee-application.service.ts");
 const dto_1 = __webpack_require__(/*! ../dto */ "./src/modules/application/admin/organization/dto/index.ts");
 const enums_1 = __webpack_require__(/*! ../../../../../../libs/common/enums */ "./libs/common/enums/index.ts");
@@ -4716,8 +4717,8 @@ let EmployeeController = class EmployeeController {
     async getEmployee(id) {
         return await this.employeeApplicationService.직원상세조회(id);
     }
-    async createEmployee(createEmployeeDto) {
-        return await this.employeeApplicationService.직원생성(createEmployeeDto);
+    async createEmployee(createEmployeeDto, user) {
+        return await this.employeeApplicationService.직원생성(createEmployeeDto, user?.id);
     }
     async updateEmployee(id, updateEmployeeDto) {
         return await this.employeeApplicationService.직원수정(id, updateEmployeeDto);
@@ -4800,9 +4801,10 @@ __decorate([
     (0, swagger_1.ApiBody)({ type: dto_1.CreateEmployeeRequestDto }),
     (0, swagger_1.ApiResponse)({ status: 201, type: dto_1.AdminEmployeeResponseDto }),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, user_decorator_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_f = typeof dto_1.CreateEmployeeRequestDto !== "undefined" && dto_1.CreateEmployeeRequestDto) === "function" ? _f : Object]),
-    __metadata("design:returntype", typeof (_g = typeof Promise !== "undefined" && Promise) === "function" ? _g : Object)
+    __metadata("design:paramtypes", [typeof (_f = typeof dto_1.CreateEmployeeRequestDto !== "undefined" && dto_1.CreateEmployeeRequestDto) === "function" ? _f : Object, typeof (_g = typeof user_decorator_1.AuthenticatedUser !== "undefined" && user_decorator_1.AuthenticatedUser) === "function" ? _g : Object]),
+    __metadata("design:returntype", typeof (_h = typeof Promise !== "undefined" && Promise) === "function" ? _h : Object)
 ], EmployeeController.prototype, "createEmployee", null);
 __decorate([
     (0, common_1.Put)('employees/:id'),
@@ -4813,8 +4815,8 @@ __decorate([
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, typeof (_h = typeof dto_1.UpdateEmployeeRequestDto !== "undefined" && dto_1.UpdateEmployeeRequestDto) === "function" ? _h : Object]),
-    __metadata("design:returntype", typeof (_j = typeof Promise !== "undefined" && Promise) === "function" ? _j : Object)
+    __metadata("design:paramtypes", [String, typeof (_j = typeof dto_1.UpdateEmployeeRequestDto !== "undefined" && dto_1.UpdateEmployeeRequestDto) === "function" ? _j : Object]),
+    __metadata("design:returntype", typeof (_k = typeof Promise !== "undefined" && Promise) === "function" ? _k : Object)
 ], EmployeeController.prototype, "updateEmployee", null);
 __decorate([
     (0, common_1.Delete)('employees/:id'),
@@ -4824,7 +4826,7 @@ __decorate([
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", typeof (_k = typeof Promise !== "undefined" && Promise) === "function" ? _k : Object)
+    __metadata("design:returntype", typeof (_l = typeof Promise !== "undefined" && Promise) === "function" ? _l : Object)
 ], EmployeeController.prototype, "deleteEmployee", null);
 __decorate([
     (0, common_1.Patch)('employees/bulk/department'),
@@ -4837,8 +4839,8 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 404, description: '부서를 찾을 수 없음' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_l = typeof dto_1.BulkUpdateDepartmentRequestDto !== "undefined" && dto_1.BulkUpdateDepartmentRequestDto) === "function" ? _l : Object]),
-    __metadata("design:returntype", typeof (_m = typeof Promise !== "undefined" && Promise) === "function" ? _m : Object)
+    __metadata("design:paramtypes", [typeof (_m = typeof dto_1.BulkUpdateDepartmentRequestDto !== "undefined" && dto_1.BulkUpdateDepartmentRequestDto) === "function" ? _m : Object]),
+    __metadata("design:returntype", typeof (_o = typeof Promise !== "undefined" && Promise) === "function" ? _o : Object)
 ], EmployeeController.prototype, "bulkUpdateEmployeeDepartment", null);
 __decorate([
     (0, common_1.Patch)('employees/bulk/team'),
@@ -4852,8 +4854,8 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 404, description: '팀을 찾을 수 없음' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_o = typeof dto_1.BulkUpdateTeamRequestDto !== "undefined" && dto_1.BulkUpdateTeamRequestDto) === "function" ? _o : Object]),
-    __metadata("design:returntype", typeof (_p = typeof Promise !== "undefined" && Promise) === "function" ? _p : Object)
+    __metadata("design:paramtypes", [typeof (_p = typeof dto_1.BulkUpdateTeamRequestDto !== "undefined" && dto_1.BulkUpdateTeamRequestDto) === "function" ? _p : Object]),
+    __metadata("design:returntype", typeof (_q = typeof Promise !== "undefined" && Promise) === "function" ? _q : Object)
 ], EmployeeController.prototype, "bulkUpdateEmployeeTeam", null);
 __decorate([
     (0, common_1.Patch)('employees/bulk/position'),
@@ -4863,8 +4865,8 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 404, description: '직책을 찾을 수 없음' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_q = typeof dto_1.BulkUpdatePositionRequestDto !== "undefined" && dto_1.BulkUpdatePositionRequestDto) === "function" ? _q : Object]),
-    __metadata("design:returntype", typeof (_r = typeof Promise !== "undefined" && Promise) === "function" ? _r : Object)
+    __metadata("design:paramtypes", [typeof (_r = typeof dto_1.BulkUpdatePositionRequestDto !== "undefined" && dto_1.BulkUpdatePositionRequestDto) === "function" ? _r : Object]),
+    __metadata("design:returntype", typeof (_s = typeof Promise !== "undefined" && Promise) === "function" ? _s : Object)
 ], EmployeeController.prototype, "bulkUpdateEmployeePosition", null);
 __decorate([
     (0, common_1.Patch)('employees/bulk/rank'),
@@ -4874,8 +4876,8 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 404, description: '직급을 찾을 수 없음' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_s = typeof dto_1.BulkUpdateRankRequestDto !== "undefined" && dto_1.BulkUpdateRankRequestDto) === "function" ? _s : Object]),
-    __metadata("design:returntype", typeof (_t = typeof Promise !== "undefined" && Promise) === "function" ? _t : Object)
+    __metadata("design:paramtypes", [typeof (_t = typeof dto_1.BulkUpdateRankRequestDto !== "undefined" && dto_1.BulkUpdateRankRequestDto) === "function" ? _t : Object]),
+    __metadata("design:returntype", typeof (_u = typeof Promise !== "undefined" && Promise) === "function" ? _u : Object)
 ], EmployeeController.prototype, "bulkUpdateEmployeeRank", null);
 __decorate([
     (0, common_1.Patch)('employees/bulk/status'),
@@ -4884,8 +4886,8 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 400, description: '잘못된 요청' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_u = typeof dto_1.BulkUpdateStatusRequestDto !== "undefined" && dto_1.BulkUpdateStatusRequestDto) === "function" ? _u : Object]),
-    __metadata("design:returntype", typeof (_v = typeof Promise !== "undefined" && Promise) === "function" ? _v : Object)
+    __metadata("design:paramtypes", [typeof (_v = typeof dto_1.BulkUpdateStatusRequestDto !== "undefined" && dto_1.BulkUpdateStatusRequestDto) === "function" ? _v : Object]),
+    __metadata("design:returntype", typeof (_w = typeof Promise !== "undefined" && Promise) === "function" ? _w : Object)
 ], EmployeeController.prototype, "bulkUpdateEmployeeStatus", null);
 __decorate([
     (0, common_1.Post)('employees/:id/rank-promotion'),
@@ -4896,8 +4898,8 @@ __decorate([
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, typeof (_w = typeof dto_1.PromoteEmployeeRequestDto !== "undefined" && dto_1.PromoteEmployeeRequestDto) === "function" ? _w : Object]),
-    __metadata("design:returntype", typeof (_x = typeof Promise !== "undefined" && Promise) === "function" ? _x : Object)
+    __metadata("design:paramtypes", [String, typeof (_x = typeof dto_1.PromoteEmployeeRequestDto !== "undefined" && dto_1.PromoteEmployeeRequestDto) === "function" ? _x : Object]),
+    __metadata("design:returntype", typeof (_y = typeof Promise !== "undefined" && Promise) === "function" ? _y : Object)
 ], EmployeeController.prototype, "promoteEmployee", null);
 __decorate([
     (0, common_1.Get)('employees/:id/rank-history'),
@@ -4907,7 +4909,7 @@ __decorate([
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", typeof (_y = typeof Promise !== "undefined" && Promise) === "function" ? _y : Object)
+    __metadata("design:returntype", typeof (_z = typeof Promise !== "undefined" && Promise) === "function" ? _z : Object)
 ], EmployeeController.prototype, "getEmployeeRankHistory", null);
 exports.EmployeeController = EmployeeController = __decorate([
     (0, swagger_1.ApiTags)('Admin - 조직 관리 > 직원'),
@@ -6857,19 +6859,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b, _c;
+var _a, _b, _c, _d;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.EmployeeApplicationService = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 const typeorm_1 = __webpack_require__(/*! typeorm */ "typeorm");
 const transaction_util_1 = __webpack_require__(/*! ../../../../../../libs/common/utils/transaction.util */ "./libs/common/utils/transaction.util.ts");
 const organization_management_context_service_1 = __webpack_require__(/*! ../../../../context/organization-management/organization-management-context.service */ "./src/modules/context/organization-management/organization-management-context.service.ts");
+const organization_history_context_service_1 = __webpack_require__(/*! ../../../../context/organization-history/organization-history-context.service */ "./src/modules/context/organization-history/organization-history-context.service.ts");
 const system_management_context_service_1 = __webpack_require__(/*! ../../../../context/system-management/system-management-context.service */ "./src/modules/context/system-management/system-management-context.service.ts");
 const department_entity_1 = __webpack_require__(/*! ../../../../domain/department/department.entity */ "./src/modules/domain/department/department.entity.ts");
 let EmployeeApplicationService = class EmployeeApplicationService {
-    constructor(dataSource, organizationContext, systemContext) {
+    constructor(dataSource, organizationContext, historyContext, systemContext) {
         this.dataSource = dataSource;
         this.organizationContext = organizationContext;
+        this.historyContext = historyContext;
         this.systemContext = systemContext;
         this.직원을_응답DTO로_변환한다 = (employee) => ({
             id: employee.id,
@@ -6998,9 +7002,9 @@ let EmployeeApplicationService = class EmployeeApplicationService {
         const histories = await this.organizationContext.직원의_직급이력을_조회한다(employeeId);
         return histories.map(this.직급이력을_응답DTO로_변환한다);
     }
-    async 직원생성(createEmployeeDto) {
+    async 직원생성(createEmployeeDto, executedBy) {
         const result = await (0, transaction_util_1.withTransaction)(this.dataSource, async (queryRunner) => {
-            return await this.organizationContext.직원을_생성한다({
+            const createResult = await this.organizationContext.직원을_생성한다({
                 employeeNumber: createEmployeeDto.employeeNumber,
                 name: createEmployeeDto.name,
                 email: createEmployeeDto.email,
@@ -7013,6 +7017,19 @@ let EmployeeApplicationService = class EmployeeApplicationService {
                 positionId: createEmployeeDto.positionId,
                 isManager: createEmployeeDto.isManager,
             }, queryRunner);
+            if (createEmployeeDto.departmentId && createEmployeeDto.positionId) {
+                await this.historyContext.직원을_발령하고_이력을_생성한다({
+                    employeeId: createResult.employee.id,
+                    departmentId: createEmployeeDto.departmentId,
+                    positionId: createEmployeeDto.positionId,
+                    rankId: createEmployeeDto.currentRankId,
+                    isManager: createEmployeeDto.isManager || false,
+                    effectiveDate: new Date(createEmployeeDto.hireDate),
+                    assignmentReason: '직원 입사',
+                    assignedBy: executedBy,
+                }, queryRunner);
+            }
+            return createResult;
         });
         try {
             await this.systemContext.직원에게_기본역할들을_할당한다(result.employee.id);
@@ -7102,7 +7119,7 @@ let EmployeeApplicationService = class EmployeeApplicationService {
 exports.EmployeeApplicationService = EmployeeApplicationService;
 exports.EmployeeApplicationService = EmployeeApplicationService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_1.DataSource !== "undefined" && typeorm_1.DataSource) === "function" ? _a : Object, typeof (_b = typeof organization_management_context_service_1.OrganizationManagementContextService !== "undefined" && organization_management_context_service_1.OrganizationManagementContextService) === "function" ? _b : Object, typeof (_c = typeof system_management_context_service_1.SystemManagementContextService !== "undefined" && system_management_context_service_1.SystemManagementContextService) === "function" ? _c : Object])
+    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_1.DataSource !== "undefined" && typeorm_1.DataSource) === "function" ? _a : Object, typeof (_b = typeof organization_management_context_service_1.OrganizationManagementContextService !== "undefined" && organization_management_context_service_1.OrganizationManagementContextService) === "function" ? _b : Object, typeof (_c = typeof organization_history_context_service_1.OrganizationHistoryContextService !== "undefined" && organization_history_context_service_1.OrganizationHistoryContextService) === "function" ? _c : Object, typeof (_d = typeof system_management_context_service_1.SystemManagementContextService !== "undefined" && system_management_context_service_1.SystemManagementContextService) === "function" ? _d : Object])
 ], EmployeeApplicationService);
 
 
@@ -11653,7 +11670,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SsoApplicationController = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
@@ -11679,6 +11696,9 @@ let SsoApplicationController = class SsoApplicationController {
     }
     async checkPassword(authHeader, body) {
         return this.ssoApplicationService.checkPassword(authHeader, body);
+    }
+    async resetPassword(body) {
+        return this.ssoApplicationService.resetPassword(body);
     }
     async cleanUpExpiredTokens() {
         return this.ssoApplicationService.만료된_토큰을_정리한다();
@@ -11806,6 +11826,26 @@ __decorate([
     __metadata("design:returntype", typeof (_j = typeof Promise !== "undefined" && Promise) === "function" ? _j : Object)
 ], SsoApplicationController.prototype, "checkPassword", null);
 __decorate([
+    (0, common_1.Post)('reset-password'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({
+        summary: '비밀번호 초기화',
+        description: '사용자의 비밀번호를 임시 비밀번호로 초기화합니다.',
+    }),
+    (0, swagger_1.ApiBody)({ type: dto_1.ResetPasswordRequestDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: '비밀번호 초기화 성공',
+        type: dto_1.ResetPasswordResponseDto,
+    }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: '잘못된 요청 형식' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: '사용자를 찾을 수 없음' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_k = typeof dto_1.ResetPasswordRequestDto !== "undefined" && dto_1.ResetPasswordRequestDto) === "function" ? _k : Object]),
+    __metadata("design:returntype", typeof (_l = typeof Promise !== "undefined" && Promise) === "function" ? _l : Object)
+], SsoApplicationController.prototype, "resetPassword", null);
+__decorate([
     (0, common_1.Get)('cron/clean-up/token'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({
@@ -11832,7 +11872,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 500, description: '서버 내부 오류' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
-    __metadata("design:returntype", typeof (_k = typeof Promise !== "undefined" && Promise) === "function" ? _k : Object)
+    __metadata("design:returntype", typeof (_m = typeof Promise !== "undefined" && Promise) === "function" ? _m : Object)
 ], SsoApplicationController.prototype, "cleanUpExpiredTokens", null);
 exports.SsoApplicationController = SsoApplicationController = __decorate([
     (0, swagger_1.ApiTags)('Client - 인증 API'),
@@ -11972,6 +12012,7 @@ __exportStar(__webpack_require__(/*! ./token-verify-response.dto */ "./src/modul
 __exportStar(__webpack_require__(/*! ./change-password.dto */ "./src/modules/application/single-sign-on/dto/change-password.dto.ts"), exports);
 __exportStar(__webpack_require__(/*! ./check-password.dto */ "./src/modules/application/single-sign-on/dto/check-password.dto.ts"), exports);
 __exportStar(__webpack_require__(/*! ./system-auth.dto */ "./src/modules/application/single-sign-on/dto/system-auth.dto.ts"), exports);
+__exportStar(__webpack_require__(/*! ./reset-password.dto */ "./src/modules/application/single-sign-on/dto/reset-password.dto.ts"), exports);
 
 
 /***/ }),
@@ -12138,6 +12179,10 @@ __decorate([
     __metadata("design:type", String)
 ], LoginResponseDto.prototype, "rank", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: '초기 비밀번호 설정 여부' }),
+    __metadata("design:type", Boolean)
+], LoginResponseDto.prototype, "isInitialPasswordSet", void 0);
+__decorate([
     (0, swagger_1.ApiProperty)({
         description: '시스템별 역할 목록',
         type: 'object',
@@ -12145,6 +12190,58 @@ __decorate([
     }),
     __metadata("design:type", typeof (_e = typeof Record !== "undefined" && Record) === "function" ? _e : Object)
 ], LoginResponseDto.prototype, "systemRoles", void 0);
+
+
+/***/ }),
+
+/***/ "./src/modules/application/single-sign-on/dto/reset-password.dto.ts":
+/*!**************************************************************************!*\
+  !*** ./src/modules/application/single-sign-on/dto/reset-password.dto.ts ***!
+  \**************************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ResetPasswordResponseDto = exports.ResetPasswordRequestDto = void 0;
+const class_validator_1 = __webpack_require__(/*! class-validator */ "class-validator");
+const swagger_1 = __webpack_require__(/*! @nestjs/swagger */ "@nestjs/swagger");
+class ResetPasswordRequestDto {
+}
+exports.ResetPasswordRequestDto = ResetPasswordRequestDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        description: '비밀번호를 초기화할 사용자의 사번',
+        example: '1234567890',
+    }),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], ResetPasswordRequestDto.prototype, "employeeNumber", void 0);
+class ResetPasswordResponseDto {
+}
+exports.ResetPasswordResponseDto = ResetPasswordResponseDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        example: '비밀번호가 임시 비밀번호로 초기화되었습니다.',
+        description: '응답 메시지',
+    }),
+    __metadata("design:type", String)
+], ResetPasswordResponseDto.prototype, "message", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        example: 'temp1234',
+        description: '생성된 임시 비밀번호',
+    }),
+    __metadata("design:type", String)
+], ResetPasswordResponseDto.prototype, "temporaryPassword", void 0);
 
 
 /***/ }),
@@ -12351,6 +12448,7 @@ let SsoApplicationService = class SsoApplicationService {
             department: department?.departmentName || '',
             position: position?.positionTitle || '',
             rank: rank?.rankName || '',
+            isInitialPasswordSet: employee.isInitialPasswordSet,
             systemRoles: systemRolesMap,
         };
     }
@@ -12397,6 +12495,14 @@ let SsoApplicationService = class SsoApplicationService {
         const isPasswordValid = await this.authorizationContextService.비밀번호를_검증한다(employee, currentPassword);
         return {
             isValid: isPasswordValid,
+        };
+    }
+    async resetPassword(body) {
+        const { employeeNumber } = body;
+        const temporaryPassword = await this.authorizationContextService.비밀번호를_초기화한다(employeeNumber);
+        return {
+            message: '비밀번호가 임시 비밀번호로 초기화되었습니다.',
+            temporaryPassword,
         };
     }
     async authenticateSystem(authHeader) {
@@ -12611,11 +12717,19 @@ let AuthorizationContextService = class AuthorizationContextService {
         return token;
     }
     async 비밀번호를_변경한다(employee, newPassword) {
-        const hashedPassword = this.직원서비스.hashPassword(newPassword);
-        await this.직원서비스.updatePassword(employee.id, hashedPassword);
+        await this.직원서비스.비밀번호를변경한다(employee, newPassword);
     }
     async 비밀번호를_검증한다(employee, password) {
         return await this.직원서비스.verifyPassword(password, employee);
+    }
+    async 비밀번호를_초기화한다(employeeNumber) {
+        const employee = await this.직원서비스.findByEmployeeNumber(employeeNumber);
+        if (!employee) {
+            throw new common_1.NotFoundException('존재하지 않는 사용자입니다.');
+        }
+        const hashedPassword = this.직원서비스.hashPassword(employee.employeeNumber);
+        await this.직원서비스.updatePassword(employee.id, hashedPassword);
+        return hashedPassword;
     }
     async 만료된_토큰을_정리한다() {
         const expiredTokens = await this.토큰서비스.findExpiredTokens();
@@ -13787,7 +13901,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+var _a, _b, _c, _d, _e, _f, _g, _h;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.EmployeeManagementContextService = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
@@ -13799,15 +13913,12 @@ const rank_service_1 = __webpack_require__(/*! ../../domain/rank/rank.service */
 const employee_department_position_service_1 = __webpack_require__(/*! ../../domain/employee-department-position/employee-department-position.service */ "./src/modules/domain/employee-department-position/employee-department-position.service.ts");
 const employee_rank_history_service_1 = __webpack_require__(/*! ../../domain/employee-rank-history/employee-rank-history.service */ "./src/modules/domain/employee-rank-history/employee-rank-history.service.ts");
 const employee_validation_service_1 = __webpack_require__(/*! ../../domain/employee/employee-validation.service */ "./src/modules/domain/employee/employee-validation.service.ts");
-const employee_token_service_1 = __webpack_require__(/*! ../../domain/employee-token/employee-token.service */ "./src/modules/domain/employee-token/employee-token.service.ts");
-const employee_fcm_token_service_1 = __webpack_require__(/*! ../../domain/employee-fcm-token/employee-fcm-token.service */ "./src/modules/domain/employee-fcm-token/employee-fcm-token.service.ts");
-const employee_system_role_service_1 = __webpack_require__(/*! ../../domain/employee-system-role/employee-system-role.service */ "./src/modules/domain/employee-system-role/employee-system-role.service.ts");
 const entities_1 = __webpack_require__(/*! ../../../../libs/database/entities */ "./libs/database/entities/index.ts");
 const employee_errors_1 = __webpack_require__(/*! ../../domain/employee/employee.errors */ "./src/modules/domain/employee/employee.errors.ts");
 const enums_1 = __webpack_require__(/*! ../../../../libs/common/enums */ "./libs/common/enums/index.ts");
 const department_entity_1 = __webpack_require__(/*! ../../domain/department/department.entity */ "./src/modules/domain/department/department.entity.ts");
 let EmployeeManagementContextService = class EmployeeManagementContextService {
-    constructor(dataSource, 직원서비스, 부서서비스, 직책서비스, 직급서비스, 직원부서직책서비스, 직원직급이력서비스, 직원검증서비스, 직원토큰서비스, 직원FCM토큰서비스, 직원시스템역할서비스) {
+    constructor(dataSource, 직원서비스, 부서서비스, 직책서비스, 직급서비스, 직원부서직책서비스, 직원직급이력서비스, 직원검증서비스) {
         this.dataSource = dataSource;
         this.직원서비스 = 직원서비스;
         this.부서서비스 = 부서서비스;
@@ -13816,9 +13927,6 @@ let EmployeeManagementContextService = class EmployeeManagementContextService {
         this.직원부서직책서비스 = 직원부서직책서비스;
         this.직원직급이력서비스 = 직원직급이력서비스;
         this.직원검증서비스 = 직원검증서비스;
-        this.직원토큰서비스 = 직원토큰서비스;
-        this.직원FCM토큰서비스 = 직원FCM토큰서비스;
-        this.직원시스템역할서비스 = 직원시스템역할서비스;
     }
     async 직원을_조회한다(identifier, throwOnNotFound = true) {
         try {
@@ -14508,7 +14616,7 @@ let EmployeeManagementContextService = class EmployeeManagementContextService {
 exports.EmployeeManagementContextService = EmployeeManagementContextService;
 exports.EmployeeManagementContextService = EmployeeManagementContextService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_1.DataSource !== "undefined" && typeorm_1.DataSource) === "function" ? _a : Object, typeof (_b = typeof employee_service_1.DomainEmployeeService !== "undefined" && employee_service_1.DomainEmployeeService) === "function" ? _b : Object, typeof (_c = typeof department_service_1.DomainDepartmentService !== "undefined" && department_service_1.DomainDepartmentService) === "function" ? _c : Object, typeof (_d = typeof position_service_1.DomainPositionService !== "undefined" && position_service_1.DomainPositionService) === "function" ? _d : Object, typeof (_e = typeof rank_service_1.DomainRankService !== "undefined" && rank_service_1.DomainRankService) === "function" ? _e : Object, typeof (_f = typeof employee_department_position_service_1.DomainEmployeeDepartmentPositionService !== "undefined" && employee_department_position_service_1.DomainEmployeeDepartmentPositionService) === "function" ? _f : Object, typeof (_g = typeof employee_rank_history_service_1.DomainEmployeeRankHistoryService !== "undefined" && employee_rank_history_service_1.DomainEmployeeRankHistoryService) === "function" ? _g : Object, typeof (_h = typeof employee_validation_service_1.DomainEmployeeValidationService !== "undefined" && employee_validation_service_1.DomainEmployeeValidationService) === "function" ? _h : Object, typeof (_j = typeof employee_token_service_1.DomainEmployeeTokenService !== "undefined" && employee_token_service_1.DomainEmployeeTokenService) === "function" ? _j : Object, typeof (_k = typeof employee_fcm_token_service_1.DomainEmployeeFcmTokenService !== "undefined" && employee_fcm_token_service_1.DomainEmployeeFcmTokenService) === "function" ? _k : Object, typeof (_l = typeof employee_system_role_service_1.DomainEmployeeSystemRoleService !== "undefined" && employee_system_role_service_1.DomainEmployeeSystemRoleService) === "function" ? _l : Object])
+    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_1.DataSource !== "undefined" && typeorm_1.DataSource) === "function" ? _a : Object, typeof (_b = typeof employee_service_1.DomainEmployeeService !== "undefined" && employee_service_1.DomainEmployeeService) === "function" ? _b : Object, typeof (_c = typeof department_service_1.DomainDepartmentService !== "undefined" && department_service_1.DomainDepartmentService) === "function" ? _c : Object, typeof (_d = typeof position_service_1.DomainPositionService !== "undefined" && position_service_1.DomainPositionService) === "function" ? _d : Object, typeof (_e = typeof rank_service_1.DomainRankService !== "undefined" && rank_service_1.DomainRankService) === "function" ? _e : Object, typeof (_f = typeof employee_department_position_service_1.DomainEmployeeDepartmentPositionService !== "undefined" && employee_department_position_service_1.DomainEmployeeDepartmentPositionService) === "function" ? _f : Object, typeof (_g = typeof employee_rank_history_service_1.DomainEmployeeRankHistoryService !== "undefined" && employee_rank_history_service_1.DomainEmployeeRankHistoryService) === "function" ? _g : Object, typeof (_h = typeof employee_validation_service_1.DomainEmployeeValidationService !== "undefined" && employee_validation_service_1.DomainEmployeeValidationService) === "function" ? _h : Object])
 ], EmployeeManagementContextService);
 
 
@@ -17210,8 +17318,8 @@ let DomainEmployeeDepartmentPositionService = class DomainEmployeeDepartmentPosi
     async updateAssignment(assignmentId, data) {
         return this.update(assignmentId, data);
     }
-    async deleteAssignment(assignmentId) {
-        return this.delete(assignmentId);
+    async deleteAssignment(assignmentId, queryRunner) {
+        return this.delete(assignmentId, { queryRunner });
     }
     async 배치를생성한다(params, queryRunner) {
         const assignment = new employee_department_position_entity_1.EmployeeDepartmentPosition();
@@ -18372,8 +18480,11 @@ let Employee = class Employee {
         this.terminationDate = terminationDate;
         this.terminationReason = terminationReason;
     }
-    초기비밀번호를설정완료한다() {
+    초기비밀번호로설정완료한다() {
         this.isInitialPasswordSet = true;
+    }
+    비밀번호가변경되었다() {
+        this.isInitialPasswordSet = false;
     }
 };
 exports.Employee = Employee;
@@ -18449,7 +18560,7 @@ __decorate([
     __metadata("design:type", typeof (_g = typeof Record !== "undefined" && Record) === "function" ? _g : Object)
 ], Employee.prototype, "metadata", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ comment: '초기 비밀번호 설정 여부', default: false }),
+    (0, typeorm_1.Column)({ comment: '초기 비밀번호로 설정되었는지 여부', default: true }),
     __metadata("design:type", Boolean)
 ], Employee.prototype, "isInitialPasswordSet", void 0);
 __decorate([
@@ -18829,13 +18940,14 @@ let DomainEmployeeService = class DomainEmployeeService extends base_service_1.B
     async updateEmployee(employeeId, data) {
         return this.update(employeeId, data);
     }
-    async deleteEmployee(employeeId) {
+    async deleteEmployee(employeeId, queryRunner) {
         return this.delete(employeeId);
     }
     async generateNextEmployeeNumber() {
         const currentYear = new Date().getFullYear();
         const yearSuffix = currentYear.toString().slice(-2);
         const employees = await this.findByEmployeeNumberPattern(yearSuffix);
+        console.log(employees);
         const sequences = employees
             .map((employee) => employee.employeeNumber)
             .filter((employeeNumber) => employeeNumber.length === 5 && employeeNumber.startsWith(yearSuffix))
@@ -18948,7 +19060,7 @@ let DomainEmployeeService = class DomainEmployeeService extends base_service_1.B
         }
         const hashedPassword = this.hashPassword(params.password || params.employeeNumber);
         employee.비밀번호를설정한다(hashedPassword);
-        employee.초기비밀번호를설정완료한다();
+        employee.초기비밀번호로설정완료한다();
         if (params.phoneNumber) {
             employee.전화번호를설정한다(params.phoneNumber);
         }
@@ -18995,7 +19107,7 @@ let DomainEmployeeService = class DomainEmployeeService extends base_service_1.B
     async 비밀번호를변경한다(employee, newPassword, queryRunner) {
         const hashedPassword = this.hashPassword(newPassword);
         employee.비밀번호를설정한다(hashedPassword);
-        employee.초기비밀번호를설정완료한다();
+        employee.비밀번호가변경되었다();
         return await this.save(employee, { queryRunner });
     }
     async 퇴사처리한다(employee, terminationDate, terminationReason, queryRunner) {
@@ -19650,7 +19762,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Position = void 0;
 const typeorm_1 = __webpack_require__(/*! typeorm */ "typeorm");
@@ -19689,14 +19800,6 @@ __decorate([
     (0, typeorm_1.Column)({ comment: '관리 권한 여부', default: false }),
     __metadata("design:type", Boolean)
 ], Position.prototype, "hasManagementAuthority", void 0);
-__decorate([
-    (0, typeorm_1.CreateDateColumn)({ comment: '생성일' }),
-    __metadata("design:type", typeof (_a = typeof Date !== "undefined" && Date) === "function" ? _a : Object)
-], Position.prototype, "createdAt", void 0);
-__decorate([
-    (0, typeorm_1.UpdateDateColumn)({ comment: '수정일' }),
-    __metadata("design:type", typeof (_b = typeof Date !== "undefined" && Date) === "function" ? _b : Object)
-], Position.prototype, "updatedAt", void 0);
 exports.Position = Position = __decorate([
     (0, typeorm_1.Entity)('positions')
 ], Position);
@@ -19990,7 +20093,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Rank = void 0;
 const typeorm_1 = __webpack_require__(/*! typeorm */ "typeorm");
@@ -20022,14 +20124,6 @@ __decorate([
     (0, typeorm_1.Column)({ comment: '직급 레벨 (낮을수록 상위 직급)' }),
     __metadata("design:type", Number)
 ], Rank.prototype, "level", void 0);
-__decorate([
-    (0, typeorm_1.CreateDateColumn)({ comment: '생성일' }),
-    __metadata("design:type", typeof (_a = typeof Date !== "undefined" && Date) === "function" ? _a : Object)
-], Rank.prototype, "createdAt", void 0);
-__decorate([
-    (0, typeorm_1.UpdateDateColumn)({ comment: '수정일' }),
-    __metadata("design:type", typeof (_b = typeof Date !== "undefined" && Date) === "function" ? _b : Object)
-], Rank.prototype, "updatedAt", void 0);
 exports.Rank = Rank = __decorate([
     (0, typeorm_1.Entity)('ranks')
 ], Rank);

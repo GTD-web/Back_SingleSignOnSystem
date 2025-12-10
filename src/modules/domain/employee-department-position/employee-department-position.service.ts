@@ -173,8 +173,8 @@ export class DomainEmployeeDepartmentPositionService extends BaseService<Employe
     }
 
     // 배치 삭제
-    async deleteAssignment(assignmentId: string): Promise<void> {
-        return this.delete(assignmentId);
+    async deleteAssignment(assignmentId: string, queryRunner?: QueryRunner): Promise<void> {
+        return this.delete(assignmentId, { queryRunner });
     }
 
     // ==================== 아키텍처 규칙 적용 메서드 (Setter 활용) ====================

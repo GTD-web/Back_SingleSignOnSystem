@@ -173,7 +173,7 @@ export class DomainEmployeeService extends BaseService<Employee> {
     /**
      * 직원 삭제
      */
-    async deleteEmployee(employeeId: string): Promise<void> {
+    async deleteEmployee(employeeId: string, queryRunner?: QueryRunner): Promise<void> {
         return this.delete(employeeId);
     }
 
@@ -187,7 +187,7 @@ export class DomainEmployeeService extends BaseService<Employee> {
 
         // 해당 연도의 직원들을 조회
         const employees = await this.findByEmployeeNumberPattern(yearSuffix);
-
+        console.log(employees);
         // prefix로 시작하는 5자리 사번들 중에서 가장 큰 sequence 찾기
         const sequences = employees
             .map((employee) => employee.employeeNumber)
@@ -392,7 +392,7 @@ export class DomainEmployeeService extends BaseService<Employee> {
         // 비밀번호는 사번으로 기본 설정
         const hashedPassword = this.hashPassword(params.password || params.employeeNumber);
         employee.비밀번호를설정한다(hashedPassword);
-        employee.초기비밀번호를설정완료한다();
+        employee.초기비밀번호로설정완료한다();
 
         if (params.phoneNumber) {
             employee.전화번호를설정한다(params.phoneNumber);
@@ -470,14 +470,10 @@ export class DomainEmployeeService extends BaseService<Employee> {
     /**
      * 비밀번호를변경한다
      */
-    async 비밀번호를변경한다(
-        employee: Employee,
-        newPassword: string,
-        queryRunner?: QueryRunner,
-    ): Promise<Employee> {
+    async 비밀번호를변경한다(employee: Employee, newPassword: string, queryRunner?: QueryRunner): Promise<Employee> {
         const hashedPassword = this.hashPassword(newPassword);
         employee.비밀번호를설정한다(hashedPassword);
-        employee.초기비밀번호를설정완료한다();
+        employee.비밀번호가변경되었다();
         return await this.save(employee, { queryRunner });
     }
 
