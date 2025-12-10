@@ -25,6 +25,7 @@ async function bootstrap() {
     const ALLOW_ORIGINS = [
         'https://lsso.vercel.app',
         'https://lsso-git-dev-lumir-tech7s-projects.vercel.app',
+        'https://lsso-git-dev-lumir-web-dev.vercel.app',
 
         'https://lsso-admin.vercel.app',
         'https://lsso-admin-git-dev-lumir-tech7s-projects.vercel.app',
