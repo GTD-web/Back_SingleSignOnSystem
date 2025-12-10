@@ -30,6 +30,7 @@ import {
 } from '../../domain/employee/employee.errors';
 import { EmployeeStatus, Gender } from '../../../../libs/common/enums';
 import { DepartmentType } from '../../domain/department/department.entity';
+import { 직원생성ContextDto } from './dto';
 
 /**
  * 직원 관리 컨텍스트 서비스 (Command)
@@ -47,6 +48,89 @@ export class EmployeeManagementContextService {
         private readonly 직원직급이력서비스: DomainEmployeeRankHistoryService,
         private readonly 직원검증서비스: DomainEmployeeValidationService,
     ) {}
+    /**
+     * 직원을 생성한다 (종합적인 컨텍스트 처리)
+     */
+    async 직원을_생성한다(
+        data: 직원생성ContextDto,
+        queryRunner?: QueryRunner,
+    ): Promise<{
+        employee: Employee;
+        department?: Department;
+        rank?: Rank;
+    }> {
+        // 1. 전처리 (사번/이름/이메일 자동 생성)
+        const {
+            employeeNumber,
+            name,
+            email: generatedEmail,
+        } = await this.직원생성_전처리를_수행한다(data.name, data.englishLastName, data.englishFirstName);
+
+        // 전처리에서 생성된 이메일이 있으면 사용, 없으면 data.email 사용
+        const email = generatedEmail || data.email;
+
+        // 2. 컨텍스트 검증 (중복, 존재 확인)
+        await this.직원생성_컨텍스트_검증을_수행한다({
+            employeeNumber: data.employeeNumber,
+            email: email,
+            currentRankId: data.currentRankId,
+            departmentId: data.departmentId,
+            positionId: data.positionId,
+        });
+
+        // 3. Domain Service를 통해 직원 생성
+        const employee = await this.직원서비스.직원을생성한다(
+            {
+                employeeNumber: data.employeeNumber,
+                name: name,
+                email: email,
+                phoneNumber: data.phoneNumber,
+                dateOfBirth: data.dateOfBirth,
+                gender: data.gender,
+                hireDate: data.hireDate,
+                currentRankId: data.currentRankId,
+            },
+            queryRunner,
+        );
+
+        // 4. 배치 정보 완성도 확인 및 처리
+        const shouldCreateAssignment = data.departmentId && data.positionId;
+
+        if (shouldCreateAssignment) {
+            // 부서에 배치
+            await this.직원부서직책서비스.배치를생성한다(
+                {
+                    employeeId: employee.id,
+                    departmentId: data.departmentId!,
+                    positionId: data.positionId!,
+                    isManager: data.isManager || false,
+                },
+                queryRunner,
+            );
+        }
+
+        // 5. 직급 이력 생성 (직급 ID가 있는 경우)
+        if (data.currentRankId) {
+            await this.직원직급이력서비스.createHistory({
+                employeeId: employee.id,
+                rankId: data.currentRankId,
+            });
+        }
+
+        // 6. 부서 및 직급 정보 조회
+        let department: Department | undefined;
+        let rank: Rank | undefined;
+
+        if (data.departmentId) {
+            department = await this.부서서비스.findById(data.departmentId);
+        }
+
+        if (data.currentRankId) {
+            rank = await this.직급서비스.findById(data.currentRankId);
+        }
+
+        return { employee, department, rank };
+    }
 
     // ==================== 직원 조회 ====================
 
@@ -293,105 +377,6 @@ export class EmployeeManagementContextService {
         if (data.positionId && !positionExists) {
             throw new PositionNotFoundError(data.positionId!);
         }
-    }
-
-    /**
-     * 직원을 생성한다 (종합적인 컨텍스트 처리)
-     */
-    async 직원을_생성한다(
-        data: {
-            employeeNumber?: string;
-            name: string;
-            email?: string;
-            englishLastName?: string;
-            englishFirstName?: string;
-            phoneNumber?: string;
-            dateOfBirth?: Date;
-            gender?: Gender;
-            hireDate: Date;
-            status?: EmployeeStatus;
-            currentRankId?: string;
-            departmentId?: string;
-            positionId?: string;
-            isManager?: boolean;
-        },
-        queryRunner?: QueryRunner,
-    ): Promise<{
-        employee: Employee;
-        department?: Department;
-        rank?: Rank;
-    }> {
-        // 1. 전처리 (사번/이름/이메일 자동 생성)
-        const {
-            employeeNumber,
-            name,
-            email: generatedEmail,
-        } = await this.직원생성_전처리를_수행한다(data.name, data.englishLastName, data.englishFirstName);
-
-        // 전처리에서 생성된 이메일이 있으면 사용, 없으면 data.email 사용
-        const email = generatedEmail || data.email;
-
-        // 2. 컨텍스트 검증 (중복, 존재 확인)
-        await this.직원생성_컨텍스트_검증을_수행한다({
-            employeeNumber: data.employeeNumber,
-            email: email,
-            currentRankId: data.currentRankId,
-            departmentId: data.departmentId,
-            positionId: data.positionId,
-        });
-
-        // 3. Domain Service를 통해 직원 생성
-        const employee = await this.직원서비스.직원을생성한다(
-            {
-                employeeNumber: data.employeeNumber,
-                name: name,
-                email: email,
-                phoneNumber: data.phoneNumber,
-                dateOfBirth: data.dateOfBirth,
-                gender: data.gender,
-                hireDate: data.hireDate,
-                currentRankId: data.currentRankId,
-            },
-            queryRunner,
-        );
-
-        // 4. 배치 정보 완성도 확인 및 처리
-        const shouldCreateAssignment = data.departmentId && data.positionId;
-
-        if (shouldCreateAssignment) {
-            // 부서에 배치
-            await this.직원부서직책서비스.배치를생성한다(
-                {
-                    employeeId: employee.id,
-                    departmentId: data.departmentId!,
-                    positionId: data.positionId!,
-                    isManager: data.isManager || false,
-                },
-                queryRunner,
-            );
-        }
-
-        // 5. 직급 이력 생성 (직급 ID가 있는 경우)
-        if (data.currentRankId) {
-            await this.직원직급이력서비스.createHistory({
-                employeeId: employee.id,
-                rankId: data.currentRankId,
-            });
-        }
-
-        // 6. 부서 및 직급 정보 조회
-        let department: Department | undefined;
-        let rank: Rank | undefined;
-
-        if (data.departmentId) {
-            department = await this.부서서비스.findById(data.departmentId);
-        }
-
-        if (data.currentRankId) {
-            rank = await this.직급서비스.findById(data.currentRankId);
-        }
-
-        return { employee, department, rank };
     }
 
     // ==================== 직원 수정/삭제 ====================

@@ -467,6 +467,13 @@ export class DomainEmployeeService extends BaseService<Employee> {
         return await this.save(employee, { queryRunner });
     }
 
+    async 비밀번호를초기화한다(employee: Employee, queryRunner?: QueryRunner): Promise<Employee> {
+        const hashedPassword = this.hashPassword(employee.employeeNumber);
+        employee.비밀번호를설정한다(hashedPassword);
+        employee.초기비밀번호로설정완료한다();
+        return await this.save(employee, { queryRunner });
+    }
+
     /**
      * 비밀번호를변경한다
      */

@@ -12727,9 +12727,8 @@ let AuthorizationContextService = class AuthorizationContextService {
         if (!employee) {
             throw new common_1.NotFoundException('존재하지 않는 사용자입니다.');
         }
-        const hashedPassword = this.직원서비스.hashPassword(employee.employeeNumber);
-        await this.직원서비스.updatePassword(employee.id, hashedPassword);
-        return hashedPassword;
+        await this.직원서비스.비밀번호를초기화한다(employee);
+        return employee.password;
     }
     async 만료된_토큰을_정리한다() {
         const expiredTokens = await this.토큰서비스.findExpiredTokens();
@@ -13928,6 +13927,51 @@ let EmployeeManagementContextService = class EmployeeManagementContextService {
         this.직원직급이력서비스 = 직원직급이력서비스;
         this.직원검증서비스 = 직원검증서비스;
     }
+    async 직원을_생성한다(data, queryRunner) {
+        const { employeeNumber, name, email: generatedEmail, } = await this.직원생성_전처리를_수행한다(data.name, data.englishLastName, data.englishFirstName);
+        const email = generatedEmail || data.email;
+        await this.직원생성_컨텍스트_검증을_수행한다({
+            employeeNumber: data.employeeNumber,
+            email: email,
+            currentRankId: data.currentRankId,
+            departmentId: data.departmentId,
+            positionId: data.positionId,
+        });
+        const employee = await this.직원서비스.직원을생성한다({
+            employeeNumber: data.employeeNumber,
+            name: name,
+            email: email,
+            phoneNumber: data.phoneNumber,
+            dateOfBirth: data.dateOfBirth,
+            gender: data.gender,
+            hireDate: data.hireDate,
+            currentRankId: data.currentRankId,
+        }, queryRunner);
+        const shouldCreateAssignment = data.departmentId && data.positionId;
+        if (shouldCreateAssignment) {
+            await this.직원부서직책서비스.배치를생성한다({
+                employeeId: employee.id,
+                departmentId: data.departmentId,
+                positionId: data.positionId,
+                isManager: data.isManager || false,
+            }, queryRunner);
+        }
+        if (data.currentRankId) {
+            await this.직원직급이력서비스.createHistory({
+                employeeId: employee.id,
+                rankId: data.currentRankId,
+            });
+        }
+        let department;
+        let rank;
+        if (data.departmentId) {
+            department = await this.부서서비스.findById(data.departmentId);
+        }
+        if (data.currentRankId) {
+            rank = await this.직급서비스.findById(data.currentRankId);
+        }
+        return { employee, department, rank };
+    }
     async 직원을_조회한다(identifier, throwOnNotFound = true) {
         try {
             const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
@@ -14071,51 +14115,6 @@ let EmployeeManagementContextService = class EmployeeManagementContextService {
         if (data.positionId && !positionExists) {
             throw new employee_errors_1.PositionNotFoundError(data.positionId);
         }
-    }
-    async 직원을_생성한다(data, queryRunner) {
-        const { employeeNumber, name, email: generatedEmail, } = await this.직원생성_전처리를_수행한다(data.name, data.englishLastName, data.englishFirstName);
-        const email = generatedEmail || data.email;
-        await this.직원생성_컨텍스트_검증을_수행한다({
-            employeeNumber: data.employeeNumber,
-            email: email,
-            currentRankId: data.currentRankId,
-            departmentId: data.departmentId,
-            positionId: data.positionId,
-        });
-        const employee = await this.직원서비스.직원을생성한다({
-            employeeNumber: data.employeeNumber,
-            name: name,
-            email: email,
-            phoneNumber: data.phoneNumber,
-            dateOfBirth: data.dateOfBirth,
-            gender: data.gender,
-            hireDate: data.hireDate,
-            currentRankId: data.currentRankId,
-        }, queryRunner);
-        const shouldCreateAssignment = data.departmentId && data.positionId;
-        if (shouldCreateAssignment) {
-            await this.직원부서직책서비스.배치를생성한다({
-                employeeId: employee.id,
-                departmentId: data.departmentId,
-                positionId: data.positionId,
-                isManager: data.isManager || false,
-            }, queryRunner);
-        }
-        if (data.currentRankId) {
-            await this.직원직급이력서비스.createHistory({
-                employeeId: employee.id,
-                rankId: data.currentRankId,
-            });
-        }
-        let department;
-        let rank;
-        if (data.departmentId) {
-            department = await this.부서서비스.findById(data.departmentId);
-        }
-        if (data.currentRankId) {
-            rank = await this.직급서비스.findById(data.currentRankId);
-        }
-        return { employee, department, rank };
     }
     async 직원정보를_수정한다(employeeId, 수정정보, queryRunner) {
         const employeeBasicInfo = {
@@ -19102,6 +19101,12 @@ let DomainEmployeeService = class DomainEmployeeService extends base_service_1.B
         if (params.metadata !== undefined) {
             employee.메타데이터를설정한다(params.metadata);
         }
+        return await this.save(employee, { queryRunner });
+    }
+    async 비밀번호를초기화한다(employee, queryRunner) {
+        const hashedPassword = this.hashPassword(employee.employeeNumber);
+        employee.비밀번호를설정한다(hashedPassword);
+        employee.초기비밀번호로설정완료한다();
         return await this.save(employee, { queryRunner });
     }
     async 비밀번호를변경한다(employee, newPassword, queryRunner) {

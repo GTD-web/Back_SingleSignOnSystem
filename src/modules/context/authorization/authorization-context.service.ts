@@ -149,17 +149,12 @@ export class AuthorizationContextService {
     }
 
     async 비밀번호를_초기화한다(employeeNumber: string): Promise<string> {
-        // 1. 사번으로 직원 조회
         const employee = await this.직원서비스.findByEmployeeNumber(employeeNumber);
         if (!employee) {
             throw new NotFoundException('존재하지 않는 사용자입니다.');
         }
-
-        // 3. 비밀번호 해싱 및 업데이트
-        const hashedPassword = this.직원서비스.hashPassword(employee.employeeNumber);
-        await this.직원서비스.updatePassword(employee.id, hashedPassword);
-
-        return hashedPassword;
+        await this.직원서비스.비밀번호를초기화한다(employee);
+        return employee.password;
     }
 
     /**
