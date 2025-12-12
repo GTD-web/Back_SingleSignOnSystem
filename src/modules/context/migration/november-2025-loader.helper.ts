@@ -34,8 +34,8 @@ export class November2025LoaderHelper {
     > {
         this.logger.log('JSON 파일에서 11월 조직도 데이터 로드 시작');
 
-        // JSON 파일 읽기
-        const jsonPath = path.join('src/modules/context/migration', 'november-2025-org-data.json');
+        // JSON 파일 읽기 (같은 폴더에 있는 파일)
+        const jsonPath = path.join(__dirname, 'november-2025-org-data.json');
         const jsonContent = fs.readFileSync(jsonPath, 'utf-8');
         const orgData = JSON.parse(jsonContent);
 

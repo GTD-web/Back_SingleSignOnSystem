@@ -2,7 +2,7 @@ import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nes
 import { Observable } from 'rxjs';
 import { tap, catchError, finalize } from 'rxjs/operators';
 import { Request, Response } from 'express';
-import { LogApplicationService } from 'src/modules/application/admin/log/log-application.service';
+import { LogApplicationService } from '../../../src/modules/application/admin/log/log-application.service';
 // import { DateUtil } from '../utils/date.util';
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {

@@ -53,7 +53,7 @@ export class TerminatedEmployeeMigrationService {
         failedCount: number;
         results: TerminatedEmployeeMigrationResult[];
     }> {
-        const filePath = path.join('src', 'modules', 'context', 'migration', 'terminated-employees-data.json');
+        const filePath = path.join(__dirname, 'terminated-employees-data.json');
         const fileContent = fs.readFileSync(filePath, 'utf-8');
         const terminatedEmployeesData = JSON.parse(fileContent);
         // terminatedEmployees가 제공되지 않으면 JSON 파일 데이터 사용

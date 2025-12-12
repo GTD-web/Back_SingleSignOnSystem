@@ -21,8 +21,8 @@ import { DomainEmployeeRankHistoryModule } from '../../domain/employee-rank-hist
 import { DomainEmployeeTokenModule } from '../../domain/employee-token/employee-token.module';
 import { DomainEmployeeFcmTokenModule } from '../../domain/employee-fcm-token/employee-fcm-token.module';
 import { DomainEmployeeSystemRoleModule } from '../../domain/employee-system-role/employee-system-role.module';
-import { DomainEmployeeDepartmentPositionHistoryModule } from 'src/modules/domain/employee-department-position-history/employee-department-position-history.module';
-import { DomainDepartmentHistoryModule } from 'src/modules/domain/department-history/department-history.module';
+import { DomainEmployeeDepartmentPositionHistoryModule } from '../../domain/employee-department-position-history/employee-department-position-history.module';
+import { DomainDepartmentHistoryModule } from '../../domain/department-history/department-history.module';
 
 @Module({
     imports: [

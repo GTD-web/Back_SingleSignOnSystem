@@ -12,8 +12,8 @@ import {
 import { DomainEmployeeDepartmentPositionHistoryService } from '../../domain/employee-department-position-history/employee-department-position-history.service';
 import { EmployeeDepartmentPositionHistory } from '../../domain/employee-department-position-history/employee-department-position-history.entity';
 import { 직원배치생성ContextDto, 직원배치이력생성ContextDto, 직원배치수정ContextDto } from './dto';
-import { DomainDepartmentService } from 'src/modules/domain/department/department.service';
-import { DomainPositionService } from 'src/modules/domain/position/position.service';
+import { DomainDepartmentService } from '../../domain/department/department.service';
+import { DomainPositionService } from '../../domain/position/position.service';
 /**
  * 배치/이력 관리 컨텍스트 서비스 (Command)
  * 직원 배치 및 직급 이력 관리

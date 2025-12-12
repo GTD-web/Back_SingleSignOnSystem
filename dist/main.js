@@ -393,7 +393,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.LoggingInterceptor = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 const operators_1 = __webpack_require__(/*! rxjs/operators */ "rxjs/operators");
-const log_application_service_1 = __webpack_require__(/*! src/modules/application/admin/log/log-application.service */ "./src/modules/application/admin/log/log-application.service.ts");
+const log_application_service_1 = __webpack_require__(/*! ../../../src/modules/application/admin/log/log-application.service */ "./src/modules/application/admin/log/log-application.service.ts");
 let LoggingInterceptor = class LoggingInterceptor {
     constructor(logsService) {
         this.logsService = logsService;
@@ -9110,7 +9110,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FcmTokenManagementApplicationService = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 const fcm_token_management_context_service_1 = __webpack_require__(/*! ../../context/fcm-token-management/fcm-token-management-context.service */ "./src/modules/context/fcm-token-management/fcm-token-management-context.service.ts");
-const organization_management_context_service_1 = __webpack_require__(/*! src/modules/context/organization-management/organization-management-context.service */ "./src/modules/context/organization-management/organization-management-context.service.ts");
+const organization_management_context_service_1 = __webpack_require__(/*! ../../context/organization-management/organization-management-context.service */ "./src/modules/context/organization-management/organization-management-context.service.ts");
 let FcmTokenManagementApplicationService = class FcmTokenManagementApplicationService {
     constructor(organizationContextService, fcmTokenManagementContextService) {
         this.organizationContextService = organizationContextService;
@@ -14207,7 +14207,7 @@ let November2025LoaderHelper = November2025LoaderHelper_1 = class November2025Lo
     }
     async loadFromJson() {
         this.logger.log('JSON 파일에서 11월 조직도 데이터 로드 시작');
-        const jsonPath = path.join('src/modules/context/migration', 'november-2025-org-data.json');
+        const jsonPath = path.join(__dirname, 'november-2025-org-data.json');
         const jsonContent = fs.readFileSync(jsonPath, 'utf-8');
         const orgData = JSON.parse(jsonContent);
         const result = [];
@@ -15186,7 +15186,7 @@ let TerminatedEmployeeMigrationService = TerminatedEmployeeMigrationService_1 = 
         this.logger = new common_1.Logger(TerminatedEmployeeMigrationService_1.name);
     }
     async execute퇴사자데이터마이그레이션() {
-        const filePath = path.join('src', 'modules', 'context', 'migration', 'terminated-employees-data.json');
+        const filePath = path.join(__dirname, 'terminated-employees-data.json');
         const fileContent = fs.readFileSync(filePath, 'utf-8');
         const terminatedEmployeesData = JSON.parse(fileContent);
         const dataToProcess = terminatedEmployeesData;
@@ -15407,8 +15407,8 @@ const employee_department_position_service_1 = __webpack_require__(/*! ../../dom
 const employee_rank_history_service_1 = __webpack_require__(/*! ../../domain/employee-rank-history/employee-rank-history.service */ "./src/modules/domain/employee-rank-history/employee-rank-history.service.ts");
 const entities_1 = __webpack_require__(/*! ../../../../libs/database/entities */ "./libs/database/entities/index.ts");
 const employee_department_position_history_service_1 = __webpack_require__(/*! ../../domain/employee-department-position-history/employee-department-position-history.service */ "./src/modules/domain/employee-department-position-history/employee-department-position-history.service.ts");
-const department_service_1 = __webpack_require__(/*! src/modules/domain/department/department.service */ "./src/modules/domain/department/department.service.ts");
-const position_service_1 = __webpack_require__(/*! src/modules/domain/position/position.service */ "./src/modules/domain/position/position.service.ts");
+const department_service_1 = __webpack_require__(/*! ../../domain/department/department.service */ "./src/modules/domain/department/department.service.ts");
+const position_service_1 = __webpack_require__(/*! ../../domain/position/position.service */ "./src/modules/domain/position/position.service.ts");
 let AssignmentManagementContextService = class AssignmentManagementContextService {
     constructor(부서서비스, 직책서비스, 직원부서직책서비스, 직원직급이력서비스, 직원발령이력서비스) {
         this.부서서비스 = 부서서비스;
@@ -16287,8 +16287,8 @@ const employee_rank_history_module_1 = __webpack_require__(/*! ../../domain/empl
 const employee_token_module_1 = __webpack_require__(/*! ../../domain/employee-token/employee-token.module */ "./src/modules/domain/employee-token/employee-token.module.ts");
 const employee_fcm_token_module_1 = __webpack_require__(/*! ../../domain/employee-fcm-token/employee-fcm-token.module */ "./src/modules/domain/employee-fcm-token/employee-fcm-token.module.ts");
 const employee_system_role_module_1 = __webpack_require__(/*! ../../domain/employee-system-role/employee-system-role.module */ "./src/modules/domain/employee-system-role/employee-system-role.module.ts");
-const employee_department_position_history_module_1 = __webpack_require__(/*! src/modules/domain/employee-department-position-history/employee-department-position-history.module */ "./src/modules/domain/employee-department-position-history/employee-department-position-history.module.ts");
-const department_history_module_1 = __webpack_require__(/*! src/modules/domain/department-history/department-history.module */ "./src/modules/domain/department-history/department-history.module.ts");
+const employee_department_position_history_module_1 = __webpack_require__(/*! ../../domain/employee-department-position-history/employee-department-position-history.module */ "./src/modules/domain/employee-department-position-history/employee-department-position-history.module.ts");
+const department_history_module_1 = __webpack_require__(/*! ../../domain/department-history/department-history.module */ "./src/modules/domain/department-history/department-history.module.ts");
 let OrganizationManagementContextModule = class OrganizationManagementContextModule {
 };
 exports.OrganizationManagementContextModule = OrganizationManagementContextModule;
