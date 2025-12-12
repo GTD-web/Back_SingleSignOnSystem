@@ -130,6 +130,41 @@ export class ExportEmployeeDepartmentPositionDto {
     updatedAt: Date;
 }
 
+export class ExportAssignmentHistoryDto {
+    @ApiProperty({ description: '이력 ID' })
+    historyId: string;
+
+    @ApiProperty({ description: '직원 ID' })
+    employeeId: string;
+
+    @ApiProperty({ description: '부서 ID' })
+    departmentId: string;
+
+    @ApiProperty({ description: '직책 ID' })
+    positionId: string;
+
+    @ApiProperty({ description: '직급 ID', required: false })
+    rankId?: string;
+
+    @ApiProperty({ description: '관리자 권한 여부' })
+    isManager: boolean;
+
+    @ApiProperty({ description: '효력 시작일' })
+    effectiveStartDate: string;
+
+    @ApiProperty({ description: '효력 종료일', required: false })
+    effectiveEndDate?: string;
+
+    @ApiProperty({ description: '현재 배치 여부' })
+    isCurrent: boolean;
+
+    @ApiProperty({ description: '배치 사유', required: false })
+    assignmentReason?: string;
+
+    @ApiProperty({ description: '생성일' })
+    createdAt: Date;
+}
+
 export class ExportAllDataResponseDto {
     @ApiProperty({ description: '부서 목록', type: [ExportDepartmentDto] })
     departments: ExportDepartmentDto[];
@@ -146,6 +181,9 @@ export class ExportAllDataResponseDto {
     @ApiProperty({ description: '직원-부서-직책 매핑 목록', type: [ExportEmployeeDepartmentPositionDto] })
     employeeDepartmentPositions: ExportEmployeeDepartmentPositionDto[];
 
+    @ApiProperty({ description: '배치 이력 목록', type: [ExportAssignmentHistoryDto] })
+    assignmentHistories: ExportAssignmentHistoryDto[];
+
     @ApiProperty({ description: '전체 데이터 개수' })
     totalCounts: {
         departments: number;
@@ -153,6 +191,7 @@ export class ExportAllDataResponseDto {
         positions: number;
         ranks: number;
         employeeDepartmentPositions: number;
+        assignmentHistories: number;
     };
 
     @ApiProperty({ description: '조회 시각' })

@@ -169,6 +169,10 @@ export class AssignmentManagementContextService {
         return recentAssignmentHistories;
     }
 
+    async 모든_배치이력을_조회한다(): Promise<EmployeeDepartmentPositionHistory[]> {
+        return this.직원발령이력서비스.findAll();
+    }
+
     // =================================================================== 구분선 ==========================================
     // ==================== 배치 조회 ====================
 

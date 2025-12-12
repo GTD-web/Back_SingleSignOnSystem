@@ -10419,9 +10419,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ExportAllDataResponseDto = exports.ExportEmployeeDepartmentPositionDto = exports.ExportRankDto = exports.ExportPositionDto = exports.ExportEmployeeDto = exports.ExportDepartmentDto = void 0;
+exports.ExportAllDataResponseDto = exports.ExportAssignmentHistoryDto = exports.ExportEmployeeDepartmentPositionDto = exports.ExportRankDto = exports.ExportPositionDto = exports.ExportEmployeeDto = exports.ExportDepartmentDto = void 0;
 const swagger_1 = __webpack_require__(/*! @nestjs/swagger */ "@nestjs/swagger");
 class ExportDepartmentDto {
 }
@@ -10598,6 +10598,53 @@ __decorate([
     (0, swagger_1.ApiProperty)({ description: '수정일' }),
     __metadata("design:type", typeof (_j = typeof Date !== "undefined" && Date) === "function" ? _j : Object)
 ], ExportEmployeeDepartmentPositionDto.prototype, "updatedAt", void 0);
+class ExportAssignmentHistoryDto {
+}
+exports.ExportAssignmentHistoryDto = ExportAssignmentHistoryDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: '이력 ID' }),
+    __metadata("design:type", String)
+], ExportAssignmentHistoryDto.prototype, "historyId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: '직원 ID' }),
+    __metadata("design:type", String)
+], ExportAssignmentHistoryDto.prototype, "employeeId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: '부서 ID' }),
+    __metadata("design:type", String)
+], ExportAssignmentHistoryDto.prototype, "departmentId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: '직책 ID' }),
+    __metadata("design:type", String)
+], ExportAssignmentHistoryDto.prototype, "positionId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: '직급 ID', required: false }),
+    __metadata("design:type", String)
+], ExportAssignmentHistoryDto.prototype, "rankId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: '관리자 권한 여부' }),
+    __metadata("design:type", Boolean)
+], ExportAssignmentHistoryDto.prototype, "isManager", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: '효력 시작일' }),
+    __metadata("design:type", String)
+], ExportAssignmentHistoryDto.prototype, "effectiveStartDate", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: '효력 종료일', required: false }),
+    __metadata("design:type", String)
+], ExportAssignmentHistoryDto.prototype, "effectiveEndDate", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: '현재 배치 여부' }),
+    __metadata("design:type", Boolean)
+], ExportAssignmentHistoryDto.prototype, "isCurrent", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: '배치 사유', required: false }),
+    __metadata("design:type", String)
+], ExportAssignmentHistoryDto.prototype, "assignmentReason", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: '생성일' }),
+    __metadata("design:type", typeof (_k = typeof Date !== "undefined" && Date) === "function" ? _k : Object)
+], ExportAssignmentHistoryDto.prototype, "createdAt", void 0);
 class ExportAllDataResponseDto {
 }
 exports.ExportAllDataResponseDto = ExportAllDataResponseDto;
@@ -10622,12 +10669,16 @@ __decorate([
     __metadata("design:type", Array)
 ], ExportAllDataResponseDto.prototype, "employeeDepartmentPositions", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ description: '배치 이력 목록', type: [ExportAssignmentHistoryDto] }),
+    __metadata("design:type", Array)
+], ExportAllDataResponseDto.prototype, "assignmentHistories", void 0);
+__decorate([
     (0, swagger_1.ApiProperty)({ description: '전체 데이터 개수' }),
     __metadata("design:type", Object)
 ], ExportAllDataResponseDto.prototype, "totalCounts", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: '조회 시각' }),
-    __metadata("design:type", typeof (_k = typeof Date !== "undefined" && Date) === "function" ? _k : Object)
+    __metadata("design:type", typeof (_l = typeof Date !== "undefined" && Date) === "function" ? _l : Object)
 ], ExportAllDataResponseDto.prototype, "exportedAt", void 0);
 
 
@@ -11370,12 +11421,13 @@ let OrganizationInformationApplicationService = class OrganizationInformationApp
     }
     async 전체_조직_데이터를_조회한다(includeInactiveDepartments = false) {
         try {
-            const [departments, employees, positions, ranks, employeeDepartmentPositions] = await Promise.all([
+            const [departments, employees, positions, ranks, employeeDepartmentPositions, assignmentHistories] = await Promise.all([
                 this.organizationContextService.모든_부서를_조회한다(),
                 this.organizationContextService.모든_직원을_조회한다(),
                 this.organizationContextService.모든_직책을_조회한다(),
                 this.organizationContextService.모든_직급을_조회한다(),
                 this.organizationContextService.모든_직원부서직책매핑을_조회한다(),
+                this.organizationContextService.모든_배치이력을_조회한다(),
             ]);
             return {
                 departments: departments
@@ -11434,12 +11486,26 @@ let OrganizationInformationApplicationService = class OrganizationInformationApp
                     createdAt: edp.createdAt,
                     updatedAt: edp.updatedAt,
                 })),
+                assignmentHistories: assignmentHistories.map((history) => ({
+                    historyId: history.historyId,
+                    employeeId: history.employeeId,
+                    departmentId: history.departmentId,
+                    positionId: history.positionId,
+                    rankId: history.rankId,
+                    isManager: history.isManager,
+                    effectiveStartDate: history.effectiveStartDate,
+                    effectiveEndDate: history.effectiveEndDate,
+                    isCurrent: history.isCurrent,
+                    assignmentReason: history.assignmentReason,
+                    createdAt: history.createdAt,
+                })),
                 totalCounts: {
                     departments: departments.length,
                     employees: employees.length,
                     positions: positions.length,
                     ranks: ranks.length,
                     employeeDepartmentPositions: employeeDepartmentPositions.length,
+                    assignmentHistories: assignmentHistories.length,
                 },
                 exportedAt: new Date(),
             };
@@ -13441,6 +13507,9 @@ let AssignmentManagementContextService = class AssignmentManagementContextServic
         }
         return recentAssignmentHistories;
     }
+    async 모든_배치이력을_조회한다() {
+        return this.직원발령이력서비스.findAll();
+    }
     async 모든_직원부서직책매핑을_조회한다() {
         return this.직원부서직책서비스.findAll();
     }
@@ -14772,6 +14841,9 @@ let OrganizationManagementContextService = class OrganizationManagementContextSe
     }
     async 전체_배치정보를_조회한다() {
         return this.assignmentContext.전체_배치정보를_조회한다();
+    }
+    async 모든_배치이력을_조회한다() {
+        return this.assignmentContext.모든_배치이력을_조회한다();
     }
     async 전체_배치상세정보를_조회한다() {
         throw new Error('이 메서드는 아직 구현되지 않았습니다. Query Service로 이동 필요.');

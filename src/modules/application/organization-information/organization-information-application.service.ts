@@ -478,13 +478,15 @@ export class OrganizationInformationApplicationService {
     async 전체_조직_데이터를_조회한다(includeInactiveDepartments = false): Promise<ExportAllDataResponseDto> {
         try {
             // 모든 데이터를 병렬로 조회
-            const [departments, employees, positions, ranks, employeeDepartmentPositions] = await Promise.all([
-                this.organizationContextService.모든_부서를_조회한다(),
-                this.organizationContextService.모든_직원을_조회한다(),
-                this.organizationContextService.모든_직책을_조회한다(),
-                this.organizationContextService.모든_직급을_조회한다(),
-                this.organizationContextService.모든_직원부서직책매핑을_조회한다(),
-            ]);
+            const [departments, employees, positions, ranks, employeeDepartmentPositions, assignmentHistories] =
+                await Promise.all([
+                    this.organizationContextService.모든_부서를_조회한다(),
+                    this.organizationContextService.모든_직원을_조회한다(),
+                    this.organizationContextService.모든_직책을_조회한다(),
+                    this.organizationContextService.모든_직급을_조회한다(),
+                    this.organizationContextService.모든_직원부서직책매핑을_조회한다(),
+                    this.organizationContextService.모든_배치이력을_조회한다(),
+                ]);
 
             return {
                 departments: departments
@@ -542,12 +544,26 @@ export class OrganizationInformationApplicationService {
                     createdAt: edp.createdAt,
                     updatedAt: edp.updatedAt,
                 })),
+                assignmentHistories: assignmentHistories.map((history) => ({
+                    historyId: history.historyId,
+                    employeeId: history.employeeId,
+                    departmentId: history.departmentId,
+                    positionId: history.positionId,
+                    rankId: history.rankId,
+                    isManager: history.isManager,
+                    effectiveStartDate: history.effectiveStartDate,
+                    effectiveEndDate: history.effectiveEndDate,
+                    isCurrent: history.isCurrent,
+                    assignmentReason: history.assignmentReason,
+                    createdAt: history.createdAt,
+                })),
                 totalCounts: {
                     departments: departments.length,
                     employees: employees.length,
                     positions: positions.length,
                     ranks: ranks.length,
                     employeeDepartmentPositions: employeeDepartmentPositions.length,
+                    assignmentHistories: assignmentHistories.length,
                 },
                 exportedAt: new Date(),
             };
