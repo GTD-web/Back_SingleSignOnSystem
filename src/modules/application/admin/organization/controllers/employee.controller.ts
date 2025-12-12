@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Put, Delete, Patch, Body, Param, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiQuery } from '@nestjs/swagger';
+import { Controller, Get, Post, Put, Delete, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { User, AuthenticatedUser } from '../../../../../../libs/common/decorators/user.decorator';
 import { EmployeeApplicationService } from '../services/employee-application.service';
 import {
@@ -18,6 +18,7 @@ import {
     EmployeeRankHistoryResponseDto,
 } from '../dto';
 import { EmployeeStatus } from '../../../../../../libs/common/enums';
+import { JwtAuthGuard } from 'libs/common/guards/jwt-auth.guard';
 
 @ApiTags('Admin - 조직 관리 > 직원')
 @Controller('admin/organizations')
@@ -74,6 +75,7 @@ export class EmployeeController {
         @Body() createEmployeeDto: CreateEmployeeRequestDto,
         @User() user?: AuthenticatedUser,
     ): Promise<AdminEmployeeResponseDto> {
+        console.log('user', user);
         return await this.employeeApplicationService.직원생성(createEmployeeDto, user?.id);
     }
 
@@ -85,8 +87,9 @@ export class EmployeeController {
     async updateEmployee(
         @Param('id') id: string,
         @Body() updateEmployeeDto: UpdateEmployeeRequestDto,
+        @User() user?: AuthenticatedUser,
     ): Promise<AdminEmployeeResponseDto> {
-        return await this.employeeApplicationService.직원수정(id, updateEmployeeDto);
+        return await this.employeeApplicationService.직원수정(id, updateEmployeeDto, user?.id);
     }
 
     @Delete('employees/:id')

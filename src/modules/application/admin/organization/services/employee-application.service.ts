@@ -14,7 +14,6 @@ import {
     BulkUpdateResultDto,
 } from '../dto';
 import { OrganizationManagementContextService } from '../../../../context/organization-management/organization-management-context.service';
-import { OrganizationHistoryContextService } from '../../../../context/organization-history/organization-history-context.service';
 import { SystemManagementContextService } from '../../../../context/system-management/system-management-context.service';
 import { DepartmentType } from '../../../../domain/department/department.entity';
 import { Employee } from '../../../../domain/employee/employee.entity';
@@ -31,7 +30,6 @@ export class EmployeeApplicationService {
     constructor(
         private readonly dataSource: DataSource,
         private readonly organizationContext: OrganizationManagementContextService,
-        private readonly historyContext: OrganizationHistoryContextService,
         private readonly systemContext: SystemManagementContextService,
     ) {}
 
@@ -152,25 +150,9 @@ export class EmployeeApplicationService {
                     positionId: createEmployeeDto.positionId,
                     isManager: createEmployeeDto.isManager,
                 },
+                executedBy,
                 queryRunner,
             );
-
-            // 직원 생성 시 배치 이력 기록 (부서와 직책이 있는 경우)
-            if (createEmployeeDto.departmentId && createEmployeeDto.positionId) {
-                await this.historyContext.직원을_발령하고_이력을_생성한다(
-                    {
-                        employeeId: createResult.employee.id,
-                        departmentId: createEmployeeDto.departmentId,
-                        positionId: createEmployeeDto.positionId,
-                        rankId: createEmployeeDto.currentRankId,
-                        isManager: createEmployeeDto.isManager || false,
-                        effectiveDate: new Date(createEmployeeDto.hireDate),
-                        assignmentReason: '직원 입사',
-                        assignedBy: executedBy,
-                    },
-                    queryRunner,
-                );
-            }
 
             return createResult;
         });
@@ -185,7 +167,11 @@ export class EmployeeApplicationService {
         return this.직원을_응답DTO로_변환한다(result.employee);
     }
 
-    async 직원수정(id: string, updateEmployeeDto: UpdateEmployeeRequestDto): Promise<AdminEmployeeResponseDto> {
+    async 직원수정(
+        id: string,
+        updateEmployeeDto: UpdateEmployeeRequestDto,
+        executedBy?: string,
+    ): Promise<AdminEmployeeResponseDto> {
         return await withTransaction(this.dataSource, async (queryRunner) => {
             let employee: Employee;
 
@@ -221,17 +207,23 @@ export class EmployeeApplicationService {
                         positionId: updateEmployeeDto.positionId,
                         isManager: updateEmployeeDto.isManager,
                     },
+                    executedBy,
                     queryRunner,
                 );
             }
 
             // 재직상태 변경
-            if (updateEmployeeDto.status !== undefined) {
+            if (updateEmployeeDto.status !== undefined && updateEmployeeDto.status !== employee.status) {
                 employee = await this.organizationContext.직원재직상태를_변경한다(
                     id,
-                    updateEmployeeDto.status,
-                    updateEmployeeDto.terminationDate ? new Date(updateEmployeeDto.terminationDate) : undefined,
-                    undefined,
+                    {
+                        status: updateEmployeeDto.status,
+                        terminationDate: updateEmployeeDto.terminationDate
+                            ? new Date(updateEmployeeDto.terminationDate)
+                            : undefined,
+                        terminationReason: '퇴사처리 요청',
+                    },
+                    executedBy,
                     queryRunner,
                 );
             }
@@ -267,31 +259,19 @@ export class EmployeeApplicationService {
     // ==================== 일괄 수정 ====================
 
     async 직원부서일괄수정(employeeIds: string[], departmentId: string): Promise<BulkUpdateResultDto> {
-        return await withTransaction(this.dataSource, async (queryRunner) => {
-            // TODO: 일괄 수정은 복잡한 로직이므로 나중에 queryRunner 전달
-            return await this.organizationContext.직원_부서_일괄수정(employeeIds, departmentId);
-        });
+        return await this.organizationContext.직원_부서_일괄수정(employeeIds, departmentId);
     }
 
     async 직원팀일괄배치(employeeIds: string[], teamId: string): Promise<BulkUpdateResultDto> {
-        return await withTransaction(this.dataSource, async (queryRunner) => {
-            // TODO: 일괄 수정은 복잡한 로직이므로 나중에 queryRunner 전달
-            return await this.organizationContext.직원_팀_일괄배치(employeeIds, teamId);
-        });
+        return await this.organizationContext.직원_팀_일괄배치(employeeIds, teamId);
     }
 
     async 직원직책일괄수정(employeeIds: string[], positionId: string): Promise<BulkUpdateResultDto> {
-        return await withTransaction(this.dataSource, async (queryRunner) => {
-            // TODO: 일괄 수정은 복잡한 로직이므로 나중에 queryRunner 전달
-            return await this.organizationContext.직원_직책_일괄수정(employeeIds, positionId);
-        });
+        return await this.organizationContext.직원_직책_일괄수정(employeeIds, positionId);
     }
 
     async 직원직급일괄수정(employeeIds: string[], rankId: string): Promise<BulkUpdateResultDto> {
-        return await withTransaction(this.dataSource, async (queryRunner) => {
-            // TODO: 일괄 수정은 복잡한 로직이므로 나중에 queryRunner 전달
-            return await this.organizationContext.직원_직급_일괄수정(employeeIds, rankId);
-        });
+        return await this.organizationContext.직원_직급_일괄수정(employeeIds, rankId);
     }
 
     async 직원재직상태일괄수정(
@@ -299,10 +279,7 @@ export class EmployeeApplicationService {
         status: EmployeeStatus,
         terminationDate?: Date,
     ): Promise<BulkUpdateResultDto> {
-        return await withTransaction(this.dataSource, async (queryRunner) => {
-            // TODO: 일괄 수정은 복잡한 로직이므로 나중에 queryRunner 전달
-            return await this.organizationContext.직원_재직상태_일괄수정(employeeIds, status, terminationDate);
-        });
+        return await this.organizationContext.직원_재직상태_일괄수정(employeeIds, status, terminationDate);
     }
 
     // ==================== DTO 변환 ====================

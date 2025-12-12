@@ -129,6 +129,7 @@ export class CreateDepartmentHistory1757500000010 implements MigrationInterface 
 
         // 기존 Department 데이터를 DepartmentHistory로 마이그레이션
         // enum 타입이 다르므로 text로 캐스팅 후 다시 캐스팅
+        // 2025년 11월 15일 이전에 생성된 데이터만 초기 마이그레이션
         await queryRunner.query(`
             INSERT INTO department_history (
                 "departmentId",
@@ -158,7 +159,6 @@ export class CreateDepartmentHistory1757500000010 implements MigrationInterface 
                 true,
                 '초기 데이터 마이그레이션'
             FROM departments
-            WHERE "isActive" = true
         `);
     }
 

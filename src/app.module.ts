@@ -33,7 +33,7 @@ import { AdminModule } from './modules/application/admin/admin.module';
         FcmTokenManagementApplicationModule,
         AdminModule,
 
-        // MigrationModule,
+        MigrationModule,
     ],
     controllers: [AppController],
     providers: [

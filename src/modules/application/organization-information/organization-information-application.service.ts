@@ -429,16 +429,21 @@ export class OrganizationInformationApplicationService {
             // 날짜 문자열을 Date 객체로 변환
             const terminationDate = new Date(terminateDto.terminationDate);
 
-            // Context Layer 호출
-            const result = await this.organizationContextService.직원을_퇴사처리한다({
-                employeeIdentifier: terminateDto.employeeIdentifier,
-                terminationDate,
-                terminationReason: terminateDto.terminationReason,
-                processedBy: terminateDto.processedBy,
-            });
+            const result = await this.organizationContextService.직원재직상태를_변경한다(
+                terminateDto.employeeIdentifier,
+                {
+                    status: EmployeeStatus.Terminated,
+                    terminationDate: terminationDate,
+                    terminationReason: terminateDto.terminationReason,
+                },
+                terminateDto.processedBy,
+            );
 
             // Response DTO로 변환
-            return this.퇴사처리결과를_응답DTO로_변환한다(result);
+            return this.퇴사처리결과를_응답DTO로_변환한다({
+                employee: result,
+                message: '직원이 성공적으로 퇴사처리되었습니다.',
+            });
         } catch (error) {
             // 도메인/컨텍스트 에러들을 적절한 HTTP 에러로 매핑
             if (error instanceof Error) {

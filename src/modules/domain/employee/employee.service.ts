@@ -174,7 +174,7 @@ export class DomainEmployeeService extends BaseService<Employee> {
      * 직원 삭제
      */
     async deleteEmployee(employeeId: string, queryRunner?: QueryRunner): Promise<void> {
-        return this.delete(employeeId);
+        return this.delete(employeeId, { queryRunner });
     }
 
     /**
@@ -426,16 +426,22 @@ export class DomainEmployeeService extends BaseService<Employee> {
     async 직원을수정한다(
         employee: Employee,
         params: {
+            employeeNumber?: string;
             name?: string;
             email?: string;
             phoneNumber?: string;
             dateOfBirth?: Date;
             gender?: Gender;
+            hireDate?: Date;
             currentRankId?: string;
             metadata?: Record<string, any>;
         },
         queryRunner?: QueryRunner,
     ): Promise<Employee> {
+        if (params.employeeNumber !== undefined) {
+            employee.사번을설정한다(params.employeeNumber);
+        }
+
         if (params.name !== undefined) {
             employee.이름을설정한다(params.name);
         }
@@ -452,6 +458,10 @@ export class DomainEmployeeService extends BaseService<Employee> {
             employee.생년월일을설정한다(params.dateOfBirth);
         }
 
+        if (params.hireDate !== undefined) {
+            employee.입사일을설정한다(params.hireDate);
+        }
+
         if (params.gender !== undefined) {
             employee.성별을설정한다(params.gender);
         }
@@ -463,7 +473,7 @@ export class DomainEmployeeService extends BaseService<Employee> {
         if (params.metadata !== undefined) {
             employee.메타데이터를설정한다(params.metadata);
         }
-
+        console.log('employee', employee);
         return await this.save(employee, { queryRunner });
     }
 
@@ -506,9 +516,9 @@ export class DomainEmployeeService extends BaseService<Employee> {
     }
 
     /**
-     * 복직처리한다
+     * 재직처리한다
      */
-    async 복직처리한다(employee: Employee, queryRunner?: QueryRunner): Promise<Employee> {
+    async 재직처리한다(employee: Employee, queryRunner?: QueryRunner): Promise<Employee> {
         employee.활성화한다();
         return await this.save(employee, { queryRunner });
     }

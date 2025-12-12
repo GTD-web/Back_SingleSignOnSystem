@@ -2,7 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { QueryRunner } from 'typeorm';
 import { DomainDepartmentService } from '../../domain/department/department.service';
 import { DomainEmployeeDepartmentPositionService } from '../../domain/employee-department-position/employee-department-position.service';
-import { Department } from '../../../../libs/database/entities';
+import { Department, DepartmentHistory } from '../../../../libs/database/entities';
+import { DomainDepartmentHistoryService } from '../../domain/department-history/department-history.service';
 
 /**
  * 부서 관리 컨텍스트 서비스 (Command)
@@ -12,8 +13,96 @@ import { Department } from '../../../../libs/database/entities';
 export class DepartmentManagementContextService {
     constructor(
         private readonly 부서서비스: DomainDepartmentService,
+        private readonly 부서이력서비스: DomainDepartmentHistoryService,
         private readonly 직원부서직책서비스: DomainEmployeeDepartmentPositionService,
     ) {}
+
+    /**
+     * Date를 YYYY-MM-DD 형식으로 변환한다
+     */
+    private formatDate(date: Date): string {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    /**
+     * 날짜에서 하루를 뺀다
+     */
+    private subtractDays(date: Date, days: number): Date {
+        const result = new Date(date);
+        result.setDate(result.getDate() - days);
+        return result;
+    }
+
+    async 부서정보의_변경이력을_생성한다(
+        dto: {
+            departmentId: string;
+            departmentName?: string;
+            departmentCode?: string;
+            type?: any;
+            parentDepartmentId?: string;
+            order?: number;
+            isActive?: boolean;
+            isException?: boolean;
+            effectiveDate: Date;
+            changeReason?: string;
+            changedBy?: string;
+        },
+        queryRunner: QueryRunner,
+    ): Promise<DepartmentHistory> {
+        const newStartDate = dto.effectiveDate;
+        const previousEndDate = this.formatDate(this.subtractDays(newStartDate, 1));
+
+        // 1. 현재 부서 정보 조회 (한 번만 조회)
+        const currentDept = await this.부서이력서비스.findCurrentByDepartmentId(dto.departmentId);
+
+        // 2. 기존 이력이 있으면 종료 처리 (조회한 Entity 재사용)
+        if (currentDept) {
+            await this.부서이력서비스.이력을종료한다(currentDept, previousEndDate, queryRunner);
+        }
+
+        // 3. Domain Service를 통해 새 이력 레코드 생성
+        const savedHistory = await this.부서이력서비스.부서이력을생성한다(
+            {
+                departmentId: dto.departmentId,
+                departmentName: dto.departmentName || currentDept?.departmentName || '',
+                departmentCode: dto.departmentCode || currentDept?.departmentCode || '',
+                type: dto.type ?? currentDept?.type,
+                parentDepartmentId: dto.parentDepartmentId ?? currentDept?.parentDepartmentId,
+                order: dto.order ?? currentDept?.order ?? 0,
+                isActive: dto.isActive ?? currentDept?.isActive ?? true,
+                isException: dto.isException ?? currentDept?.isException ?? false,
+                effectiveStartDate: this.formatDate(newStartDate),
+                changeReason: dto.changeReason,
+                changedBy: dto.changedBy,
+            },
+            queryRunner,
+        );
+
+        return savedHistory;
+    }
+
+    async 부서이력을_종료한다(
+        dto: {
+            departmentId: string;
+            effectiveDate: Date;
+            changeReason?: string;
+            changedBy?: string;
+        },
+        queryRunner: QueryRunner,
+    ): Promise<void> {
+        const endDate = this.formatDate(dto.effectiveDate);
+
+        // 현재 부서 이력 조회
+        const currentDept = await this.부서이력서비스.findCurrentByDepartmentId(dto.departmentId);
+
+        if (currentDept) {
+            // 이력 종료 처리
+            await this.부서이력서비스.이력을종료한다(currentDept, endDate, queryRunner);
+        }
+    }
 
     // ==================== 부서 조회 ====================
 

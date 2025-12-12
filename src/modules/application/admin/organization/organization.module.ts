@@ -17,14 +17,12 @@ import { AssignmentApplicationService } from './services/assignment-application.
 
 // Context Modules
 import { OrganizationManagementContextModule } from '../../../context/organization-management/organization-management-context.module';
-import { OrganizationHistoryContextModule } from '../../../context/organization-history/organization-history-context.module';
 import { SystemManagementContextModule } from '../../../context/system-management/system-management-context.module';
 
 @Module({
     imports: [
         // Context 모듈들
         OrganizationManagementContextModule,
-        OrganizationHistoryContextModule,
         SystemManagementContextModule,
     ],
     controllers: [

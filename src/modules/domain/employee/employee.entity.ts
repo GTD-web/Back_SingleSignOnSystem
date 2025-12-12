@@ -61,7 +61,7 @@ export class Employee {
     @Column({ comment: '현재 직급 ID', type: 'uuid', nullable: true })
     currentRankId?: string;
 
-    @ManyToOne(() => Rank, { eager: true })
+    @ManyToOne(() => Rank)
     @JoinColumn({ name: 'currentRankId' })
     currentRank?: Rank;
 
@@ -168,6 +168,8 @@ export class Employee {
      */
     활성화한다(): void {
         this.status = EmployeeStatus.Active;
+        this.terminationDate = null;
+        this.terminationReason = null;
     }
 
     /**
@@ -175,6 +177,8 @@ export class Employee {
      */
     휴직처리한다(): void {
         this.status = EmployeeStatus.Leave;
+        this.terminationDate = null;
+        this.terminationReason = null;
     }
 
     /**

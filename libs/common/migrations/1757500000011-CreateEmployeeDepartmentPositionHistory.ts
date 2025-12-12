@@ -139,6 +139,7 @@ export class CreateEmployeeDepartmentPositionHistory1757500000011 implements Mig
         );
 
         // 기존 EmployeeDepartmentPosition 데이터를 History로 마이그레이션
+        // 현재 상태의 데이터로 초기 마이그레이션
         await queryRunner.query(`
             INSERT INTO employee_department_position_history (
                 "employeeId",
@@ -157,7 +158,7 @@ export class CreateEmployeeDepartmentPositionHistory1757500000011 implements Mig
                 edp."positionId",
                 e."currentRankId",
                 edp."isManager",
-                COALESCE(edp."createdAt"::date, e."hireDate", '2020-01-01'),
+                COALESCE( e."hireDate"),
                 NULL,
                 true,
                 '초기 데이터 마이그레이션'

@@ -1,0 +1,189 @@
+{
+    "description": "2025년 11월 조직도 데이터 (조직개편 이전)",
+    "effectiveDate": "2025-11-30",
+    "organization": {
+        "departmentName": "루미르 주식회사",
+        "employees": [{ "name": "남명용", "isManager": true, "note": "대표이사" }],
+        "children": [
+            {
+                "departmentName": "경영지원본부",
+                "employees": [{ "name": "이봉은", "isManager": true, "note": "경영지원실, 사업개발실 겸직자" }],
+                "children": [
+                    {
+                        "departmentName": "경영지원실",
+                        "employees": [
+                            { "name": "박태연", "isManager": false },
+                            { "name": "정재일", "isManager": false },
+                            { "name": "박승현", "isManager": false },
+                            { "name": "전무현", "isManager": false },
+                            { "name": "우은진", "isManager": false },
+                            { "name": "김민영", "isManager": false },
+                            { "name": "김민찬", "isManager": false },
+                            { "name": "이인상", "isManager": false },
+                            { "name": "남명조", "isManager": false }
+                        ],
+                        "children": []
+                    },
+                    {
+                        "departmentName": "사업개발실",
+                        "employees": [
+                            { "name": "이재용", "isManager": false },
+                            { "name": "이서연", "isManager": false },
+                            { "name": "황규대", "isManager": false }
+                        ],
+                        "children": []
+                    }
+                ]
+            },
+            {
+                "departmentName": "우주기술본부",
+                "employees": [],
+                "children": [
+                    {
+                        "departmentName": "시스템파트",
+                        "employees": [
+                            { "name": "조준현", "isManager": false },
+                            { "name": "아메드", "isManager": false },
+                            { "name": "팜테히엔", "isManager": false }
+                        ],
+                        "children": []
+                    },
+                    {
+                        "departmentName": "ES파트",
+                        "employees": [
+                            { "name": "정성훈", "isManager": true, "note": "겸직자" },
+                            { "name": "이준", "isManager": false },
+                            { "name": "천윤범", "isManager": false },
+                            { "name": "김민호", "isManager": false },
+                            { "name": "김기표", "isManager": false },
+                            { "name": "김민찬1", "isManager": false },
+                            { "name": "김유상", "isManager": false }
+                        ],
+                        "children": []
+                    },
+                    {
+                        "departmentName": "전자1파트",
+                        "employees": [
+                            { "name": "강남규", "isManager": true, "note": "겸직자" },
+                            { "name": "정양희", "isManager": false },
+                            { "name": "하태식", "isManager": false },
+                            { "name": "최은지", "isManager": false },
+                            { "name": "이민수", "isManager": false },
+                            { "name": "김도형", "isManager": false },
+                            { "name": "이재윤", "isManager": false },
+                            { "name": "이규은", "isManager": false }
+                        ],
+                        "children": []
+                    },
+                    {
+                        "departmentName": "전자2파트",
+                        "employees": [
+                            { "name": "서상준", "isManager": true, "note": "겸직자" },
+                            { "name": "이승기", "isManager": false },
+                            { "name": "정승헌", "isManager": false },
+                            { "name": "이준형", "isManager": false },
+                            { "name": "김자승", "isManager": false }
+                        ],
+                        "children": []
+                    },
+                    {
+                        "departmentName": "RF파트",
+                        "employees": [
+                            { "name": "김경민", "isManager": true },
+                            { "name": "홍연창", "isManager": false },
+                            { "name": "유경준", "isManager": false },
+                            { "name": "담현규", "isManager": false },
+                            { "name": "김은정", "isManager": false },
+                            { "name": "이종현", "isManager": false },
+                            { "name": "김익환", "isManager": false },
+                            { "name": "응웬반탕", "isManager": false },
+                            { "name": "구석현", "isManager": false }
+                        ],
+                        "children": []
+                    },
+                    {
+                        "departmentName": "전력파트",
+                        "employees": [
+                            { "name": "권혁규", "isManager": false },
+                            { "name": "김형중", "isManager": false },
+                            { "name": "조전호", "isManager": false }
+                        ],
+                        "children": []
+                    },
+                    {
+                        "departmentName": "기구파트",
+                        "employees": [
+                            { "name": "고영훈", "isManager": true, "note": "겸직자" },
+                            { "name": "김동현1", "isManager": false },
+                            { "name": "김대형", "isManager": false },
+                            { "name": "김형진", "isManager": false }
+                        ],
+                        "children": []
+                    }
+                ]
+            },
+            {
+                "departmentName": "지상기술본부",
+                "employees": [],
+                "children": [
+                    {
+                        "departmentName": "Web파트",
+                        "employees": [
+                            { "name": "김종식", "isManager": true },
+                            { "name": "우창욱", "isManager": false },
+                            { "name": "김규현", "isManager": false },
+                            { "name": "조민경", "isManager": false },
+                            { "name": "이화영", "isManager": false },
+                            { "name": "유승훈", "isManager": false },
+                            { "name": "민정호", "isManager": false },
+                            { "name": "박헌남", "isManager": false }
+                        ],
+                        "children": []
+                    },
+                    {
+                        "departmentName": "지상운용파트",
+                        "employees": [
+                            { "name": "박일수", "isManager": true, "note": "겸직자" },
+                            { "name": "정해찬", "isManager": false, "note": "겸직자" }
+                        ],
+                        "children": []
+                    }
+                ]
+            },
+            {
+                "departmentName": "기반기술사업부",
+                "employees": [{ "name": "모현민", "isManager": true, "note": "QA파트 겸직자" }],
+                "children": [
+                    {
+                        "departmentName": "제조파트",
+                        "employees": [
+                            { "name": "김기용", "isManager": true, "note": "겸직자" },
+                            { "name": "김동현", "isManager": false },
+                            { "name": "안광헌", "isManager": false },
+                            { "name": "채민수", "isManager": false },
+                            { "name": "최동원", "isManager": false },
+                            { "name": "원동주", "isManager": false }
+                        ],
+                        "children": []
+                    },
+                    {
+                        "departmentName": "QA파트",
+                        "employees": [
+                            { "name": "서유민1", "isManager": false },
+                            { "name": "허유리", "isManager": false }
+                        ],
+                        "children": []
+                    }
+                ]
+            }
+        ]
+    },
+    "notes": [
+        "이 데이터는 2025년 11월 조직도 기준입니다",
+        "조직개편 이전의 부서 배치 정보입니다",
+        "계층 구조: departmentName(부서명), employees(부서원), children(자식부서)",
+        "겸직자는 note 필드로 표시됩니다",
+        "isManager 필드는 실제 관리자 여부로 업데이트가 필요합니다",
+        "UUID 매핑이 필요합니다: employeeId, departmentId, positionId, rankId"
+    ]
+}

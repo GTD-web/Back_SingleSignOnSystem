@@ -3,7 +3,7 @@ import { QueryRunner } from 'typeorm';
 import { DomainRankService } from '../../domain/rank/rank.service';
 import { DomainEmployeeService } from '../../domain/employee/employee.service';
 import { DomainEmployeeRankHistoryService } from '../../domain/employee-rank-history/employee-rank-history.service';
-import { Rank } from '../../../../libs/database/entities';
+import { EmployeeRankHistory, Rank } from '../../../../libs/database/entities';
 
 /**
  * 직급 관리 컨텍스트 서비스 (Command)
@@ -109,4 +109,3 @@ export class RankManagementContextService {
         await this.직급서비스.deleteRank(rankId);
     }
 }
-

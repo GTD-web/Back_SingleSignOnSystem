@@ -21,6 +21,8 @@ import { DomainEmployeeRankHistoryModule } from '../../domain/employee-rank-hist
 import { DomainEmployeeTokenModule } from '../../domain/employee-token/employee-token.module';
 import { DomainEmployeeFcmTokenModule } from '../../domain/employee-fcm-token/employee-fcm-token.module';
 import { DomainEmployeeSystemRoleModule } from '../../domain/employee-system-role/employee-system-role.module';
+import { DomainEmployeeDepartmentPositionHistoryModule } from 'src/modules/domain/employee-department-position-history/employee-department-position-history.module';
+import { DomainDepartmentHistoryModule } from 'src/modules/domain/department-history/department-history.module';
 
 @Module({
     imports: [
@@ -33,6 +35,8 @@ import { DomainEmployeeSystemRoleModule } from '../../domain/employee-system-rol
         DomainEmployeeTokenModule,
         DomainEmployeeFcmTokenModule,
         DomainEmployeeSystemRoleModule,
+        DomainEmployeeDepartmentPositionHistoryModule,
+        DomainDepartmentHistoryModule,
     ],
     providers: [
         // 분리된 Context Services
@@ -42,14 +46,14 @@ import { DomainEmployeeSystemRoleModule } from '../../domain/employee-system-rol
         RankManagementContextService,
         AssignmentManagementContextService,
         OrganizationQueryService,
-        
+
         // Facade (기존 인터페이스 유지)
         OrganizationManagementContextService,
     ],
     exports: [
         // Facade만 export (하위 호환성 유지)
         OrganizationManagementContextService,
-        
+
         // 필요시 개별 Context도 export 가능
         EmployeeManagementContextService,
         DepartmentManagementContextService,
