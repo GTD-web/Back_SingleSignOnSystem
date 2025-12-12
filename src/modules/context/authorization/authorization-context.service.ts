@@ -66,9 +66,85 @@ export class AuthorizationContextService {
             throw new UnauthorizedException('만료된 토큰입니다.');
         }
         const payload = this.토큰서비스.verifyJwtToken(accessToken);
-        const employee = await this.직원서비스.findByEmployeeId(payload.sub);
+        const employee = await this.직원서비스.findOne({
+            where: { id: payload.sub },
+            relations: [
+                'employeeSystemRoles',
+                'employeeSystemRoles.systemRole',
+                'employeeSystemRoles.systemRole.system',
+            ],
+        });
         if (!employee) {
             throw new NotFoundException('존재하지 않는 사용자입니다.');
+        }
+
+        const roles = payload.roles;
+
+        // 시스템별로 역할을 그룹핑한다.
+        const systemRolesMap: Record<string, string[]> = {};
+        for (const employeeSystemRole of employee.employeeSystemRoles) {
+            if (employeeSystemRole.systemRole && employeeSystemRole.systemRole.system) {
+                const systemCode = employeeSystemRole.systemRole.system.name;
+                const roleCode = employeeSystemRole.systemRole.roleCode;
+
+                if (!systemRolesMap[systemCode]) {
+                    systemRolesMap[systemCode] = [];
+                }
+                systemRolesMap[systemCode].push(roleCode);
+            }
+        }
+
+        console.log('systemRolesMap', systemRolesMap);
+        console.log('roles', roles);
+
+        // 시스템별로 역할 변경사항을 확인한다.
+        let hasRoleChanged = false;
+        let hasValidRole = false;
+
+        // 1. 모든 시스템 코드를 수집 (DB + 토큰)
+        const allSystemCodes = new Set([...Object.keys(systemRolesMap), ...Object.keys(roles)]);
+
+        for (const systemCode of allSystemCodes) {
+            const roleCodesFromEmployee = systemRolesMap[systemCode] || [];
+            const roleCodesFromToken = roles[systemCode] || [];
+
+            // 역할 배열을 정렬하여 비교
+            const sortedEmployeeRoles = [...roleCodesFromEmployee].sort();
+            const sortedTokenRoles = [...roleCodesFromToken].sort();
+
+            // 역할이 정확히 일치하는지 확인
+            const rolesMatch =
+                sortedEmployeeRoles.length === sortedTokenRoles.length &&
+                sortedEmployeeRoles.every((role, index) => role === sortedTokenRoles[index]);
+
+            if (!rolesMatch) {
+                hasRoleChanged = true;
+                console.log(`역할 변경 감지 - 시스템: ${systemCode}`);
+                console.log(`  - DB 역할: [${sortedEmployeeRoles.join(', ')}]`);
+                console.log(`  - 토큰 역할: [${sortedTokenRoles.join(', ')}]`);
+            }
+
+            // 유효한 역할이 하나라도 있는지 확인
+            if (roleCodesFromEmployee.length > 0 && roleCodesFromToken.length > 0) {
+                const hasMatchingRole = roleCodesFromEmployee.some((role) => roleCodesFromToken.includes(role));
+                if (hasMatchingRole) {
+                    hasValidRole = true;
+                }
+            }
+        }
+
+        // 역할이 변경되었으면 재로그인 유도
+        if (hasRoleChanged) {
+            throw new UnauthorizedException({
+                message: '권한 정보가 변경되었습니다. 다시 로그인해주세요.',
+                code: 'ROLE_CHANGED',
+                requiresReLogin: true,
+            });
+        }
+
+        // 유효한 역할이 하나도 없으면 권한 없음
+        if (!hasValidRole) {
+            throw new UnauthorizedException('권한이 없습니다.');
         }
         return { employee, token };
     }
@@ -88,7 +164,7 @@ export class AuthorizationContextService {
         return employee;
     }
 
-    async 토큰정보를_생성한다(employee: Employee): Promise<Token> {
+    async 토큰정보를_생성한다(employee: Employee, roles: Record<string, string[]>): Promise<Token> {
         const expiresInDays = 1;
         const refreshExpiresInDays = 30;
 
@@ -97,6 +173,7 @@ export class AuthorizationContextService {
             sub: employee.id,
             employeeNumber: employee.employeeNumber,
             type: 'access',
+            roles: roles,
         };
 
         // 액세스 토큰 생성

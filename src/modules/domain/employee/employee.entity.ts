@@ -12,6 +12,7 @@ import { Gender, EmployeeStatus } from '../../../../libs/common/enums';
 import { Rank } from '../rank/rank.entity';
 import { EmployeeDepartmentPosition } from '../employee-department-position/employee-department-position.entity';
 import { EmployeeFcmToken } from '../employee-fcm-token/employee-fcm-token.entity';
+import { EmployeeSystemRole } from '../employee-system-role/employee-system-role.entity';
 
 @Entity('employees')
 export class Employee {
@@ -80,6 +81,9 @@ export class Employee {
     // 매니저 관계는 EmployeeDepartmentPosition에서 관리
     @OneToMany(() => EmployeeDepartmentPosition, (edp) => edp.employee)
     departmentPositions?: EmployeeDepartmentPosition[];
+
+    @OneToMany(() => EmployeeSystemRole, (esr) => esr.employee)
+    employeeSystemRoles?: EmployeeSystemRole[];
 
     // FCM 토큰 관계 (중간테이블을 통한 관리)
     @OneToMany(() => EmployeeFcmToken, (eft) => eft.employee)

@@ -70,7 +70,7 @@ export class SsoApplicationService {
             }
         }
 
-        const token = await this.authorizationContextService.토큰정보를_생성한다(employee);
+        const token = await this.authorizationContextService.토큰정보를_생성한다(employee, systemRolesMap);
         console.log('token', token);
         return {
             tokenType: 'Bearer',
