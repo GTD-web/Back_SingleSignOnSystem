@@ -14,6 +14,7 @@ import {
     EmployeeDepartmentPosition,
     EmployeeRankHistory,
     DepartmentType,
+    EmployeeDepartmentPositionHistory,
 } from '../../../../libs/database/entities';
 import { EmployeeStatus, Gender } from '../../../../libs/common/enums';
 import { 직원생성ContextDto } from './dto/employee-create-context.dto';
@@ -842,6 +843,10 @@ export class OrganizationManagementContextService {
 
     async 전체_배치정보를_조회한다(): Promise<EmployeeDepartmentPosition[]> {
         return this.assignmentContext.전체_배치정보를_조회한다();
+    }
+
+    async 모든_배치이력을_조회한다(): Promise<EmployeeDepartmentPositionHistory[]> {
+        return this.assignmentContext.모든_배치이력을_조회한다();
     }
 
     async 전체_배치상세정보를_조회한다(): Promise<
