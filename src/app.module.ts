@@ -35,8 +35,8 @@ import { TerminatedEmployeeMigrationModule } from './modules/context/terminated-
         FcmTokenManagementApplicationModule,
         AdminModule,
 
-        OrganizationHistoryMigrationModule,
-        TerminatedEmployeeMigrationModule,
+        // OrganizationHistoryMigrationModule,
+        // TerminatedEmployeeMigrationModule,
 
         // MigrationModule,
     ],
