@@ -877,36 +877,6 @@ exports.jwtConfig = jwtConfig;
 
 /***/ }),
 
-/***/ "./libs/configs/typeorm-production.config.ts":
-/*!***************************************************!*\
-  !*** ./libs/configs/typeorm-production.config.ts ***!
-  \***************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.typeOrmProductionConfig = void 0;
-const entities_1 = __webpack_require__(/*! ../database/entities */ "./libs/database/entities/index.ts");
-const typeOrmProductionConfig = (configService) => {
-    return {
-        name: 'production',
-        type: 'postgres',
-        host: configService.get('productionDatabase.host'),
-        port: configService.get('productionDatabase.port'),
-        username: configService.get('productionDatabase.username'),
-        password: configService.get('productionDatabase.password'),
-        database: configService.get('productionDatabase.database'),
-        entities: entities_1.Entities,
-        schema: configService.get('productionDatabase.schema'),
-        synchronize: false,
-        logging: false,
-    };
-};
-exports.typeOrmProductionConfig = typeOrmProductionConfig;
-
-
-/***/ }),
-
 /***/ "./libs/configs/typeorm.config.ts":
 /*!****************************************!*\
   !*** ./libs/configs/typeorm.config.ts ***!
@@ -1247,10 +1217,11 @@ const config_2 = __webpack_require__(/*! @nestjs/config */ "@nestjs/config");
 const env_config_1 = __webpack_require__(/*! ../libs/configs/env.config */ "./libs/configs/env.config.ts");
 const entities_1 = __webpack_require__(/*! ../libs/database/entities */ "./libs/database/entities/index.ts");
 const sso_application_module_1 = __webpack_require__(/*! ./modules/application/single-sign-on/sso-application.module */ "./src/modules/application/single-sign-on/sso-application.module.ts");
-const migration_module_1 = __webpack_require__(/*! ./modules/context/migration/migration.module */ "./src/modules/context/migration/migration.module.ts");
 const organization_information_application_module_1 = __webpack_require__(/*! ./modules/application/organization-information/organization-information-application.module */ "./src/modules/application/organization-information/organization-information-application.module.ts");
 const fcm_token_management_application_module_1 = __webpack_require__(/*! ./modules/application/fcm-token-management/fcm-token-management-application.module */ "./src/modules/application/fcm-token-management/fcm-token-management-application.module.ts");
 const admin_module_1 = __webpack_require__(/*! ./modules/application/admin/admin.module */ "./src/modules/application/admin/admin.module.ts");
+const organization_history_migration_1 = __webpack_require__(/*! ./modules/context/organization-history-migration */ "./src/modules/context/organization-history-migration/index.ts");
+const terminated_employee_migration_1 = __webpack_require__(/*! ./modules/context/terminated-employee-migration */ "./src/modules/context/terminated-employee-migration/index.ts");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -1270,7 +1241,8 @@ exports.AppModule = AppModule = __decorate([
             organization_information_application_module_1.OrganizationInformationApplicationModule,
             fcm_token_management_application_module_1.FcmTokenManagementApplicationModule,
             admin_module_1.AdminModule,
-            migration_module_1.MigrationModule,
+            organization_history_migration_1.OrganizationHistoryMigrationModule,
+            terminated_employee_migration_1.TerminatedEmployeeMigrationModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [
@@ -13293,893 +13265,41 @@ exports.LogManagementContextService = LogManagementContextService = LogManagemen
 
 /***/ }),
 
-/***/ "./src/modules/context/migration/migration.controller.ts":
-/*!***************************************************************!*\
-  !*** ./src/modules/context/migration/migration.controller.ts ***!
-  \***************************************************************/
+/***/ "./src/modules/context/organization-history-migration/index.ts":
+/*!*********************************************************************!*\
+  !*** ./src/modules/context/organization-history-migration/index.ts ***!
+  \*********************************************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-var _a, _b, _c, _d, _e, _f, _g, _h;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.MigrationController = void 0;
-const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
-const swagger_1 = __webpack_require__(/*! @nestjs/swagger */ "@nestjs/swagger");
-const class_validator_1 = __webpack_require__(/*! class-validator */ "class-validator");
-const migration_service_1 = __webpack_require__(/*! ./migration.service */ "./src/modules/context/migration/migration.service.ts");
-const organization_history_migration_service_1 = __webpack_require__(/*! ./organization-history-migration.service */ "./src/modules/context/migration/organization-history-migration.service.ts");
-const organization_history_viewer_service_1 = __webpack_require__(/*! ./organization-history-viewer.service */ "./src/modules/context/migration/organization-history-viewer.service.ts");
-const terminated_employee_migration_service_1 = __webpack_require__(/*! ./terminated-employee-migration.service */ "./src/modules/context/migration/terminated-employee-migration.service.ts");
-const november_2025_validator_helper_1 = __webpack_require__(/*! ./november-2025-validator.helper */ "./src/modules/context/migration/november-2025-validator.helper.ts");
-class SyncDatabaseRequestDto {
-}
-__decorate([
-    (0, swagger_1.ApiProperty)({
-        description: '동기화할 테이블 목록',
-        example: [
-            'systems',
-            'system_roles',
-            'ranks',
-            'positions',
-            'fcm_tokens',
-            'tokens',
-            'departments',
-            'employees',
-            'employee_department_positions',
-            'employee_rank_histories',
-            'employee_tokens',
-            'employee_fcm_tokens',
-            'employee_system_roles',
-        ],
-        type: [String],
-    }),
-    (0, class_validator_1.IsArray)(),
-    (0, class_validator_1.IsString)({ each: true }),
-    __metadata("design:type", Array)
-], SyncDatabaseRequestDto.prototype, "tables", void 0);
-let MigrationController = class MigrationController {
-    constructor(migrationService, orgHistoryMigration, orgHistoryViewer, terminatedEmpMigration, november2025Validator) {
-        this.migrationService = migrationService;
-        this.orgHistoryMigration = orgHistoryMigration;
-        this.orgHistoryViewer = orgHistoryViewer;
-        this.terminatedEmpMigration = terminatedEmpMigration;
-        this.november2025Validator = november2025Validator;
-    }
-    async syncFromProduction(dto) {
-        console.log(dto);
-        return await this.migrationService.syncFromProductionToDevDatabase(dto.tables);
-    }
-    async migrateNovember2025OrgHistory() {
-        return await this.orgHistoryMigration.execute11월조직도이력마이그레이션();
-    }
-    async validateNovember2025OrgData() {
-        return await this.november2025Validator.validateJsonData();
-    }
-    async get11월조직도() {
-        return await this.orgHistoryViewer.get11월조직도();
-    }
-    async get12월조직도() {
-        return await this.orgHistoryViewer.get12월조직도();
-    }
-    async get조직변화내역() {
-        return await this.orgHistoryViewer.get조직변화내역();
-    }
-    async migrateTerminatedEmployees() {
-        return await this.terminatedEmpMigration.execute퇴사자데이터마이그레이션();
-    }
-    async getTerminatedEmployeesStatus() {
-        return await this.terminatedEmpMigration.get퇴사자현황();
-    }
-};
-exports.MigrationController = MigrationController;
-__decorate([
-    (0, common_1.Post)('sync-from-production'),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    (0, swagger_1.ApiOperation)({
-        summary: '실서버에서 개발서버로 데이터 동기화',
-        description: `
-            실서버의 선택된 테이블 데이터를 개발서버로 동기화합니다.
-            
-            **동기화 순서:**
-            1. 외래키 제약조건 임시 비활성화
-            2. 실서버 데이터 조회
-            3. 개발서버 데이터 삭제 (의존성 역순)
-            4. 개발서버에 데이터 입력 (의존성 정순)
-            5. 외래키 제약조건 복원
-            
-            **사용 가능한 테이블:**
-            - system_roles: 시스템 역할
-            - ranks: 직급
-            - positions: 직책
-            - fcm_tokens: FCM 토큰
-            - departments: 부서 (계층구조 유지)
-            - employees: 직원
-            - employee_department_positions: 직원-부서-직책 관계
-            - employee_rank_histories: 직원 직급 이력
-            - employee_tokens: 직원 토큰
-            - employee_fcm_tokens: 직원-FCM토큰 관계
-            - employee_system_roles: 직원-시스템역할 관계
-            
-            **주의사항:**
-            ⚠️ 이 작업은 개발서버의 데이터를 완전히 삭제하고 실서버 데이터로 대체합니다!
-            ⚠️ 트랜잭션으로 처리되므로 실패 시 자동으로 롤백됩니다.
-        `,
-    }),
-    (0, swagger_1.ApiBody)({
-        schema: {
-            type: 'object',
-            properties: {
-                tables: {
-                    type: 'array',
-                    items: { type: 'string' },
-                    example: [
-                        'systems',
-                        'system_roles',
-                        'ranks',
-                        'positions',
-                        'fcm_tokens',
-                        'tokens',
-                        'departments',
-                        'employees',
-                        'employee_department_positions',
-                        'employee_rank_histories',
-                        'employee_tokens',
-                        'employee_fcm_tokens',
-                        'employee_system_roles',
-                    ],
-                    description: '동기화할 테이블 목록',
-                },
-            },
-        },
-    }),
-    (0, swagger_1.ApiResponse)({
-        status: 200,
-        description: '동기화 성공',
-        schema: {
-            type: 'object',
-            properties: {
-                success: { type: 'boolean', example: true },
-                message: { type: 'string', example: '데이터베이스 동기화가 성공적으로 완료되었습니다.' },
-                syncedTables: {
-                    type: 'array',
-                    items: { type: 'string' },
-                    example: ['departments', 'employees'],
-                },
-                errors: {
-                    type: 'array',
-                    items: { type: 'string' },
-                    example: [],
-                },
-            },
-        },
-    }),
-    (0, swagger_1.ApiResponse)({
-        status: 500,
-        description: '동기화 실패',
-    }),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [SyncDatabaseRequestDto]),
-    __metadata("design:returntype", Promise)
-], MigrationController.prototype, "syncFromProduction", null);
-__decorate([
-    (0, common_1.Post)('november-2025-org-history'),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    (0, swagger_1.ApiOperation)({
-        summary: '2025년 11월 조직도 이력 마이그레이션',
-        description: `
-            11월과 12월 조직도를 비교하여 변경된 직원들의 11월 이력을 생성합니다.
-            
-            **프로세스:**
-            1. 11월 조직도 데이터 로드
-            2. 12월 현재 이력 데이터 로드
-            3. 두 데이터 비교 (부서, 직책, 직급, 관리자 여부)
-            4. 변경된 직원만 처리:
-               - 11월 이력 생성 (입사일 ~ 2025-11-30)
-               - 12월 이력 수정 (2025-12-01부터 시작)
-            
-            **주의사항:**
-            ⚠️ 이 작업은 트랜잭션으로 처리됩니다.
-            ⚠️ 11월 조직도 데이터를 먼저 load11월조직도데이터() 메서드에 입력해야 합니다.
-        `,
-    }),
-    (0, swagger_1.ApiResponse)({
-        status: 200,
-        description: '마이그레이션 성공',
-        schema: {
-            type: 'object',
-            properties: {
-                success: { type: 'boolean', example: true },
-                totalProcessed: { type: 'number', example: 73 },
-                changedCount: { type: 'number', example: 15 },
-                unchangedCount: { type: 'number', example: 58 },
-                createdCount: { type: 'number', example: 15 },
-                updatedCount: { type: 'number', example: 15 },
-                errors: {
-                    type: 'array',
-                    items: {
-                        type: 'object',
-                        properties: {
-                            employeeId: { type: 'string' },
-                            employeeName: { type: 'string' },
-                            error: { type: 'string' },
-                        },
-                    },
-                },
-            },
-        },
-    }),
-    (0, swagger_1.ApiResponse)({
-        status: 500,
-        description: '마이그레이션 실패',
-    }),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], MigrationController.prototype, "migrateNovember2025OrgHistory", null);
-__decorate([
-    (0, common_1.Get)('november-2025-org-validate'),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    (0, swagger_1.ApiOperation)({
-        summary: '2025년 11월 조직도 데이터 검증',
-        description: `
-            마이그레이션 실행 전 JSON 데이터를 검증합니다.
-            
-            **검증 항목:**
-            1. 부서명 존재 여부 (DB와 매칭)
-            2. 직원명 존재 여부 (DB와 매칭)
-            3. 겸직자 중복 확인
-            4. 통계 정보
-            
-            **주의사항:**
-            ⚠️ 실제 마이그레이션 전에 반드시 실행하여 데이터를 검증하세요.
-        `,
-    }),
-    (0, swagger_1.ApiResponse)({
-        status: 200,
-        description: '검증 완료',
-        schema: {
-            type: 'object',
-            properties: {
-                isValid: { type: 'boolean', example: true },
-                errors: { type: 'array', items: { type: 'string' } },
-                warnings: { type: 'array', items: { type: 'string' } },
-                stats: {
-                    type: 'object',
-                    properties: {
-                        totalDepartments: { type: 'number', example: 15 },
-                        totalEmployees: { type: 'number', example: 70 },
-                        missingDepartments: { type: 'array', items: { type: 'string' } },
-                        missingEmployees: { type: 'array', items: { type: 'string' } },
-                        duplicateEmployees: {
-                            type: 'array',
-                            items: {
-                                type: 'object',
-                                properties: {
-                                    name: { type: 'string' },
-                                    count: { type: 'number' },
-                                    departments: { type: 'array', items: { type: 'string' } },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-    }),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], MigrationController.prototype, "validateNovember2025OrgData", null);
-__decorate([
-    (0, common_1.Get)('org-history/november'),
-    (0, swagger_1.ApiOperation)({
-        summary: '11월 조직도 조회',
-        description: '2025년 11월 조직도를 계층구조로 조회합니다 (조직개편 이전)',
-    }),
-    (0, swagger_1.ApiResponse)({
-        status: 200,
-        description: '11월 조직도 조회 성공',
-        schema: {
-            type: 'object',
-            properties: {
-                effectiveDate: { type: 'string', example: '2025-11-30' },
-                description: { type: 'string', example: '2025년 11월 조직도 (조직개편 이전)' },
-                totalDepartments: { type: 'number', example: 15 },
-                totalEmployees: { type: 'number', example: 73 },
-                organization: {
-                    type: 'object',
-                    properties: {
-                        departmentId: { type: 'string' },
-                        departmentCode: { type: 'string' },
-                        departmentName: { type: 'string' },
-                        departmentType: { type: 'string' },
-                        level: { type: 'number' },
-                        parentDepartmentId: { type: 'string', nullable: true },
-                        employees: {
-                            type: 'array',
-                            items: {
-                                type: 'object',
-                                properties: {
-                                    employeeId: { type: 'string' },
-                                    employeeNumber: { type: 'string' },
-                                    employeeName: { type: 'string' },
-                                    positionTitle: { type: 'string' },
-                                    positionCode: { type: 'string' },
-                                    rankName: { type: 'string', nullable: true },
-                                    rankCode: { type: 'string', nullable: true },
-                                    isManager: { type: 'boolean' },
-                                },
-                            },
-                        },
-                        children: {
-                            type: 'array',
-                            description: '하위 부서 (재귀 구조)',
-                        },
-                    },
-                },
-            },
-        },
-    }),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
-], MigrationController.prototype, "get11\uC6D4\uC870\uC9C1\uB3C4", null);
-__decorate([
-    (0, common_1.Get)('org-history/december'),
-    (0, swagger_1.ApiOperation)({
-        summary: '12월 조직도 조회',
-        description: '2025년 12월 조직도를 계층구조로 조회합니다 (조직개편 이후)',
-    }),
-    (0, swagger_1.ApiResponse)({
-        status: 200,
-        description: '12월 조직도 조회 성공',
-        schema: {
-            type: 'object',
-            properties: {
-                effectiveDate: { type: 'string', example: '2025-12-01' },
-                description: { type: 'string', example: '2025년 12월 조직도 (조직개편 이후)' },
-                totalDepartments: { type: 'number', example: 15 },
-                totalEmployees: { type: 'number', example: 73 },
-                organization: {
-                    type: 'object',
-                    properties: {
-                        departmentId: { type: 'string' },
-                        departmentCode: { type: 'string' },
-                        departmentName: { type: 'string' },
-                        departmentType: { type: 'string' },
-                        level: { type: 'number' },
-                        parentDepartmentId: { type: 'string', nullable: true },
-                        employees: {
-                            type: 'array',
-                            items: {
-                                type: 'object',
-                                properties: {
-                                    employeeId: { type: 'string' },
-                                    employeeNumber: { type: 'string' },
-                                    employeeName: { type: 'string' },
-                                    positionTitle: { type: 'string' },
-                                    positionCode: { type: 'string' },
-                                    rankName: { type: 'string', nullable: true },
-                                    rankCode: { type: 'string', nullable: true },
-                                    isManager: { type: 'boolean' },
-                                },
-                            },
-                        },
-                        children: {
-                            type: 'array',
-                            description: '하위 부서 (재귀 구조)',
-                        },
-                    },
-                },
-            },
-        },
-    }),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", typeof (_g = typeof Promise !== "undefined" && Promise) === "function" ? _g : Object)
-], MigrationController.prototype, "get12\uC6D4\uC870\uC9C1\uB3C4", null);
-__decorate([
-    (0, common_1.Get)('org-history/changes'),
-    (0, swagger_1.ApiOperation)({
-        summary: '11월-12월 조직 변화 내역 조회',
-        description: '11월과 12월 조직도를 비교하여 부서/직책이 변경된 직원 목록을 조회합니다',
-    }),
-    (0, swagger_1.ApiResponse)({
-        status: 200,
-        description: '조직 변화 내역 조회 성공',
-        schema: {
-            type: 'object',
-            properties: {
-                totalChanges: { type: 'number', example: 15 },
-                departmentChanges: { type: 'number', example: 12 },
-                positionChanges: { type: 'number', example: 5 },
-                bothChanges: { type: 'number', example: 2 },
-                changes: {
-                    type: 'array',
-                    items: {
-                        type: 'object',
-                        properties: {
-                            employeeId: { type: 'string' },
-                            employeeNumber: { type: 'string' },
-                            employeeName: { type: 'string' },
-                            changeType: {
-                                type: 'string',
-                                enum: ['DEPARTMENT_CHANGE', 'POSITION_CHANGE', 'BOTH_CHANGE'],
-                            },
-                            november: {
-                                type: 'object',
-                                properties: {
-                                    departmentName: { type: 'string' },
-                                    departmentCode: { type: 'string' },
-                                    positionTitle: { type: 'string' },
-                                    positionCode: { type: 'string' },
-                                    rankName: { type: 'string', nullable: true },
-                                    isManager: { type: 'boolean' },
-                                },
-                            },
-                            december: {
-                                type: 'object',
-                                properties: {
-                                    departmentName: { type: 'string' },
-                                    departmentCode: { type: 'string' },
-                                    positionTitle: { type: 'string' },
-                                    positionCode: { type: 'string' },
-                                    rankName: { type: 'string', nullable: true },
-                                    isManager: { type: 'boolean' },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-    }),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", typeof (_h = typeof Promise !== "undefined" && Promise) === "function" ? _h : Object)
-], MigrationController.prototype, "get\uC870\uC9C1\uBCC0\uD654\uB0B4\uC5ED", null);
-__decorate([
-    (0, common_1.Post)('terminated-employees/migrate'),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    (0, swagger_1.ApiOperation)({
-        summary: '퇴사자 데이터 마이그레이션',
-        description: `
-            퇴사자의 퇴사일 및 이력 데이터를 정리합니다.
-            
-            처리 내용:
-            1. 퇴사일 업데이트 (예상퇴사일로)
-            2. 퇴사자 부서 이력을 isCurrent = true로 설정
-            3. 다른 부서 이력들을 isCurrent = false로 설정 (유효기간: 입사일 ~ 퇴사일)
-            4. 퇴사자 부서가 아닌 배치 데이터 삭제
-            
-            ※ 퇴사자 데이터는 terminated-employees-data.json 파일에서 자동으로 로드됩니다.
-        `,
-    }),
-    (0, swagger_1.ApiResponse)({
-        status: 200,
-        description: '마이그레이션 성공',
-        schema: {
-            type: 'object',
-            properties: {
-                success: { type: 'boolean', example: true },
-                totalProcessed: { type: 'number', example: 10 },
-                successCount: { type: 'number', example: 9 },
-                failedCount: { type: 'number', example: 1 },
-                results: {
-                    type: 'array',
-                    items: {
-                        type: 'object',
-                        properties: {
-                            employeeNumber: { type: 'string' },
-                            employeeName: { type: 'string' },
-                            success: { type: 'boolean' },
-                            error: { type: 'string' },
-                            updates: {
-                                type: 'object',
-                                properties: {
-                                    terminationDateUpdated: { type: 'boolean' },
-                                    terminatedDeptHistorySetCurrent: { type: 'boolean' },
-                                    otherHistoriesUpdated: { type: 'number' },
-                                    assignmentsDeleted: { type: 'number' },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-    }),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], MigrationController.prototype, "migrateTerminatedEmployees", null);
-__decorate([
-    (0, common_1.Get)('terminated-employees/status'),
-    (0, swagger_1.ApiOperation)({
-        summary: '퇴사자 현황 조회',
-        description: '퇴사 상태인 직원들의 현재 배치 및 이력 상태를 조회합니다.',
-    }),
-    (0, swagger_1.ApiResponse)({
-        status: 200,
-        description: '퇴사자 현황 조회 성공',
-        schema: {
-            type: 'array',
-            items: {
-                type: 'object',
-                properties: {
-                    employeeId: { type: 'string' },
-                    employeeNumber: { type: 'string' },
-                    employeeName: { type: 'string' },
-                    terminationDate: { type: 'string', nullable: true },
-                    currentDepartment: { type: 'string' },
-                    currentDepartmentId: { type: 'string' },
-                    hasMultipleAssignments: { type: 'boolean' },
-                    historyCount: { type: 'number' },
-                },
-            },
-        },
-    }),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], MigrationController.prototype, "getTerminatedEmployeesStatus", null);
-exports.MigrationController = MigrationController = __decorate([
-    (0, swagger_1.ApiTags)('Migration - 데이터베이스 동기화'),
-    (0, common_1.Controller)('migration'),
-    __metadata("design:paramtypes", [typeof (_a = typeof migration_service_1.MigrationService !== "undefined" && migration_service_1.MigrationService) === "function" ? _a : Object, typeof (_b = typeof organization_history_migration_service_1.OrganizationHistoryMigrationService !== "undefined" && organization_history_migration_service_1.OrganizationHistoryMigrationService) === "function" ? _b : Object, typeof (_c = typeof organization_history_viewer_service_1.OrganizationHistoryViewerService !== "undefined" && organization_history_viewer_service_1.OrganizationHistoryViewerService) === "function" ? _c : Object, typeof (_d = typeof terminated_employee_migration_service_1.TerminatedEmployeeMigrationService !== "undefined" && terminated_employee_migration_service_1.TerminatedEmployeeMigrationService) === "function" ? _d : Object, typeof (_e = typeof november_2025_validator_helper_1.November2025ValidatorHelper !== "undefined" && november_2025_validator_helper_1.November2025ValidatorHelper) === "function" ? _e : Object])
-], MigrationController);
+__exportStar(__webpack_require__(/*! ./organization-history-migration.module */ "./src/modules/context/organization-history-migration/organization-history-migration.module.ts"), exports);
+__exportStar(__webpack_require__(/*! ./organization-history-migration.service */ "./src/modules/context/organization-history-migration/organization-history-migration.service.ts"), exports);
+__exportStar(__webpack_require__(/*! ./organization-history-viewer.service */ "./src/modules/context/organization-history-migration/organization-history-viewer.service.ts"), exports);
+__exportStar(__webpack_require__(/*! ./november-2025-loader.helper */ "./src/modules/context/organization-history-migration/november-2025-loader.helper.ts"), exports);
+__exportStar(__webpack_require__(/*! ./november-2025-validator.helper */ "./src/modules/context/organization-history-migration/november-2025-validator.helper.ts"), exports);
 
 
 /***/ }),
 
-/***/ "./src/modules/context/migration/migration.module.ts":
-/*!***********************************************************!*\
-  !*** ./src/modules/context/migration/migration.module.ts ***!
-  \***********************************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.MigrationModule = void 0;
-const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
-const typeorm_1 = __webpack_require__(/*! @nestjs/typeorm */ "@nestjs/typeorm");
-const config_1 = __webpack_require__(/*! @nestjs/config */ "@nestjs/config");
-const migration_service_1 = __webpack_require__(/*! ./migration.service */ "./src/modules/context/migration/migration.service.ts");
-const migration_controller_1 = __webpack_require__(/*! ./migration.controller */ "./src/modules/context/migration/migration.controller.ts");
-const organization_history_migration_service_1 = __webpack_require__(/*! ./organization-history-migration.service */ "./src/modules/context/migration/organization-history-migration.service.ts");
-const organization_history_viewer_service_1 = __webpack_require__(/*! ./organization-history-viewer.service */ "./src/modules/context/migration/organization-history-viewer.service.ts");
-const terminated_employee_migration_service_1 = __webpack_require__(/*! ./terminated-employee-migration.service */ "./src/modules/context/migration/terminated-employee-migration.service.ts");
-const november_2025_loader_helper_1 = __webpack_require__(/*! ./november-2025-loader.helper */ "./src/modules/context/migration/november-2025-loader.helper.ts");
-const november_2025_validator_helper_1 = __webpack_require__(/*! ./november-2025-validator.helper */ "./src/modules/context/migration/november-2025-validator.helper.ts");
-const typeorm_production_config_1 = __webpack_require__(/*! ../../../../libs/configs/typeorm-production.config */ "./libs/configs/typeorm-production.config.ts");
-const entities_1 = __webpack_require__(/*! libs/database/entities */ "./libs/database/entities/index.ts");
-let MigrationModule = class MigrationModule {
-};
-exports.MigrationModule = MigrationModule;
-exports.MigrationModule = MigrationModule = __decorate([
-    (0, common_1.Module)({
-        imports: [
-            typeorm_1.TypeOrmModule.forRootAsync({
-                name: 'production',
-                inject: [config_1.ConfigService],
-                useFactory: typeorm_production_config_1.typeOrmProductionConfig,
-            }),
-            typeorm_1.TypeOrmModule.forFeature(entities_1.Entities),
-        ],
-        controllers: [migration_controller_1.MigrationController],
-        providers: [
-            migration_service_1.MigrationService,
-            organization_history_migration_service_1.OrganizationHistoryMigrationService,
-            organization_history_viewer_service_1.OrganizationHistoryViewerService,
-            terminated_employee_migration_service_1.TerminatedEmployeeMigrationService,
-            november_2025_loader_helper_1.November2025LoaderHelper,
-            november_2025_validator_helper_1.November2025ValidatorHelper,
-        ],
-        exports: [
-            migration_service_1.MigrationService,
-            organization_history_migration_service_1.OrganizationHistoryMigrationService,
-            organization_history_viewer_service_1.OrganizationHistoryViewerService,
-            terminated_employee_migration_service_1.TerminatedEmployeeMigrationService,
-            november_2025_loader_helper_1.November2025LoaderHelper,
-            november_2025_validator_helper_1.November2025ValidatorHelper,
-        ],
-    })
-], MigrationModule);
-
-
-/***/ }),
-
-/***/ "./src/modules/context/migration/migration.service.ts":
-/*!************************************************************!*\
-  !*** ./src/modules/context/migration/migration.service.ts ***!
-  \************************************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-var MigrationService_1;
-var _a, _b;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.MigrationService = void 0;
-const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
-const typeorm_1 = __webpack_require__(/*! @nestjs/typeorm */ "@nestjs/typeorm");
-const typeorm_2 = __webpack_require__(/*! typeorm */ "typeorm");
-const entities_1 = __webpack_require__(/*! ../../../../libs/database/entities */ "./libs/database/entities/index.ts");
-let MigrationService = MigrationService_1 = class MigrationService {
-    constructor(dataSource, productionDataSource) {
-        this.dataSource = dataSource;
-        this.productionDataSource = productionDataSource;
-        this.logger = new common_1.Logger(MigrationService_1.name);
-    }
-    async syncFromProductionToDevDatabase(tables) {
-        if (!this.productionDataSource) {
-            this.logger.error('❌ 실서버 DB 연결이 활성화되지 않았습니다.');
-            return {
-                success: false,
-                message: '실서버 DB 연결이 활성화되지 않았습니다. ENABLE_PRODUCTION_DB=true를 설정하고 애플리케이션을 재시작하세요.',
-                syncedTables: [],
-                errors: ['실서버 DB 연결 없음'],
-            };
-        }
-        const syncedTables = [];
-        const errors = [];
-        this.logger.log('🚀 데이터베이스 동기화 시작...');
-        this.logger.log(`동기화 대상 테이블: ${tables.join(', ')}`);
-        try {
-            await this.dataSource.transaction(async (manager) => {
-                try {
-                    this.logger.log('⏳ 외래키 제약조건 비활성화 중...');
-                    await manager.query('SET session_replication_role = replica');
-                    this.logger.log('📥 실서버 데이터 조회 중...');
-                    const productionData = await this.fetchProductionDataByTables(tables);
-                    this.logger.log('🗑️  개발서버 데이터 삭제 중...');
-                    await this.deleteDataInReverseOrder(manager, tables);
-                    this.logger.log('💾 개발서버에 데이터 입력 중...');
-                    await this.insertDataInCorrectOrder(manager, productionData, tables);
-                    syncedTables.push(...tables);
-                    this.logger.log('✅ 외래키 제약조건 복원 중...');
-                    await manager.query('SET session_replication_role = DEFAULT');
-                    this.logger.log('✅ 데이터베이스 동기화 완료!');
-                }
-                catch (error) {
-                    this.logger.error('❌ 동기화 실패:', error);
-                    throw error;
-                }
-            });
-            return {
-                success: true,
-                message: '데이터베이스 동기화가 성공적으로 완료되었습니다.',
-                syncedTables,
-                errors,
-            };
-        }
-        catch (error) {
-            const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
-            this.logger.error('❌ 동기화 트랜잭션 실패:', errorMessage);
-            errors.push(errorMessage);
-            return {
-                success: false,
-                message: '데이터베이스 동기화 중 오류가 발생했습니다.',
-                syncedTables: [],
-                errors,
-            };
-        }
-    }
-    async fetchProductionDataByTables(tables) {
-        const dataMap = new Map();
-        const productionDataSource = this.productionDataSource;
-        for (const table of tables) {
-            try {
-                let data = [];
-                switch (table) {
-                    case 'systems':
-                        data = await productionDataSource.getRepository(entities_1.System).find();
-                        break;
-                    case 'tokens':
-                        data = await productionDataSource.getRepository(entities_1.Token).find();
-                        break;
-                    case 'system_roles':
-                        data = await productionDataSource.getRepository(entities_1.SystemRole).find();
-                        break;
-                    case 'ranks':
-                        data = await productionDataSource.getRepository(entities_1.Rank).find();
-                        break;
-                    case 'positions':
-                        data = await productionDataSource.getRepository(entities_1.Position).find();
-                        break;
-                    case 'fcm_tokens':
-                        data = await productionDataSource.getRepository(entities_1.FcmToken).find();
-                        break;
-                    case 'departments':
-                        data = await productionDataSource.getRepository(entities_1.Department).find({ order: { order: 'ASC' } });
-                        break;
-                    case 'employees':
-                        data = await productionDataSource.getRepository(entities_1.Employee).find();
-                        break;
-                    case 'employee_department_positions':
-                        data = await productionDataSource.getRepository(entities_1.EmployeeDepartmentPosition).find();
-                        break;
-                    case 'employee_rank_histories':
-                        data = await productionDataSource.getRepository(entities_1.EmployeeRankHistory).find();
-                        break;
-                    case 'employee_tokens':
-                        data = await productionDataSource.getRepository(entities_1.EmployeeToken).find();
-                        break;
-                    case 'employee_fcm_tokens':
-                        data = await productionDataSource.getRepository(entities_1.EmployeeFcmToken).find();
-                        break;
-                    case 'employee_system_roles':
-                        data = await productionDataSource.getRepository(entities_1.EmployeeSystemRole).find();
-                        break;
-                    default:
-                        this.logger.warn(`⚠️  알 수 없는 테이블: ${table}`);
-                }
-                dataMap.set(table, data);
-                this.logger.log(`  ✓ ${table}: ${data.length}개 데이터 조회`);
-            }
-            catch (error) {
-                this.logger.error(`  ✗ ${table} 조회 실패:`, error);
-                throw error;
-            }
-        }
-        return dataMap;
-    }
-    async deleteDataInReverseOrder(manager, tables) {
-        const deleteOrder = [
-            'employee_system_roles',
-            'employee_fcm_tokens',
-            'employee_tokens',
-            'employee_rank_histories',
-            'employee_department_positions',
-            'employees',
-            'departments',
-            'positions',
-            'ranks',
-            'fcm_tokens',
-            'system_roles',
-            'tokens',
-            'systems',
-        ];
-        for (const table of deleteOrder) {
-            if (tables.includes(table)) {
-                try {
-                    const result = await manager.query(`DELETE FROM "${table}"`);
-                    this.logger.log(`  ✓ ${table} 삭제 완료 (${result[1] || 0}개)`);
-                }
-                catch (error) {
-                    this.logger.error(`  ✗ ${table} 삭제 실패:`, error);
-                    throw error;
-                }
-            }
-        }
-    }
-    async insertDataInCorrectOrder(manager, dataMap, tables) {
-        const insertOrder = [
-            'systems',
-            'tokens',
-            'system_roles',
-            'ranks',
-            'positions',
-            'fcm_tokens',
-            'departments',
-            'employees',
-            'employee_department_positions',
-            'employee_rank_histories',
-            'employee_tokens',
-            'employee_fcm_tokens',
-            'employee_system_roles',
-        ];
-        for (const table of insertOrder) {
-            if (tables.includes(table) && dataMap.has(table)) {
-                const data = dataMap.get(table) || [];
-                if (data.length === 0) {
-                    this.logger.log(`  ⊘ ${table}: 데이터 없음`);
-                    continue;
-                }
-                try {
-                    if (table === 'departments') {
-                        await this.insertDepartmentsHierarchically(manager, data);
-                    }
-                    else {
-                        await this.bulkInsertData(manager, table, data);
-                    }
-                    this.logger.log(`  ✓ ${table} 입력 완료 (${data.length}개)`);
-                }
-                catch (error) {
-                    this.logger.error(`  ✗ ${table} 입력 실패:`, error);
-                    throw error;
-                }
-            }
-        }
-    }
-    async insertDepartmentsHierarchically(manager, departments) {
-        const deptMap = new Map(departments.map((d) => [d.id, d]));
-        const inserted = new Set();
-        const insertDepartment = async (dept) => {
-            if (inserted.has(dept.id))
-                return;
-            if (dept.parentDepartmentId && deptMap.has(dept.parentDepartmentId)) {
-                const parent = deptMap.get(dept.parentDepartmentId);
-                await insertDepartment(parent);
-            }
-            await manager.getRepository(entities_1.Department).save(dept);
-            inserted.add(dept.id);
-        };
-        for (const dept of departments) {
-            await insertDepartment(dept);
-        }
-    }
-    async bulkInsertData(manager, table, data) {
-        const entityMap = {
-            systems: entities_1.System,
-            system_roles: entities_1.SystemRole,
-            ranks: entities_1.Rank,
-            positions: entities_1.Position,
-            fcm_tokens: entities_1.FcmToken,
-            tokens: entities_1.Token,
-            employees: entities_1.Employee,
-            employee_department_positions: entities_1.EmployeeDepartmentPosition,
-            employee_rank_histories: entities_1.EmployeeRankHistory,
-            employee_tokens: entities_1.EmployeeToken,
-            employee_fcm_tokens: entities_1.EmployeeFcmToken,
-            employee_system_roles: entities_1.EmployeeSystemRole,
-        };
-        const entity = entityMap[table];
-        if (!entity) {
-            throw new Error(`Unknown table: ${table}`);
-        }
-        const chunkSize = 100;
-        for (let i = 0; i < data.length; i += chunkSize) {
-            const chunk = data.slice(i, i + chunkSize);
-            await manager.getRepository(entity).save(chunk);
-        }
-    }
-};
-exports.MigrationService = MigrationService;
-exports.MigrationService = MigrationService = MigrationService_1 = __decorate([
-    (0, common_1.Injectable)(),
-    __param(0, (0, typeorm_1.InjectDataSource)()),
-    __param(1, (0, typeorm_1.InjectDataSource)('production')),
-    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_2.DataSource !== "undefined" && typeorm_2.DataSource) === "function" ? _a : Object, typeof (_b = typeof typeorm_2.DataSource !== "undefined" && typeorm_2.DataSource) === "function" ? _b : Object])
-], MigrationService);
-
-
-/***/ }),
-
-/***/ "./src/modules/context/migration/november-2025-loader.helper.ts":
-/*!**********************************************************************!*\
-  !*** ./src/modules/context/migration/november-2025-loader.helper.ts ***!
-  \**********************************************************************/
+/***/ "./src/modules/context/organization-history-migration/november-2025-loader.helper.ts":
+/*!*******************************************************************************************!*\
+  !*** ./src/modules/context/organization-history-migration/november-2025-loader.helper.ts ***!
+  \*******************************************************************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -14335,10 +13455,10 @@ exports.November2025LoaderHelper = November2025LoaderHelper = November2025Loader
 
 /***/ }),
 
-/***/ "./src/modules/context/migration/november-2025-validator.helper.ts":
-/*!*************************************************************************!*\
-  !*** ./src/modules/context/migration/november-2025-validator.helper.ts ***!
-  \*************************************************************************/
+/***/ "./src/modules/context/organization-history-migration/november-2025-validator.helper.ts":
+/*!**********************************************************************************************!*\
+  !*** ./src/modules/context/organization-history-migration/november-2025-validator.helper.ts ***!
+  \**********************************************************************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -14542,10 +13662,243 @@ exports.November2025ValidatorHelper = November2025ValidatorHelper = November2025
 
 /***/ }),
 
-/***/ "./src/modules/context/migration/organization-history-migration.service.ts":
-/*!*********************************************************************************!*\
-  !*** ./src/modules/context/migration/organization-history-migration.service.ts ***!
-  \*********************************************************************************/
+/***/ "./src/modules/context/organization-history-migration/organization-history-migration.controller.ts":
+/*!*********************************************************************************************************!*\
+  !*** ./src/modules/context/organization-history-migration/organization-history-migration.controller.ts ***!
+  \*********************************************************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var _a, _b, _c, _d, _e, _f;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.OrganizationHistoryMigrationController = void 0;
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const swagger_1 = __webpack_require__(/*! @nestjs/swagger */ "@nestjs/swagger");
+const organization_history_migration_service_1 = __webpack_require__(/*! ./organization-history-migration.service */ "./src/modules/context/organization-history-migration/organization-history-migration.service.ts");
+const organization_history_viewer_service_1 = __webpack_require__(/*! ./organization-history-viewer.service */ "./src/modules/context/organization-history-migration/organization-history-viewer.service.ts");
+const november_2025_validator_helper_1 = __webpack_require__(/*! ./november-2025-validator.helper */ "./src/modules/context/organization-history-migration/november-2025-validator.helper.ts");
+let OrganizationHistoryMigrationController = class OrganizationHistoryMigrationController {
+    constructor(orgHistoryMigration, orgHistoryViewer, november2025Validator) {
+        this.orgHistoryMigration = orgHistoryMigration;
+        this.orgHistoryViewer = orgHistoryViewer;
+        this.november2025Validator = november2025Validator;
+    }
+    async migrateNovember2025OrgHistory() {
+        return await this.orgHistoryMigration.execute11월조직도이력마이그레이션();
+    }
+    async validateNovember2025OrgData() {
+        return await this.november2025Validator.validateJsonData();
+    }
+    async get11월조직도() {
+        return await this.orgHistoryViewer.get11월조직도();
+    }
+    async get12월조직도() {
+        return await this.orgHistoryViewer.get12월조직도();
+    }
+    async get조직변화내역() {
+        return await this.orgHistoryViewer.get조직변화내역();
+    }
+};
+exports.OrganizationHistoryMigrationController = OrganizationHistoryMigrationController;
+__decorate([
+    (0, common_1.Post)('november-2025/migrate'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({
+        summary: '11월 조직도 이력 마이그레이션 실행',
+        description: `
+            11월과 12월 조직도를 비교하여 변경된 직원들의 11월 이력을 생성합니다.
+            
+            처리 내용:
+            1. JSON 파일에서 11월 조직도 데이터 로드
+            2. DB에서 현재(12월) 이력 데이터 조회
+            3. 부서/직책 변경 여부 비교
+            4. 변경된 직원만 11월 이력 생성 + 12월 이력 시작일 수정
+        `,
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: '마이그레이션 성공',
+        schema: {
+            type: 'object',
+            properties: {
+                success: { type: 'boolean', example: true },
+                totalProcessed: { type: 'number', example: 73 },
+                changedCount: { type: 'number', example: 15 },
+                unchangedCount: { type: 'number', example: 58 },
+                createdCount: { type: 'number', example: 15 },
+                updatedCount: { type: 'number', example: 15 },
+                errors: {
+                    type: 'array',
+                    items: {
+                        type: 'object',
+                        properties: {
+                            employeeId: { type: 'string' },
+                            employeeName: { type: 'string' },
+                            error: { type: 'string' },
+                        },
+                    },
+                },
+            },
+        },
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], OrganizationHistoryMigrationController.prototype, "migrateNovember2025OrgHistory", null);
+__decorate([
+    (0, common_1.Get)('november-2025/validate'),
+    (0, swagger_1.ApiOperation)({
+        summary: '11월 조직도 데이터 검증',
+        description: 'JSON 파일의 11월 조직도 데이터를 검증합니다 (마이그레이션 실행 전 사전 체크)',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: '검증 완료',
+        schema: {
+            type: 'object',
+            properties: {
+                isValid: { type: 'boolean', example: true },
+                errors: { type: 'array', items: { type: 'string' } },
+                warnings: { type: 'array', items: { type: 'string' } },
+                stats: {
+                    type: 'object',
+                    properties: {
+                        totalDepartments: { type: 'number', example: 15 },
+                        totalEmployees: { type: 'number', example: 73 },
+                        missingDepartments: { type: 'array', items: { type: 'string' } },
+                        missingEmployees: { type: 'array', items: { type: 'string' } },
+                        duplicateEmployees: {
+                            type: 'array',
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    name: { type: 'string' },
+                                    count: { type: 'number' },
+                                    departments: { type: 'array', items: { type: 'string' } },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], OrganizationHistoryMigrationController.prototype, "validateNovember2025OrgData", null);
+__decorate([
+    (0, common_1.Get)('november'),
+    (0, swagger_1.ApiOperation)({
+        summary: '11월 조직도 조회',
+        description: '2025년 11월 조직도를 계층구조로 조회합니다 (조직개편 이전)',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: '11월 조직도 조회 성공',
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", typeof (_d = typeof Promise !== "undefined" && Promise) === "function" ? _d : Object)
+], OrganizationHistoryMigrationController.prototype, "get11\uC6D4\uC870\uC9C1\uB3C4", null);
+__decorate([
+    (0, common_1.Get)('december'),
+    (0, swagger_1.ApiOperation)({
+        summary: '12월 조직도 조회',
+        description: '2025년 12월 조직도를 계층구조로 조회합니다 (조직개편 이후)',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: '12월 조직도 조회 성공',
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", typeof (_e = typeof Promise !== "undefined" && Promise) === "function" ? _e : Object)
+], OrganizationHistoryMigrationController.prototype, "get12\uC6D4\uC870\uC9C1\uB3C4", null);
+__decorate([
+    (0, common_1.Get)('changes'),
+    (0, swagger_1.ApiOperation)({
+        summary: '11월-12월 조직 변화 내역 조회',
+        description: '11월과 12월 조직도를 비교하여 부서/직책이 변경된 직원 목록을 조회합니다',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: '조직 변화 내역 조회 성공',
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
+], OrganizationHistoryMigrationController.prototype, "get\uC870\uC9C1\uBCC0\uD654\uB0B4\uC5ED", null);
+exports.OrganizationHistoryMigrationController = OrganizationHistoryMigrationController = __decorate([
+    (0, swagger_1.ApiTags)('조직도 이력 마이그레이션'),
+    (0, common_1.Controller)('organization-history-migration'),
+    __metadata("design:paramtypes", [typeof (_a = typeof organization_history_migration_service_1.OrganizationHistoryMigrationService !== "undefined" && organization_history_migration_service_1.OrganizationHistoryMigrationService) === "function" ? _a : Object, typeof (_b = typeof organization_history_viewer_service_1.OrganizationHistoryViewerService !== "undefined" && organization_history_viewer_service_1.OrganizationHistoryViewerService) === "function" ? _b : Object, typeof (_c = typeof november_2025_validator_helper_1.November2025ValidatorHelper !== "undefined" && november_2025_validator_helper_1.November2025ValidatorHelper) === "function" ? _c : Object])
+], OrganizationHistoryMigrationController);
+
+
+/***/ }),
+
+/***/ "./src/modules/context/organization-history-migration/organization-history-migration.module.ts":
+/*!*****************************************************************************************************!*\
+  !*** ./src/modules/context/organization-history-migration/organization-history-migration.module.ts ***!
+  \*****************************************************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.OrganizationHistoryMigrationModule = void 0;
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const typeorm_1 = __webpack_require__(/*! @nestjs/typeorm */ "@nestjs/typeorm");
+const entities_1 = __webpack_require__(/*! libs/database/entities */ "./libs/database/entities/index.ts");
+const organization_history_migration_service_1 = __webpack_require__(/*! ./organization-history-migration.service */ "./src/modules/context/organization-history-migration/organization-history-migration.service.ts");
+const organization_history_viewer_service_1 = __webpack_require__(/*! ./organization-history-viewer.service */ "./src/modules/context/organization-history-migration/organization-history-viewer.service.ts");
+const november_2025_loader_helper_1 = __webpack_require__(/*! ./november-2025-loader.helper */ "./src/modules/context/organization-history-migration/november-2025-loader.helper.ts");
+const november_2025_validator_helper_1 = __webpack_require__(/*! ./november-2025-validator.helper */ "./src/modules/context/organization-history-migration/november-2025-validator.helper.ts");
+const organization_history_migration_controller_1 = __webpack_require__(/*! ./organization-history-migration.controller */ "./src/modules/context/organization-history-migration/organization-history-migration.controller.ts");
+let OrganizationHistoryMigrationModule = class OrganizationHistoryMigrationModule {
+};
+exports.OrganizationHistoryMigrationModule = OrganizationHistoryMigrationModule;
+exports.OrganizationHistoryMigrationModule = OrganizationHistoryMigrationModule = __decorate([
+    (0, common_1.Module)({
+        imports: [typeorm_1.TypeOrmModule.forFeature(entities_1.Entities)],
+        controllers: [organization_history_migration_controller_1.OrganizationHistoryMigrationController],
+        providers: [
+            organization_history_migration_service_1.OrganizationHistoryMigrationService,
+            organization_history_viewer_service_1.OrganizationHistoryViewerService,
+            november_2025_loader_helper_1.November2025LoaderHelper,
+            november_2025_validator_helper_1.November2025ValidatorHelper,
+        ],
+        exports: [
+            organization_history_migration_service_1.OrganizationHistoryMigrationService,
+            organization_history_viewer_service_1.OrganizationHistoryViewerService,
+            november_2025_loader_helper_1.November2025LoaderHelper,
+            november_2025_validator_helper_1.November2025ValidatorHelper,
+        ],
+    })
+], OrganizationHistoryMigrationModule);
+
+
+/***/ }),
+
+/***/ "./src/modules/context/organization-history-migration/organization-history-migration.service.ts":
+/*!******************************************************************************************************!*\
+  !*** ./src/modules/context/organization-history-migration/organization-history-migration.service.ts ***!
+  \******************************************************************************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -14566,7 +13919,7 @@ const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 const typeorm_1 = __webpack_require__(/*! typeorm */ "typeorm");
 const employee_department_position_history_entity_1 = __webpack_require__(/*! ../../domain/employee-department-position-history/employee-department-position-history.entity */ "./src/modules/domain/employee-department-position-history/employee-department-position-history.entity.ts");
 const employee_entity_1 = __webpack_require__(/*! ../../domain/employee/employee.entity */ "./src/modules/domain/employee/employee.entity.ts");
-const november_2025_loader_helper_1 = __webpack_require__(/*! ./november-2025-loader.helper */ "./src/modules/context/migration/november-2025-loader.helper.ts");
+const november_2025_loader_helper_1 = __webpack_require__(/*! ./november-2025-loader.helper */ "./src/modules/context/organization-history-migration/november-2025-loader.helper.ts");
 let OrganizationHistoryMigrationService = OrganizationHistoryMigrationService_1 = class OrganizationHistoryMigrationService {
     constructor(dataSource, november2025Loader) {
         this.dataSource = dataSource;
@@ -14758,10 +14111,10 @@ exports.OrganizationHistoryMigrationService = OrganizationHistoryMigrationServic
 
 /***/ }),
 
-/***/ "./src/modules/context/migration/organization-history-viewer.service.ts":
-/*!******************************************************************************!*\
-  !*** ./src/modules/context/migration/organization-history-viewer.service.ts ***!
-  \******************************************************************************/
+/***/ "./src/modules/context/organization-history-migration/organization-history-viewer.service.ts":
+/*!***************************************************************************************************!*\
+  !*** ./src/modules/context/organization-history-migration/organization-history-viewer.service.ts ***!
+  \***************************************************************************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -15148,237 +14501,6 @@ exports.OrganizationHistoryViewerService = OrganizationHistoryViewerService = Or
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [typeof (_a = typeof typeorm_1.DataSource !== "undefined" && typeorm_1.DataSource) === "function" ? _a : Object])
 ], OrganizationHistoryViewerService);
-
-
-/***/ }),
-
-/***/ "./src/modules/context/migration/terminated-employee-migration.service.ts":
-/*!********************************************************************************!*\
-  !*** ./src/modules/context/migration/terminated-employee-migration.service.ts ***!
-  \********************************************************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var TerminatedEmployeeMigrationService_1;
-var _a;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.TerminatedEmployeeMigrationService = void 0;
-const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
-const typeorm_1 = __webpack_require__(/*! typeorm */ "typeorm");
-const employee_entity_1 = __webpack_require__(/*! ../../domain/employee/employee.entity */ "./src/modules/domain/employee/employee.entity.ts");
-const employee_department_position_entity_1 = __webpack_require__(/*! ../../domain/employee-department-position/employee-department-position.entity */ "./src/modules/domain/employee-department-position/employee-department-position.entity.ts");
-const employee_department_position_history_entity_1 = __webpack_require__(/*! ../../domain/employee-department-position-history/employee-department-position-history.entity */ "./src/modules/domain/employee-department-position-history/employee-department-position-history.entity.ts");
-const enums_1 = __webpack_require__(/*! ../../../../libs/common/enums */ "./libs/common/enums/index.ts");
-const path = __webpack_require__(/*! path */ "path");
-const fs = __webpack_require__(/*! fs */ "fs");
-let TerminatedEmployeeMigrationService = TerminatedEmployeeMigrationService_1 = class TerminatedEmployeeMigrationService {
-    constructor(dataSource) {
-        this.dataSource = dataSource;
-        this.logger = new common_1.Logger(TerminatedEmployeeMigrationService_1.name);
-    }
-    async execute퇴사자데이터마이그레이션() {
-        const filePath = path.join(__dirname, 'terminated-employees-data.json');
-        const fileContent = fs.readFileSync(filePath, 'utf-8');
-        const terminatedEmployeesData = JSON.parse(fileContent);
-        const dataToProcess = terminatedEmployeesData;
-        if (!dataToProcess || dataToProcess.length === 0) {
-            throw new Error('처리할 퇴사자 데이터가 없습니다. JSON 파일을 확인하세요.');
-        }
-        this.logger.log('='.repeat(80));
-        this.logger.log('퇴사자 데이터 마이그레이션 시작');
-        this.logger.log(`처리 대상: ${dataToProcess.length}명`);
-        this.logger.log('='.repeat(80));
-        const results = [];
-        let successCount = 0;
-        let failedCount = 0;
-        for (const data of dataToProcess) {
-            try {
-                this.logger.log(`\n처리 중: ${data.name} (${data.employeeNumber})`);
-                const result = await this.process퇴사자데이터(data);
-                results.push(result);
-                if (result.success) {
-                    successCount++;
-                    this.logger.log(`✅ 성공: ${data.name} (${data.employeeNumber})`);
-                }
-                else {
-                    failedCount++;
-                    this.logger.error(`❌ 실패: ${data.name} (${data.employeeNumber}) - ${result.error}`);
-                }
-            }
-            catch (error) {
-                failedCount++;
-                this.logger.error(`❌ 예외 발생: ${data.name} (${data.employeeNumber})`, error.stack);
-                results.push({
-                    employeeNumber: data.employeeNumber,
-                    employeeName: data.name,
-                    success: false,
-                    error: error.message,
-                });
-            }
-        }
-        this.logger.log('='.repeat(80));
-        this.logger.log('퇴사자 데이터 마이그레이션 완료');
-        this.logger.log(`총 처리: ${dataToProcess.length}명`);
-        this.logger.log(`성공: ${successCount}명`);
-        this.logger.log(`실패: ${failedCount}명`);
-        this.logger.log('='.repeat(80));
-        return {
-            success: failedCount === 0,
-            totalProcessed: dataToProcess.length,
-            successCount,
-            failedCount,
-            results,
-        };
-    }
-    async process퇴사자데이터(data) {
-        const result = {
-            employeeNumber: data.employeeNumber,
-            employeeName: data.name,
-            success: false,
-            updates: {
-                terminationDateUpdated: false,
-                terminatedDeptHistorySetCurrent: false,
-                otherHistoriesUpdated: 0,
-                assignmentsDeleted: 0,
-            },
-        };
-        await this.dataSource.transaction(async (manager) => {
-            const employee = await manager.findOne(employee_entity_1.Employee, {
-                where: { employeeNumber: data.employeeNumber },
-            });
-            if (!employee) {
-                throw new Error(`사번 ${data.employeeNumber}에 해당하는 직원을 찾을 수 없습니다.`);
-            }
-            if (employee.status !== enums_1.EmployeeStatus.Terminated) {
-                throw new Error(`직원이 퇴사 상태가 아닙니다. 현재 상태: ${employee.status}`);
-            }
-            this.logger.debug(`  - 직원 조회 완료: ${employee.name} (${employee.id})`);
-            const terminatedDept = await manager.query(`SELECT id FROM departments WHERE "isException" = true AND ("departmentName" = '퇴사자' OR "departmentCode" = '퇴사자') LIMIT 1`);
-            if (!terminatedDept || terminatedDept.length === 0) {
-                throw new Error('퇴사자 부서를 찾을 수 없습니다.');
-            }
-            const terminatedDeptId = terminatedDept[0].id;
-            this.logger.debug(`  - 퇴사자 부서 ID: ${terminatedDeptId}`);
-            await manager.update(employee_entity_1.Employee, { id: employee.id }, { terminationDate: data.expectedTerminationDate });
-            result.updates.terminationDateUpdated = true;
-            this.logger.debug(`  - 퇴사일 업데이트: ${data.expectedTerminationDate}`);
-            const terminatedHistoryUpdateResult = await manager.update(employee_department_position_history_entity_1.EmployeeDepartmentPositionHistory, {
-                employeeId: employee.id,
-                departmentId: terminatedDeptId,
-            }, {
-                isCurrent: true,
-                effectiveStartDate: data.expectedTerminationDate,
-                effectiveEndDate: null,
-            });
-            if (terminatedHistoryUpdateResult.affected > 0) {
-                result.updates.terminatedDeptHistorySetCurrent = true;
-                this.logger.debug(`  - 퇴사자 부서 이력 업데이트: ${terminatedHistoryUpdateResult.affected}건`);
-            }
-            else {
-                this.logger.warn(`  ⚠️  퇴사자 부서 이력을 찾을 수 없습니다.`);
-            }
-            const otherHistoriesUpdateResult = await manager
-                .createQueryBuilder()
-                .update(employee_department_position_history_entity_1.EmployeeDepartmentPositionHistory)
-                .set({
-                isCurrent: false,
-                effectiveStartDate: employee.hireDate,
-                effectiveEndDate: data.expectedTerminationDate,
-            })
-                .where('employeeId = :employeeId', { employeeId: employee.id })
-                .andWhere('departmentId != :terminatedDeptId', { terminatedDeptId })
-                .andWhere('isCurrent = :isCurrent', { isCurrent: true })
-                .execute();
-            result.updates.otherHistoriesUpdated = otherHistoriesUpdateResult.affected || 0;
-            this.logger.debug(`  - 다른 부서 이력 종료 처리: ${result.updates.otherHistoriesUpdated}건`);
-            const assignmentsDeleteResult = await manager
-                .createQueryBuilder()
-                .delete()
-                .from(employee_department_position_entity_1.EmployeeDepartmentPosition)
-                .where('employeeId = :employeeId', { employeeId: employee.id })
-                .andWhere('departmentId != :terminatedDeptId', { terminatedDeptId })
-                .execute();
-            result.updates.assignmentsDeleted = assignmentsDeleteResult.affected || 0;
-            this.logger.debug(`  - 퇴사자 부서가 아닌 배치 삭제: ${result.updates.assignmentsDeleted}건`);
-            result.success = true;
-        });
-        return result;
-    }
-    parse퇴사자데이터FromCSV(csvData) {
-        const lines = csvData.trim().split('\n');
-        const result = [];
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (!line)
-                continue;
-            const parts = line.split(',').map((p) => p.trim());
-            if (parts.length < 3) {
-                this.logger.warn(`⚠️  라인 ${i + 1} 스킵: 형식 오류 - ${line}`);
-                continue;
-            }
-            result.push({
-                name: parts[0],
-                employeeNumber: parts[1],
-                expectedTerminationDate: parts[2],
-            });
-        }
-        this.logger.log(`CSV 파싱 완료: ${result.length}건`);
-        return result;
-    }
-    parse퇴사자데이터FromJSON(jsonData) {
-        this.logger.log(`JSON 파싱 완료: ${jsonData.length}건`);
-        return jsonData.map((item) => ({
-            name: item.name,
-            employeeNumber: item.employeeNumber,
-            expectedTerminationDate: item.expectedTerminationDate,
-        }));
-    }
-    async get퇴사자현황() {
-        const result = await this.dataSource.query(`
-            SELECT 
-                e.id as "employeeId",
-                e."employeeNumber",
-                e.name as "employeeName",
-                e."terminationDate",
-                d."departmentName" as "currentDepartment",
-                d.id as "currentDepartmentId",
-                d."isException" as "isDepartmentException",
-                COUNT(DISTINCT edp.id) as "assignmentCount",
-                COUNT(DISTINCT h."historyId") as "historyCount"
-            FROM employees e
-            LEFT JOIN employee_department_positions edp ON e.id = edp."employeeId"
-            LEFT JOIN departments d ON edp."departmentId" = d.id
-            LEFT JOIN employee_department_position_history h ON e.id = h."employeeId" AND h."isCurrent" = true
-            WHERE e.status = '퇴사'
-            GROUP BY e.id, e."employeeNumber", e.name, e."terminationDate", d."departmentName", d.id, d."isException"
-            ORDER BY e."employeeNumber"
-            `);
-        return result.map((row) => ({
-            employeeId: row.employeeId,
-            employeeNumber: row.employeeNumber,
-            employeeName: row.employeeName,
-            terminationDate: row.terminationDate,
-            currentDepartment: row.currentDepartment,
-            currentDepartmentId: row.currentDepartmentId,
-            hasMultipleAssignments: parseInt(row.assignmentCount) > 1,
-            historyCount: parseInt(row.historyCount),
-        }));
-    }
-};
-exports.TerminatedEmployeeMigrationService = TerminatedEmployeeMigrationService;
-exports.TerminatedEmployeeMigrationService = TerminatedEmployeeMigrationService = TerminatedEmployeeMigrationService_1 = __decorate([
-    (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_1.DataSource !== "undefined" && typeorm_1.DataSource) === "function" ? _a : Object])
-], TerminatedEmployeeMigrationService);
 
 
 /***/ }),
@@ -17805,6 +16927,428 @@ exports.SystemManagementContextService = SystemManagementContextService = System
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [typeof (_a = typeof system_service_1.DomainSystemService !== "undefined" && system_service_1.DomainSystemService) === "function" ? _a : Object, typeof (_b = typeof system_role_service_1.DomainSystemRoleService !== "undefined" && system_role_service_1.DomainSystemRoleService) === "function" ? _b : Object, typeof (_c = typeof employee_system_role_service_1.DomainEmployeeSystemRoleService !== "undefined" && employee_system_role_service_1.DomainEmployeeSystemRoleService) === "function" ? _c : Object])
 ], SystemManagementContextService);
+
+
+/***/ }),
+
+/***/ "./src/modules/context/terminated-employee-migration/index.ts":
+/*!********************************************************************!*\
+  !*** ./src/modules/context/terminated-employee-migration/index.ts ***!
+  \********************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__webpack_require__(/*! ./terminated-employee-migration.module */ "./src/modules/context/terminated-employee-migration/terminated-employee-migration.module.ts"), exports);
+__exportStar(__webpack_require__(/*! ./terminated-employee-migration.service */ "./src/modules/context/terminated-employee-migration/terminated-employee-migration.service.ts"), exports);
+
+
+/***/ }),
+
+/***/ "./src/modules/context/terminated-employee-migration/terminated-employee-migration.controller.ts":
+/*!*******************************************************************************************************!*\
+  !*** ./src/modules/context/terminated-employee-migration/terminated-employee-migration.controller.ts ***!
+  \*******************************************************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var _a;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TerminatedEmployeeMigrationController = void 0;
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const swagger_1 = __webpack_require__(/*! @nestjs/swagger */ "@nestjs/swagger");
+const terminated_employee_migration_service_1 = __webpack_require__(/*! ./terminated-employee-migration.service */ "./src/modules/context/terminated-employee-migration/terminated-employee-migration.service.ts");
+let TerminatedEmployeeMigrationController = class TerminatedEmployeeMigrationController {
+    constructor(terminatedEmpMigration) {
+        this.terminatedEmpMigration = terminatedEmpMigration;
+    }
+    async migrateTerminatedEmployees() {
+        return await this.terminatedEmpMigration.execute퇴사자데이터마이그레이션();
+    }
+    async getTerminatedEmployeesStatus() {
+        return await this.terminatedEmpMigration.get퇴사자현황();
+    }
+};
+exports.TerminatedEmployeeMigrationController = TerminatedEmployeeMigrationController;
+__decorate([
+    (0, common_1.Post)('migrate'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({
+        summary: '퇴사자 데이터 마이그레이션',
+        description: `
+            퇴사자의 퇴사일 및 이력 데이터를 정리합니다.
+            
+            처리 내용:
+            1. 퇴사일 업데이트 (예상퇴사일로)
+            2. 퇴사자 부서 이력을 isCurrent = true로 설정
+            3. 다른 부서 이력들을 isCurrent = false로 설정 (유효기간: 입사일 ~ 퇴사일)
+            4. 퇴사자 부서가 아닌 배치 데이터 삭제
+            
+            ※ 퇴사자 데이터는 terminated-employees-data.json 파일에서 자동으로 로드됩니다.
+        `,
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: '마이그레이션 성공',
+        schema: {
+            type: 'object',
+            properties: {
+                success: { type: 'boolean', example: true },
+                totalProcessed: { type: 'number', example: 167 },
+                successCount: { type: 'number', example: 165 },
+                failedCount: { type: 'number', example: 2 },
+                results: {
+                    type: 'array',
+                    items: {
+                        type: 'object',
+                        properties: {
+                            employeeNumber: { type: 'string' },
+                            employeeName: { type: 'string' },
+                            success: { type: 'boolean' },
+                            error: { type: 'string' },
+                            updates: {
+                                type: 'object',
+                                properties: {
+                                    terminationDateUpdated: { type: 'boolean' },
+                                    terminatedDeptHistorySetCurrent: { type: 'boolean' },
+                                    otherHistoriesUpdated: { type: 'number' },
+                                    assignmentsDeleted: { type: 'number' },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], TerminatedEmployeeMigrationController.prototype, "migrateTerminatedEmployees", null);
+__decorate([
+    (0, common_1.Get)('status'),
+    (0, swagger_1.ApiOperation)({
+        summary: '퇴사자 현황 조회',
+        description: '퇴사 상태인 직원들의 현재 배치 및 이력 상태를 조회합니다.',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: '퇴사자 현황 조회 성공',
+        schema: {
+            type: 'array',
+            items: {
+                type: 'object',
+                properties: {
+                    employeeId: { type: 'string' },
+                    employeeNumber: { type: 'string' },
+                    employeeName: { type: 'string' },
+                    terminationDate: { type: 'string', nullable: true },
+                    currentDepartment: { type: 'string' },
+                    currentDepartmentId: { type: 'string' },
+                    hasMultipleAssignments: { type: 'boolean' },
+                    historyCount: { type: 'number' },
+                },
+            },
+        },
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], TerminatedEmployeeMigrationController.prototype, "getTerminatedEmployeesStatus", null);
+exports.TerminatedEmployeeMigrationController = TerminatedEmployeeMigrationController = __decorate([
+    (0, swagger_1.ApiTags)('퇴사자 데이터 마이그레이션'),
+    (0, common_1.Controller)('terminated-employee-migration'),
+    __metadata("design:paramtypes", [typeof (_a = typeof terminated_employee_migration_service_1.TerminatedEmployeeMigrationService !== "undefined" && terminated_employee_migration_service_1.TerminatedEmployeeMigrationService) === "function" ? _a : Object])
+], TerminatedEmployeeMigrationController);
+
+
+/***/ }),
+
+/***/ "./src/modules/context/terminated-employee-migration/terminated-employee-migration.module.ts":
+/*!***************************************************************************************************!*\
+  !*** ./src/modules/context/terminated-employee-migration/terminated-employee-migration.module.ts ***!
+  \***************************************************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TerminatedEmployeeMigrationModule = void 0;
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const typeorm_1 = __webpack_require__(/*! @nestjs/typeorm */ "@nestjs/typeorm");
+const entities_1 = __webpack_require__(/*! libs/database/entities */ "./libs/database/entities/index.ts");
+const terminated_employee_migration_service_1 = __webpack_require__(/*! ./terminated-employee-migration.service */ "./src/modules/context/terminated-employee-migration/terminated-employee-migration.service.ts");
+const terminated_employee_migration_controller_1 = __webpack_require__(/*! ./terminated-employee-migration.controller */ "./src/modules/context/terminated-employee-migration/terminated-employee-migration.controller.ts");
+let TerminatedEmployeeMigrationModule = class TerminatedEmployeeMigrationModule {
+};
+exports.TerminatedEmployeeMigrationModule = TerminatedEmployeeMigrationModule;
+exports.TerminatedEmployeeMigrationModule = TerminatedEmployeeMigrationModule = __decorate([
+    (0, common_1.Module)({
+        imports: [typeorm_1.TypeOrmModule.forFeature(entities_1.Entities)],
+        controllers: [terminated_employee_migration_controller_1.TerminatedEmployeeMigrationController],
+        providers: [terminated_employee_migration_service_1.TerminatedEmployeeMigrationService],
+        exports: [terminated_employee_migration_service_1.TerminatedEmployeeMigrationService],
+    })
+], TerminatedEmployeeMigrationModule);
+
+
+/***/ }),
+
+/***/ "./src/modules/context/terminated-employee-migration/terminated-employee-migration.service.ts":
+/*!****************************************************************************************************!*\
+  !*** ./src/modules/context/terminated-employee-migration/terminated-employee-migration.service.ts ***!
+  \****************************************************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var TerminatedEmployeeMigrationService_1;
+var _a;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TerminatedEmployeeMigrationService = void 0;
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const typeorm_1 = __webpack_require__(/*! typeorm */ "typeorm");
+const employee_entity_1 = __webpack_require__(/*! ../../domain/employee/employee.entity */ "./src/modules/domain/employee/employee.entity.ts");
+const employee_department_position_entity_1 = __webpack_require__(/*! ../../domain/employee-department-position/employee-department-position.entity */ "./src/modules/domain/employee-department-position/employee-department-position.entity.ts");
+const employee_department_position_history_entity_1 = __webpack_require__(/*! ../../domain/employee-department-position-history/employee-department-position-history.entity */ "./src/modules/domain/employee-department-position-history/employee-department-position-history.entity.ts");
+const enums_1 = __webpack_require__(/*! ../../../../libs/common/enums */ "./libs/common/enums/index.ts");
+const path = __webpack_require__(/*! path */ "path");
+const fs = __webpack_require__(/*! fs */ "fs");
+let TerminatedEmployeeMigrationService = TerminatedEmployeeMigrationService_1 = class TerminatedEmployeeMigrationService {
+    constructor(dataSource) {
+        this.dataSource = dataSource;
+        this.logger = new common_1.Logger(TerminatedEmployeeMigrationService_1.name);
+    }
+    async execute퇴사자데이터마이그레이션() {
+        const filePath = path.join(__dirname, 'terminated-employees-data.json');
+        const fileContent = fs.readFileSync(filePath, 'utf-8');
+        const terminatedEmployeesData = JSON.parse(fileContent);
+        const dataToProcess = terminatedEmployeesData;
+        if (!dataToProcess || dataToProcess.length === 0) {
+            throw new Error('처리할 퇴사자 데이터가 없습니다. JSON 파일을 확인하세요.');
+        }
+        this.logger.log('='.repeat(80));
+        this.logger.log('퇴사자 데이터 마이그레이션 시작');
+        this.logger.log(`처리 대상: ${dataToProcess.length}명`);
+        this.logger.log('='.repeat(80));
+        const results = [];
+        let successCount = 0;
+        let failedCount = 0;
+        for (const data of dataToProcess) {
+            try {
+                this.logger.log(`\n처리 중: ${data.name} (${data.employeeNumber})`);
+                const result = await this.process퇴사자데이터(data);
+                results.push(result);
+                if (result.success) {
+                    successCount++;
+                    this.logger.log(`✅ 성공: ${data.name} (${data.employeeNumber})`);
+                }
+                else {
+                    failedCount++;
+                    this.logger.error(`❌ 실패: ${data.name} (${data.employeeNumber}) - ${result.error}`);
+                }
+            }
+            catch (error) {
+                failedCount++;
+                this.logger.error(`❌ 예외 발생: ${data.name} (${data.employeeNumber})`, error.stack);
+                results.push({
+                    employeeNumber: data.employeeNumber,
+                    employeeName: data.name,
+                    success: false,
+                    error: error.message,
+                });
+            }
+        }
+        this.logger.log('='.repeat(80));
+        this.logger.log('퇴사자 데이터 마이그레이션 완료');
+        this.logger.log(`총 처리: ${dataToProcess.length}명`);
+        this.logger.log(`성공: ${successCount}명`);
+        this.logger.log(`실패: ${failedCount}명`);
+        this.logger.log('='.repeat(80));
+        return {
+            success: failedCount === 0,
+            totalProcessed: dataToProcess.length,
+            successCount,
+            failedCount,
+            results,
+        };
+    }
+    async process퇴사자데이터(data) {
+        const result = {
+            employeeNumber: data.employeeNumber,
+            employeeName: data.name,
+            success: false,
+            updates: {
+                terminationDateUpdated: false,
+                terminatedDeptHistorySetCurrent: false,
+                otherHistoriesUpdated: 0,
+                assignmentsDeleted: 0,
+            },
+        };
+        await this.dataSource.transaction(async (manager) => {
+            const employee = await manager.findOne(employee_entity_1.Employee, {
+                where: { employeeNumber: data.employeeNumber },
+            });
+            if (!employee) {
+                throw new Error(`사번 ${data.employeeNumber}에 해당하는 직원을 찾을 수 없습니다.`);
+            }
+            if (employee.status !== enums_1.EmployeeStatus.Terminated) {
+                throw new Error(`직원이 퇴사 상태가 아닙니다. 현재 상태: ${employee.status}`);
+            }
+            this.logger.debug(`  - 직원 조회 완료: ${employee.name} (${employee.id})`);
+            const terminatedDept = await manager.query(`SELECT id FROM departments WHERE "isException" = true AND ("departmentName" = '퇴사자' OR "departmentCode" = '퇴사자') LIMIT 1`);
+            if (!terminatedDept || terminatedDept.length === 0) {
+                throw new Error('퇴사자 부서를 찾을 수 없습니다.');
+            }
+            const terminatedDeptId = terminatedDept[0].id;
+            this.logger.debug(`  - 퇴사자 부서 ID: ${terminatedDeptId}`);
+            await manager.update(employee_entity_1.Employee, { id: employee.id }, { terminationDate: data.expectedTerminationDate });
+            result.updates.terminationDateUpdated = true;
+            this.logger.debug(`  - 퇴사일 업데이트: ${data.expectedTerminationDate}`);
+            const terminatedHistoryUpdateResult = await manager.update(employee_department_position_history_entity_1.EmployeeDepartmentPositionHistory, {
+                employeeId: employee.id,
+                departmentId: terminatedDeptId,
+            }, {
+                isCurrent: true,
+                effectiveStartDate: data.expectedTerminationDate,
+                effectiveEndDate: null,
+            });
+            if (terminatedHistoryUpdateResult.affected > 0) {
+                result.updates.terminatedDeptHistorySetCurrent = true;
+                this.logger.debug(`  - 퇴사자 부서 이력 업데이트: ${terminatedHistoryUpdateResult.affected}건`);
+            }
+            else {
+                this.logger.warn(`  ⚠️  퇴사자 부서 이력을 찾을 수 없습니다.`);
+            }
+            const otherHistoriesUpdateResult = await manager
+                .createQueryBuilder()
+                .update(employee_department_position_history_entity_1.EmployeeDepartmentPositionHistory)
+                .set({
+                isCurrent: false,
+                effectiveStartDate: employee.hireDate,
+                effectiveEndDate: data.expectedTerminationDate,
+            })
+                .where('employeeId = :employeeId', { employeeId: employee.id })
+                .andWhere('departmentId != :terminatedDeptId', { terminatedDeptId })
+                .andWhere('isCurrent = :isCurrent', { isCurrent: true })
+                .execute();
+            result.updates.otherHistoriesUpdated = otherHistoriesUpdateResult.affected || 0;
+            this.logger.debug(`  - 다른 부서 이력 종료 처리: ${result.updates.otherHistoriesUpdated}건`);
+            const assignmentsDeleteResult = await manager
+                .createQueryBuilder()
+                .delete()
+                .from(employee_department_position_entity_1.EmployeeDepartmentPosition)
+                .where('employeeId = :employeeId', { employeeId: employee.id })
+                .andWhere('departmentId != :terminatedDeptId', { terminatedDeptId })
+                .execute();
+            result.updates.assignmentsDeleted = assignmentsDeleteResult.affected || 0;
+            this.logger.debug(`  - 퇴사자 부서가 아닌 배치 삭제: ${result.updates.assignmentsDeleted}건`);
+            result.success = true;
+        });
+        return result;
+    }
+    parse퇴사자데이터FromCSV(csvData) {
+        const lines = csvData.trim().split('\n');
+        const result = [];
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line)
+                continue;
+            const parts = line.split(',').map((p) => p.trim());
+            if (parts.length < 3) {
+                this.logger.warn(`⚠️  라인 ${i + 1} 스킵: 형식 오류 - ${line}`);
+                continue;
+            }
+            result.push({
+                name: parts[0],
+                employeeNumber: parts[1],
+                expectedTerminationDate: parts[2],
+            });
+        }
+        this.logger.log(`CSV 파싱 완료: ${result.length}건`);
+        return result;
+    }
+    parse퇴사자데이터FromJSON(jsonData) {
+        this.logger.log(`JSON 파싱 완료: ${jsonData.length}건`);
+        return jsonData.map((item) => ({
+            name: item.name,
+            employeeNumber: item.employeeNumber,
+            expectedTerminationDate: item.expectedTerminationDate,
+        }));
+    }
+    async get퇴사자현황() {
+        const result = await this.dataSource.query(`
+            SELECT 
+                e.id as "employeeId",
+                e."employeeNumber",
+                e.name as "employeeName",
+                e."terminationDate",
+                d."departmentName" as "currentDepartment",
+                d.id as "currentDepartmentId",
+                d."isException" as "isDepartmentException",
+                COUNT(DISTINCT edp.id) as "assignmentCount",
+                COUNT(DISTINCT h."historyId") as "historyCount"
+            FROM employees e
+            LEFT JOIN employee_department_positions edp ON e.id = edp."employeeId"
+            LEFT JOIN departments d ON edp."departmentId" = d.id
+            LEFT JOIN employee_department_position_history h ON e.id = h."employeeId" AND h."isCurrent" = true
+            WHERE e.status = '퇴사'
+            GROUP BY e.id, e."employeeNumber", e.name, e."terminationDate", d."departmentName", d.id, d."isException"
+            ORDER BY e."employeeNumber"
+            `);
+        return result.map((row) => ({
+            employeeId: row.employeeId,
+            employeeNumber: row.employeeNumber,
+            employeeName: row.employeeName,
+            terminationDate: row.terminationDate,
+            currentDepartment: row.currentDepartment,
+            currentDepartmentId: row.currentDepartmentId,
+            hasMultipleAssignments: parseInt(row.assignmentCount) > 1,
+            historyCount: parseInt(row.historyCount),
+        }));
+    }
+};
+exports.TerminatedEmployeeMigrationService = TerminatedEmployeeMigrationService;
+exports.TerminatedEmployeeMigrationService = TerminatedEmployeeMigrationService = TerminatedEmployeeMigrationService_1 = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_1.DataSource !== "undefined" && typeorm_1.DataSource) === "function" ? _a : Object])
+], TerminatedEmployeeMigrationService);
 
 
 /***/ }),

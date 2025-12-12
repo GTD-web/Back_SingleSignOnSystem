@@ -14,6 +14,8 @@ import { MigrationModule } from './modules/context/migration/migration.module';
 import { OrganizationInformationApplicationModule } from './modules/application/organization-information/organization-information-application.module';
 import { FcmTokenManagementApplicationModule } from './modules/application/fcm-token-management/fcm-token-management-application.module';
 import { AdminModule } from './modules/application/admin/admin.module';
+import { OrganizationHistoryMigrationModule } from './modules/context/organization-history-migration';
+import { TerminatedEmployeeMigrationModule } from './modules/context/terminated-employee-migration';
 
 @Module({
     imports: [
@@ -33,7 +35,10 @@ import { AdminModule } from './modules/application/admin/admin.module';
         FcmTokenManagementApplicationModule,
         AdminModule,
 
-        MigrationModule,
+        OrganizationHistoryMigrationModule,
+        TerminatedEmployeeMigrationModule,
+
+        // MigrationModule,
     ],
     controllers: [AppController],
     providers: [
