@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { DomainEmployeeRankHistoryRepository } from './employee-rank-history.repository';
 import { BaseService } from '../../../../libs/common/services/base.service';
 import { EmployeeRankHistory } from '../../../../libs/database/entities';
+import { QueryRunner } from 'typeorm';
 
 @Injectable()
 export class DomainEmployeeRankHistoryService extends BaseService<EmployeeRankHistory> {
@@ -85,12 +86,15 @@ export class DomainEmployeeRankHistoryService extends BaseService<EmployeeRankHi
     }
 
     // 직급 이력 생성
-    async createHistory(data: { employeeId: string; rankId: string }): Promise<EmployeeRankHistory> {
-        return this.save(data);
+    async createHistory(
+        data: { employeeId: string; rankId: string },
+        queryRunner?: QueryRunner,
+    ): Promise<EmployeeRankHistory> {
+        return this.save(data, { queryRunner });
     }
 
     // 직급 이력 삭제
-    async deleteHistory(historyId: string): Promise<void> {
-        return this.delete(historyId);
+    async deleteHistory(historyId: string, queryRunner?: QueryRunner): Promise<void> {
+        return this.delete(historyId, { queryRunner });
     }
 }

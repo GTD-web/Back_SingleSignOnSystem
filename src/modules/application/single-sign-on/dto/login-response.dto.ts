@@ -52,6 +52,9 @@ export class LoginResponseDto {
     @ApiPropertyOptional({ description: '직급명' })
     rank?: string;
 
+    @ApiPropertyOptional({ description: '초기 비밀번호 설정 여부' })
+    isInitialPasswordSet?: boolean;
+
     @ApiProperty({
         description: '시스템별 역할 목록',
         type: 'object',

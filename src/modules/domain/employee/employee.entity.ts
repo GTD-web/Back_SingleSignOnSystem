@@ -61,7 +61,7 @@ export class Employee {
     @Column({ comment: '현재 직급 ID', type: 'uuid', nullable: true })
     currentRankId?: string;
 
-    @ManyToOne(() => Rank, { eager: true })
+    @ManyToOne(() => Rank)
     @JoinColumn({ name: 'currentRankId' })
     currentRank?: Rank;
 
@@ -74,7 +74,7 @@ export class Employee {
     @Column({ comment: '메타데이터', type: 'jsonb', nullable: true })
     metadata?: Record<string, any>;
 
-    @Column({ comment: '초기 비밀번호 설정 여부', default: false })
+    @Column({ comment: '초기 비밀번호로 설정되었는지 여부', default: true })
     isInitialPasswordSet: boolean;
 
     // 매니저 관계는 EmployeeDepartmentPosition에서 관리
@@ -90,4 +90,117 @@ export class Employee {
 
     @UpdateDateColumn({ comment: '수정일' })
     updatedAt: Date;
+
+    // ==================== Setter 메서드 ====================
+
+    /**
+     * 사번을설정한다
+     */
+    사번을설정한다(employeeNumber: string): void {
+        this.employeeNumber = employeeNumber;
+    }
+
+    /**
+     * 이름을설정한다
+     */
+    이름을설정한다(name: string): void {
+        this.name = name;
+    }
+
+    /**
+     * 이메일을설정한다
+     */
+    이메일을설정한다(email: string): void {
+        this.email = email;
+    }
+
+    /**
+     * 비밀번호를설정한다
+     */
+    비밀번호를설정한다(password: string): void {
+        this.password = password;
+    }
+
+    /**
+     * 전화번호를설정한다
+     */
+    전화번호를설정한다(phoneNumber: string): void {
+        this.phoneNumber = phoneNumber;
+    }
+
+    /**
+     * 생년월일을설정한다
+     */
+    생년월일을설정한다(dateOfBirth: Date): void {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    /**
+     * 성별을설정한다
+     */
+    성별을설정한다(gender: Gender): void {
+        this.gender = gender;
+    }
+
+    /**
+     * 입사일을설정한다
+     */
+    입사일을설정한다(hireDate: Date): void {
+        this.hireDate = hireDate;
+    }
+
+    /**
+     * 현재직급을설정한다
+     */
+    현재직급을설정한다(currentRankId: string): void {
+        this.currentRankId = currentRankId;
+    }
+
+    /**
+     * 메타데이터를설정한다
+     */
+    메타데이터를설정한다(metadata: Record<string, any>): void {
+        this.metadata = metadata;
+    }
+
+    /**
+     * 활성화한다
+     */
+    활성화한다(): void {
+        this.status = EmployeeStatus.Active;
+        this.terminationDate = null;
+        this.terminationReason = null;
+    }
+
+    /**
+     * 휴직처리한다
+     */
+    휴직처리한다(): void {
+        this.status = EmployeeStatus.Leave;
+        this.terminationDate = null;
+        this.terminationReason = null;
+    }
+
+    /**
+     * 퇴사처리한다
+     */
+    퇴사처리한다(terminationDate: Date, terminationReason?: string): void {
+        this.status = EmployeeStatus.Terminated;
+        this.terminationDate = terminationDate;
+        this.terminationReason = terminationReason;
+    }
+
+    /**
+     * 초기비밀번호를설정완료한다
+     */
+    초기비밀번호로설정완료한다(): void {
+        this.isInitialPasswordSet = true;
+    }
+
+    /**
+     * 초기비밀번호로 설정되지 않았다
+     */
+    비밀번호가변경되었다(): void {
+        this.isInitialPasswordSet = false;
+    }
 }

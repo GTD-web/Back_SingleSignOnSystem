@@ -1,5 +1,5 @@
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiProperty, ApiExcludeController } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsString } from 'class-validator';
 import { MigrationService } from './migration.service';
 
@@ -28,7 +28,6 @@ class SyncDatabaseRequestDto {
     tables: string[];
 }
 
-@ApiExcludeController()
 @ApiTags('Migration - 데이터베이스 동기화')
 @Controller('migration')
 export class MigrationController {

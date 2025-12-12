@@ -10,7 +10,6 @@ import { Entities } from 'libs/database/entities';
 @Module({
     imports: [
         // 실서버 DB 연결 (데이터 동기화용) - 환경변수로 활성화/비활성화
-
         TypeOrmModule.forRootAsync({
             name: 'production',
             inject: [ConfigService],

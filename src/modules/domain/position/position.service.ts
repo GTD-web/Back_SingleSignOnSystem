@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { QueryRunner } from 'typeorm';
 import { DomainPositionRepository } from './position.repository';
 import { BaseService } from '../../../../libs/common/services/base.service';
 import { Position } from '../../../../libs/database/entities';
@@ -206,5 +207,61 @@ export class DomainPositionService extends BaseService<Position> {
             return true;
         }
         return false;
+    }
+
+    // ==================== 아키텍처 규칙 적용 메서드 (Setter 활용) ====================
+
+    /**
+     * 직책을생성한다
+     */
+    async 직책을생성한다(
+        params: {
+            positionTitle: string;
+            positionCode: string;
+            level: number;
+            hasManagementAuthority: boolean;
+        },
+        queryRunner?: QueryRunner,
+    ): Promise<Position> {
+        const position = new Position();
+
+        position.직책명을설정한다(params.positionTitle);
+        position.직책코드를설정한다(params.positionCode);
+        position.레벨을설정한다(params.level);
+        position.관리권한을설정한다(params.hasManagementAuthority);
+
+        return await this.save(position, { queryRunner });
+    }
+
+    /**
+     * 직책을수정한다
+     */
+    async 직책을수정한다(
+        position: Position,
+        params: {
+            positionTitle?: string;
+            positionCode?: string;
+            level?: number;
+            hasManagementAuthority?: boolean;
+        },
+        queryRunner?: QueryRunner,
+    ): Promise<Position> {
+        if (params.positionTitle !== undefined) {
+            position.직책명을설정한다(params.positionTitle);
+        }
+
+        if (params.positionCode !== undefined) {
+            position.직책코드를설정한다(params.positionCode);
+        }
+
+        if (params.level !== undefined) {
+            position.레벨을설정한다(params.level);
+        }
+
+        if (params.hasManagementAuthority !== undefined) {
+            position.관리권한을설정한다(params.hasManagementAuthority);
+        }
+
+        return await this.save(position, { queryRunner });
     }
 }

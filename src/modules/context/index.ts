@@ -3,6 +3,8 @@ export { AuthorizationContextModule } from './authorization/authorization-contex
 export { EmployeeManagementContextModule } from './employee-management/employee-management-context.module';
 export { SystemManagementContextModule } from './system-management/system-management-context.module';
 export { FcmTokenManagementContextModule } from './fcm-token-management/fcm-token-management-context.module';
+export { OrganizationHistoryMigrationModule } from './organization-history-migration/organization-history-migration.module';
+export { TerminatedEmployeeMigrationModule } from './terminated-employee-migration/terminated-employee-migration.module';
 
 export { OrganizationManagementContextService } from './organization-management/organization-management-context.service';
 export { AuthorizationContextService } from './authorization/authorization-context.service';

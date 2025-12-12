@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { QueryRunner } from 'typeorm';
 import { DomainEmployeeRepository } from './employee.repository';
 import { BaseService } from '../../../../libs/common/services/base.service';
 import { Employee } from './employee.entity';
-import { EmployeeStatus } from '../../../../libs/common/enums';
+import { EmployeeStatus, Gender } from '../../../../libs/common/enums';
 import { In, Not, Like } from 'typeorm';
 import * as bcrypt from '@node-rs/bcrypt';
 
@@ -172,8 +173,8 @@ export class DomainEmployeeService extends BaseService<Employee> {
     /**
      * 직원 삭제
      */
-    async deleteEmployee(employeeId: string): Promise<void> {
-        return this.delete(employeeId);
+    async deleteEmployee(employeeId: string, queryRunner?: QueryRunner): Promise<void> {
+        return this.delete(employeeId, { queryRunner });
     }
 
     /**
@@ -186,7 +187,7 @@ export class DomainEmployeeService extends BaseService<Employee> {
 
         // 해당 연도의 직원들을 조회
         const employees = await this.findByEmployeeNumberPattern(yearSuffix);
-
+        console.log(employees);
         // prefix로 시작하는 5자리 사번들 중에서 가장 큰 sequence 찾기
         const sequences = employees
             .map((employee) => employee.employeeNumber)
@@ -357,5 +358,168 @@ export class DomainEmployeeService extends BaseService<Employee> {
         } catch {
             return false; // 에러 발생시 중복 아님으로 처리
         }
+    }
+
+    // ==================== 아키텍처 규칙 적용 메서드 (Setter 활용) ====================
+
+    /**
+     * 직원을생성한다
+     */
+    async 직원을생성한다(
+        params: {
+            employeeNumber: string;
+            name: string;
+            email?: string;
+            password?: string;
+            phoneNumber?: string;
+            dateOfBirth?: Date;
+            gender?: Gender;
+            hireDate: Date;
+            currentRankId?: string;
+            metadata?: Record<string, any>;
+        },
+        queryRunner?: QueryRunner,
+    ): Promise<Employee> {
+        const employee = new Employee();
+
+        employee.사번을설정한다(params.employeeNumber);
+        employee.이름을설정한다(params.name);
+
+        if (params.email) {
+            employee.이메일을설정한다(params.email);
+        }
+
+        // 비밀번호는 사번으로 기본 설정
+        const hashedPassword = this.hashPassword(params.password || params.employeeNumber);
+        employee.비밀번호를설정한다(hashedPassword);
+        employee.초기비밀번호로설정완료한다();
+
+        if (params.phoneNumber) {
+            employee.전화번호를설정한다(params.phoneNumber);
+        }
+
+        if (params.dateOfBirth) {
+            employee.생년월일을설정한다(params.dateOfBirth);
+        }
+
+        if (params.gender) {
+            employee.성별을설정한다(params.gender);
+        }
+
+        employee.입사일을설정한다(params.hireDate);
+        employee.활성화한다();
+
+        if (params.currentRankId) {
+            employee.현재직급을설정한다(params.currentRankId);
+        }
+
+        if (params.metadata) {
+            employee.메타데이터를설정한다(params.metadata);
+        }
+
+        return await this.save(employee, { queryRunner });
+    }
+
+    /**
+     * 직원을수정한다
+     */
+    async 직원을수정한다(
+        employee: Employee,
+        params: {
+            employeeNumber?: string;
+            name?: string;
+            email?: string;
+            phoneNumber?: string;
+            dateOfBirth?: Date;
+            gender?: Gender;
+            hireDate?: Date;
+            currentRankId?: string;
+            metadata?: Record<string, any>;
+        },
+        queryRunner?: QueryRunner,
+    ): Promise<Employee> {
+        if (params.employeeNumber !== undefined) {
+            employee.사번을설정한다(params.employeeNumber);
+        }
+
+        if (params.name !== undefined) {
+            employee.이름을설정한다(params.name);
+        }
+
+        if (params.email !== undefined) {
+            employee.이메일을설정한다(params.email);
+        }
+
+        if (params.phoneNumber !== undefined) {
+            employee.전화번호를설정한다(params.phoneNumber);
+        }
+
+        if (params.dateOfBirth !== undefined) {
+            employee.생년월일을설정한다(params.dateOfBirth);
+        }
+
+        if (params.hireDate !== undefined) {
+            employee.입사일을설정한다(params.hireDate);
+        }
+
+        if (params.gender !== undefined) {
+            employee.성별을설정한다(params.gender);
+        }
+
+        if (params.currentRankId !== undefined) {
+            employee.현재직급을설정한다(params.currentRankId);
+        }
+
+        if (params.metadata !== undefined) {
+            employee.메타데이터를설정한다(params.metadata);
+        }
+        console.log('employee', employee);
+        return await this.save(employee, { queryRunner });
+    }
+
+    async 비밀번호를초기화한다(employee: Employee, queryRunner?: QueryRunner): Promise<Employee> {
+        const hashedPassword = this.hashPassword(employee.employeeNumber);
+        employee.비밀번호를설정한다(hashedPassword);
+        employee.초기비밀번호로설정완료한다();
+        return await this.save(employee, { queryRunner });
+    }
+
+    /**
+     * 비밀번호를변경한다
+     */
+    async 비밀번호를변경한다(employee: Employee, newPassword: string, queryRunner?: QueryRunner): Promise<Employee> {
+        const hashedPassword = this.hashPassword(newPassword);
+        employee.비밀번호를설정한다(hashedPassword);
+        employee.비밀번호가변경되었다();
+        return await this.save(employee, { queryRunner });
+    }
+
+    /**
+     * 퇴사처리한다
+     */
+    async 퇴사처리한다(
+        employee: Employee,
+        terminationDate: Date,
+        terminationReason?: string,
+        queryRunner?: QueryRunner,
+    ): Promise<Employee> {
+        employee.퇴사처리한다(terminationDate, terminationReason);
+        return await this.save(employee, { queryRunner });
+    }
+
+    /**
+     * 휴직처리한다
+     */
+    async 휴직처리한다(employee: Employee, queryRunner?: QueryRunner): Promise<Employee> {
+        employee.휴직처리한다();
+        return await this.save(employee, { queryRunner });
+    }
+
+    /**
+     * 재직처리한다
+     */
+    async 재직처리한다(employee: Employee, queryRunner?: QueryRunner): Promise<Employee> {
+        employee.활성화한다();
+        return await this.save(employee, { queryRunner });
     }
 }

@@ -10,7 +10,16 @@ import {
     UnauthorizedException,
     Req,
 } from '@nestjs/common';
-import { ApiTags, ApiResponse, ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiBasicAuth } from '@nestjs/swagger';
+import {
+    ApiTags,
+    ApiResponse,
+    ApiBearerAuth,
+    ApiBody,
+    ApiHeader,
+    ApiOperation,
+    ApiBasicAuth,
+    ApiExcludeEndpoint,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { SsoApplicationService } from '../sso-application.service';
 import {
@@ -22,6 +31,8 @@ import {
     CheckPasswordRequestDto,
     CheckPasswordResponseDto,
     SystemAuthResponseDto,
+    ResetPasswordRequestDto,
+    ResetPasswordResponseDto,
 } from '../dto';
 
 @ApiTags('Client - 인증 API')
@@ -152,6 +163,24 @@ export class SsoApplicationController {
         @Body() body: CheckPasswordRequestDto,
     ): Promise<CheckPasswordResponseDto> {
         return this.ssoApplicationService.checkPassword(authHeader, body);
+    }
+
+    @Post('reset-password')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({
+        summary: '비밀번호 초기화',
+        description: '사용자의 비밀번호를 임시 비밀번호로 초기화합니다.',
+    })
+    @ApiBody({ type: ResetPasswordRequestDto })
+    @ApiResponse({
+        status: 200,
+        description: '비밀번호 초기화 성공',
+        type: ResetPasswordResponseDto,
+    })
+    @ApiResponse({ status: 400, description: '잘못된 요청 형식' })
+    @ApiResponse({ status: 404, description: '사용자를 찾을 수 없음' })
+    async resetPassword(@Body() body: ResetPasswordRequestDto): Promise<ResetPasswordResponseDto> {
+        return this.ssoApplicationService.resetPassword(body);
     }
 
     @Get('cron/clean-up/token')

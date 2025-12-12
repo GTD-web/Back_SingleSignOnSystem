@@ -15,7 +15,7 @@ import {
 } from './dto';
 // DeviceType enum 제거 - 이제 문자열로 처리
 import { Employee } from '../../domain/employee/employee.entity';
-import { OrganizationManagementContextService } from 'src/modules/context/organization-management/organization-management-context.service';
+import { OrganizationManagementContextService } from '../../context/organization-management/organization-management-context.service';
 
 @Injectable()
 export class FcmTokenManagementApplicationService {
