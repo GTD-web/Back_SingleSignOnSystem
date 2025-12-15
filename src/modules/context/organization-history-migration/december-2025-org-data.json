@@ -97,7 +97,6 @@
                             { "name": "이재윤", "employeeNumber": "25038", "isManager": false },
                             { "name": "이규은", "employeeNumber": "25051", "isManager": false },
                             { "name": "권순철", "employeeNumber": "25056", "isManager": false },
-                            { "name": "이수웅", "employeeNumber": "25048", "isManager": false },
                             { "name": "전구영", "employeeNumber": "23010", "isManager": false }
                         ],
                         "children": []

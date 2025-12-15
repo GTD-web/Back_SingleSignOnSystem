@@ -173,7 +173,7 @@ export class EmployeeApplicationService {
         executedBy?: string,
     ): Promise<AdminEmployeeResponseDto> {
         return await withTransaction(this.dataSource, async (queryRunner) => {
-            let employee: Employee;
+            let employee = await this.organizationContext.직원을_조회한다(id);
 
             const hasOtherUpdates =
                 updateEmployeeDto.employeeNumber !== undefined ||
@@ -211,7 +211,7 @@ export class EmployeeApplicationService {
                     queryRunner,
                 );
             }
-
+            console.log(updateEmployeeDto.status, employee.status);
             // 재직상태 변경
             if (updateEmployeeDto.status !== undefined && updateEmployeeDto.status !== employee.status) {
                 employee = await this.organizationContext.직원재직상태를_변경한다(
