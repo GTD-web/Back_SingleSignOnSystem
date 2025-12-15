@@ -20,15 +20,20 @@ export class OrganizationHistoryMigrationController {
             1. 기존 이력 삭제
                - assignmentReason이 "초기 데이터 마이그레이션"이 아닌 이력만 삭제
                - 초기 마이그레이션 데이터는 유지
+               - 삭제 후 이력이 한 개만 남은 직원의 경우 해당 이력을 현재 이력으로 설정 (effectiveEndDate: NULL, isCurrent: true)
             
             2. 11월 조직도 마이그레이션
                - JSON 파일에서 11월 조직도 데이터 로드
-               - 각 직원의 11월 배치 이력 생성 (effectiveStartDate: hireDate, effectiveEndDate: 2025-11-30)
-               - 실제 배치이력 생성 로직(직원의_배치이력을_생성한다) 활용
+               - 초기 마이그레이션 데이터와 11월 JSON 데이터 비교
+               - 일치하면 그대로 유지 (스킵)
+               - 불일치하거나 초기 데이터가 없으면 11월 이력 생성
+               - 이전 이력 종료는 직원의_배치이력을_생성한다 함수에서 자동 처리
+               - 실제 배치이력 생성 로직 활용
             
             3. 12월 조직도 마이그레이션
                - 11월 조직도와 현재 배치 데이터 비교
                - 변경이 있는 경우에만 12월 이력 생성 (부서/직책/관리자권한/상위부서 변경)
+               - 12월 이력 생성 시 11월 이력이 자동으로 종료됨 (직원의_배치이력을_생성한다)
                - 변경이 없는 직원은 11월 이력이 계속 유효 (isCurrent 유지)
                - 12월 이후 신규 입사자는 입사일부터 이력 생성
                - 실제 배치이력 생성 로직 활용
@@ -48,8 +53,12 @@ export class OrganizationHistoryMigrationController {
                     type: 'object',
                     properties: {
                         totalEmployees: { type: 'number', example: 73 },
-                        created: { type: 'number', example: 73 },
-                        skipped: { type: 'number', example: 0, description: '11월은 전체 생성이므로 항상 0' },
+                        created: { type: 'number', example: 20, description: '초기 데이터와 다른 경우 생성' },
+                        skipped: {
+                            type: 'number',
+                            example: 53,
+                            description: '초기 데이터와 일치하여 스킵된 직원 수',
+                        },
                         errors: { type: 'array', items: { type: 'object' } },
                     },
                 },
