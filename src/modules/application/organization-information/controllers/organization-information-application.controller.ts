@@ -344,7 +344,7 @@ export class OrganizationInformationApplicationController {
             '5개 테이블(departments, employees, positions, ranks, employee_department_positions)의 전체 데이터를 ID 값을 포함하여 그대로 조회합니다. 마이그레이션 목적으로 사용됩니다.',
     })
     @ApiQuery({
-        name: 'includeInactiveDepartments',
+        name: 'includeInactive',
         description: '비활성화된 부서 포함 여부',
         required: false,
         type: Boolean,

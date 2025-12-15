@@ -9589,7 +9589,7 @@ __decorate([
         description: '5개 테이블(departments, employees, positions, ranks, employee_department_positions)의 전체 데이터를 ID 값을 포함하여 그대로 조회합니다. 마이그레이션 목적으로 사용됩니다.',
     }),
     (0, swagger_1.ApiQuery)({
-        name: 'includeInactiveDepartments',
+        name: 'includeInactive',
         description: '비활성화된 부서 포함 여부',
         required: false,
         type: Boolean,
@@ -11439,7 +11439,6 @@ let OrganizationInformationApplicationService = class OrganizationInformationApp
                 this.organizationContextService.모든_직원부서직책매핑을_조회한다(),
                 this.organizationContextService.모든_배치이력을_조회한다(),
             ]);
-            console.log('includeInactiveDepartments', includeInactiveDepartments);
             return {
                 departments: departments
                     .filter((dept) => {

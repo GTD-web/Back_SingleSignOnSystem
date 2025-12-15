@@ -498,7 +498,6 @@ export class OrganizationInformationApplicationService {
                     this.organizationContextService.모든_직원부서직책매핑을_조회한다(),
                     this.organizationContextService.모든_배치이력을_조회한다(),
                 ]);
-            console.log('includeInactiveDepartments', includeInactiveDepartments);
             return {
                 departments: departments
                     .filter((dept) => {
