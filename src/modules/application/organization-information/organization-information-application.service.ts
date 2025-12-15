@@ -558,7 +558,7 @@ export class OrganizationInformationApplicationService {
                     historyId: history.historyId,
                     employeeId: history.employeeId,
                     departmentId: history.departmentId,
-                    // parentDepartmentId: history.parentDepartmentId,
+                    parentDepartmentId: history.parentDepartmentId,
                     positionId: history.positionId,
                     rankId: history.rankId,
                     isManager: history.isManager,
