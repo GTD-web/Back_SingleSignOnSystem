@@ -13626,15 +13626,20 @@ __decorate([
             1. 기존 이력 삭제
                - assignmentReason이 "초기 데이터 마이그레이션"이 아닌 이력만 삭제
                - 초기 마이그레이션 데이터는 유지
+               - 삭제 후 이력이 한 개만 남은 직원의 경우 해당 이력을 현재 이력으로 설정 (effectiveEndDate: NULL, isCurrent: true)
             
             2. 11월 조직도 마이그레이션
                - JSON 파일에서 11월 조직도 데이터 로드
-               - 각 직원의 11월 배치 이력 생성 (effectiveStartDate: hireDate, effectiveEndDate: 2025-11-30)
-               - 실제 배치이력 생성 로직(직원의_배치이력을_생성한다) 활용
+               - 초기 마이그레이션 데이터와 11월 JSON 데이터 비교
+               - 일치하면 그대로 유지 (스킵)
+               - 불일치하거나 초기 데이터가 없으면 11월 이력 생성
+               - 이전 이력 종료는 직원의_배치이력을_생성한다 함수에서 자동 처리
+               - 실제 배치이력 생성 로직 활용
             
             3. 12월 조직도 마이그레이션
                - 11월 조직도와 현재 배치 데이터 비교
                - 변경이 있는 경우에만 12월 이력 생성 (부서/직책/관리자권한/상위부서 변경)
+               - 12월 이력 생성 시 11월 이력이 자동으로 종료됨 (직원의_배치이력을_생성한다)
                - 변경이 없는 직원은 11월 이력이 계속 유효 (isCurrent 유지)
                - 12월 이후 신규 입사자는 입사일부터 이력 생성
                - 실제 배치이력 생성 로직 활용
@@ -13654,8 +13659,12 @@ __decorate([
                     type: 'object',
                     properties: {
                         totalEmployees: { type: 'number', example: 73 },
-                        created: { type: 'number', example: 73 },
-                        skipped: { type: 'number', example: 0, description: '11월은 전체 생성이므로 항상 0' },
+                        created: { type: 'number', example: 20, description: '초기 데이터와 다른 경우 생성' },
+                        skipped: {
+                            type: 'number',
+                            example: 53,
+                            description: '초기 데이터와 일치하여 스킵된 직원 수',
+                        },
                         errors: { type: 'array', items: { type: 'object' } },
                     },
                 },
@@ -13780,6 +13789,24 @@ let OrganizationHistoryMigrationService = OrganizationHistoryMigrationService_1 
                 `);
             deletedHistories = deleteResult[1] || 0;
             this.logger.log(`✅ ${deletedHistories}건의 이력 삭제 완료 (초기 데이터 마이그레이션 데이터는 유지)`);
+            const updateResult = await this.dataSource.query(`
+                UPDATE employee_department_position_history
+                SET "effectiveEndDate" = NULL, "isCurrent" = true
+                WHERE "historyId" IN (
+                    SELECT "historyId"
+                    FROM employee_department_position_history
+                    WHERE "employeeId" IN (
+                        SELECT "employeeId"
+                        FROM employee_department_position_history
+                        GROUP BY "employeeId"
+                        HAVING COUNT(*) = 1
+                    )
+                )
+                `);
+            const updatedHistories = updateResult[1] || 0;
+            if (updatedHistories > 0) {
+                this.logger.log(`✅ 초기 데이터 단일 이력 업데이트: ${updatedHistories}건 (effectiveEndDate: NULL, isCurrent: true)`);
+            }
             this.logger.log('');
             this.logger.log('='.repeat(80));
             this.logger.log('📅 STEP 2: 11월 조직도 마이그레이션');
@@ -13796,8 +13823,8 @@ let OrganizationHistoryMigrationService = OrganizationHistoryMigrationService_1 
             this.logger.log('='.repeat(80));
             this.logger.log('✅ 통합 마이그레이션 완료');
             this.logger.log('='.repeat(80));
-            this.logger.log(`삭제된 이력: ${deletedHistories}건`);
-            this.logger.log(`11월 마이그레이션: ${november.created}/${november.totalEmployees}건 생성 (실패: ${november.errors.length}건)`);
+            this.logger.log(`삭제된 이력: ${deletedHistories}건 (초기 데이터 마이그레이션 제외)`);
+            this.logger.log(`11월 마이그레이션: ${november.created}/${november.totalEmployees}건 생성 (스킵: ${november.skipped}건, 실패: ${november.errors.length}건)`);
             this.logger.log(`12월 마이그레이션: ${december.created}/${december.totalEmployees}건 생성 (스킵: ${december.skipped}건, 실패: ${december.errors.length}건)`);
             this.logger.log(`실행 시간: ${executionTime}초`);
             this.logger.log('='.repeat(80));
@@ -13818,6 +13845,7 @@ let OrganizationHistoryMigrationService = OrganizationHistoryMigrationService_1 
         const november2025Data = await this.load11월조직도데이터();
         this.logger.log(`11월 조직도 데이터 ${november2025Data.length}건 로드 완료`);
         let created = 0;
+        let skipped = 0;
         const errors = [];
         for (const data of november2025Data) {
             try {
@@ -13827,8 +13855,32 @@ let OrganizationHistoryMigrationService = OrganizationHistoryMigrationService_1 
                 if (!employee) {
                     throw new Error(`직원 정보를 찾을 수 없습니다: ${data.employeeName}`);
                 }
+                const initialHistory = await this.dataSource.query(`
+                    SELECT 
+                        "historyId",
+                        "departmentId",
+                        "parentDepartmentId",
+                        "positionId",
+                        "isManager",
+                        "effectiveStartDate",
+                        "isCurrent"
+                    FROM employee_department_position_history
+                    WHERE "employeeId" = $1
+                    AND "assignmentReason" = '초기 데이터 마이그레이션'
+                    LIMIT 1
+                    `, [data.employeeId]);
+                if (initialHistory && initialHistory.length > 0) {
+                    const initial = initialHistory[0];
+                    const isMatch = initial.departmentId === data.departmentId &&
+                        initial.positionId === data.positionId &&
+                        initial.isManager === data.isManager;
+                    if (isMatch) {
+                        skipped++;
+                        this.logger.debug(`  ⊘ ${data.employeeName}: 초기 데이터와 일치 (그대로 유지)`);
+                        continue;
+                    }
+                }
                 const effectiveStartDate = new Date(employee.hireDate);
-                const effectiveEndDate = '2025-11-30';
                 await this.assignmentContext.직원의_배치이력을_생성한다({
                     employeeId: data.employeeId,
                     departmentId: data.departmentId,
@@ -13839,12 +13891,6 @@ let OrganizationHistoryMigrationService = OrganizationHistoryMigrationService_1 
                     assignmentReason: `2025년 11월 조직도 (${data.departmentName}/${data.positionTitle})`,
                     assignedBy: undefined,
                 });
-                await this.dataSource.query(`
-                    UPDATE employee_department_position_history
-                    SET "effectiveEndDate" = $1, "isCurrent" = false
-                    WHERE "employeeId" = $2
-                    AND "isCurrent" = true
-                    `, [effectiveEndDate, data.employeeId]);
                 created++;
                 this.logger.debug(`  ✓ ${data.employeeName} (${data.departmentName}/${data.positionTitle})`);
             }
@@ -13857,11 +13903,11 @@ let OrganizationHistoryMigrationService = OrganizationHistoryMigrationService_1 
                 });
             }
         }
-        this.logger.log(`11월 마이그레이션 완료: ${created}/${november2025Data.length}건 생성`);
+        this.logger.log(`11월 마이그레이션 완료: ${created}/${november2025Data.length}건 생성 (스킵: ${skipped}건 - 초기 데이터와 일치)`);
         return {
             totalEmployees: november2025Data.length,
             created,
-            skipped: 0,
+            skipped,
             errors,
         };
     }
@@ -13910,7 +13956,7 @@ let OrganizationHistoryMigrationService = OrganizationHistoryMigrationService_1 
                             parentDepartmentId: assignment.parentDepartmentId,
                             positionId: assignment.positionId,
                             isManager: assignment.isManager,
-                            effectiveDate: hireDate,
+                            effectiveDate: december1st,
                             assignmentReason: '2025년 12월 조직도 (신규 입사)',
                             assignedBy: undefined,
                         });

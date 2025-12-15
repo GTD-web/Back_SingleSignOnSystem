@@ -103,7 +103,6 @@ export class AssignmentManagementContextService {
             throw new Error('부서 정보를 찾을 수 없습니다.');
         }
         const parentDepartmentId = dto.parentDepartmentId || department.parentDepartmentId;
-
         // 3. Domain Service를 통해 새 배치 이력 생성
         const savedAssignment = await this.직원발령이력서비스.직원발령이력을생성한다(
             {
