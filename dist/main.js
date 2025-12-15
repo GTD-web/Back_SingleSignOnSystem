@@ -9305,9 +9305,9 @@ let OrganizationInformationApplicationController = class OrganizationInformation
     async 수습기간_평가_불합격으로_직원을_퇴사처리한다(terminateEmployeeDto) {
         return await this.organizationInformationApplicationService.직원을_퇴사처리한다(terminateEmployeeDto);
     }
-    async exportAllOrganizationData(includeInactiveDepartments) {
+    async exportAllOrganizationData(includeInactive) {
         console.log('[Export All Data] 전체 조직 데이터 조회 시작');
-        const result = await this.organizationInformationApplicationService.전체_조직_데이터를_조회한다(includeInactiveDepartments === true || String(includeInactiveDepartments) === 'true');
+        const result = await this.organizationInformationApplicationService.전체_조직_데이터를_조회한다(includeInactive === true || String(includeInactive) === 'true');
         console.log('[Export All Data] 조회 완료:', {
             departments: result.totalCounts.departments,
             employees: result.totalCounts.employees,
@@ -9589,7 +9589,7 @@ __decorate([
         description: '5개 테이블(departments, employees, positions, ranks, employee_department_positions)의 전체 데이터를 ID 값을 포함하여 그대로 조회합니다. 마이그레이션 목적으로 사용됩니다.',
     }),
     (0, swagger_1.ApiQuery)({
-        name: 'includeInactiveDepartments',
+        name: 'includeInactive',
         description: '비활성화된 부서 포함 여부',
         required: false,
         type: Boolean,
@@ -9612,7 +9612,7 @@ __decorate([
             },
         },
     }),
-    __param(0, (0, common_1.Query)('includeInactiveDepartments')),
+    __param(0, (0, common_1.Query)('includeInactive')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Boolean]),
     __metadata("design:returntype", typeof (_m = typeof Promise !== "undefined" && Promise) === "function" ? _m : Object)
@@ -11429,7 +11429,7 @@ let OrganizationInformationApplicationService = class OrganizationInformationApp
             message: result.message,
         };
     }
-    async 전체_조직_데이터를_조회한다(includeInactiveDepartments = false) {
+    async 전체_조직_데이터를_조회한다(includeInactiveDepartments) {
         try {
             const [departments, employees, positions, ranks, employeeDepartmentPositions, assignmentHistories] = await Promise.all([
                 this.organizationContextService.모든_부서를_조회한다(),

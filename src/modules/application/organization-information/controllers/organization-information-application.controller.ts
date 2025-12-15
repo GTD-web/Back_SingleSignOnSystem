@@ -344,7 +344,7 @@ export class OrganizationInformationApplicationController {
             '5개 테이블(departments, employees, positions, ranks, employee_department_positions)의 전체 데이터를 ID 값을 포함하여 그대로 조회합니다. 마이그레이션 목적으로 사용됩니다.',
     })
     @ApiQuery({
-        name: 'includeInactiveDepartments',
+        name: 'includeInactive',
         description: '비활성화된 부서 포함 여부',
         required: false,
         type: Boolean,
@@ -368,12 +368,13 @@ export class OrganizationInformationApplicationController {
         },
     })
     async exportAllOrganizationData(
-        @Query('includeInactiveDepartments') includeInactiveDepartments?: boolean,
+        @Query('includeInactive') includeInactive?: boolean,
     ): Promise<ExportAllDataResponseDto> {
         console.log('[Export All Data] 전체 조직 데이터 조회 시작');
         const result = await this.organizationInformationApplicationService.전체_조직_데이터를_조회한다(
-            includeInactiveDepartments === true || String(includeInactiveDepartments) === 'true',
+            includeInactive === true || String(includeInactive) === 'true',
         );
+        // console.log('result', result.departments);
         console.log('[Export All Data] 조회 완료:', {
             departments: result.totalCounts.departments,
             employees: result.totalCounts.employees,
