@@ -486,7 +486,7 @@ export class OrganizationInformationApplicationService {
         };
     }
 
-    async 전체_조직_데이터를_조회한다(includeInactiveDepartments = false): Promise<ExportAllDataResponseDto> {
+    async 전체_조직_데이터를_조회한다(includeInactiveDepartments: boolean): Promise<ExportAllDataResponseDto> {
         try {
             // 모든 데이터를 병렬로 조회
             const [departments, employees, positions, ranks, employeeDepartmentPositions, assignmentHistories] =
@@ -498,7 +498,7 @@ export class OrganizationInformationApplicationService {
                     this.organizationContextService.모든_직원부서직책매핑을_조회한다(),
                     this.organizationContextService.모든_배치이력을_조회한다(),
                 ]);
-
+            console.log('includeInactiveDepartments', includeInactiveDepartments);
             return {
                 departments: departments
                     .filter((dept) => {

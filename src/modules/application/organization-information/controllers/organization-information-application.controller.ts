@@ -368,12 +368,13 @@ export class OrganizationInformationApplicationController {
         },
     })
     async exportAllOrganizationData(
-        @Query('includeInactiveDepartments') includeInactiveDepartments?: boolean,
+        @Query('includeInactive') includeInactive?: boolean,
     ): Promise<ExportAllDataResponseDto> {
         console.log('[Export All Data] 전체 조직 데이터 조회 시작');
         const result = await this.organizationInformationApplicationService.전체_조직_데이터를_조회한다(
-            includeInactiveDepartments === true || String(includeInactiveDepartments) === 'true',
+            includeInactive === true || String(includeInactive) === 'true',
         );
+        // console.log('result', result.departments);
         console.log('[Export All Data] 조회 완료:', {
             departments: result.totalCounts.departments,
             employees: result.totalCounts.employees,
