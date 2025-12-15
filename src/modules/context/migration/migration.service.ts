@@ -29,6 +29,8 @@ import {
     System,
     Token,
 } from '../../../../libs/database/entities';
+import { EmployeeDepartmentPositionHistory } from '../../domain/employee-department-position-history/employee-department-position-history.entity';
+import { DepartmentHistory } from '../../domain/department-history/department-history.entity';
 
 @Injectable()
 export class MigrationService {
@@ -175,6 +177,12 @@ export class MigrationService {
                     case 'employee_system_roles':
                         data = await productionDataSource.getRepository(EmployeeSystemRole).find();
                         break;
+                    case 'department_history':
+                        data = await productionDataSource.getRepository(DepartmentHistory).find();
+                        break;
+                    case 'employee_department_position_history':
+                        data = await productionDataSource.getRepository(EmployeeDepartmentPositionHistory).find();
+                        break;
                     default:
                         this.logger.warn(`⚠️  알 수 없는 테이블: ${table}`);
                 }
@@ -199,9 +207,11 @@ export class MigrationService {
             'employee_system_roles',
             'employee_fcm_tokens',
             'employee_tokens',
+            'employee_department_position_history',
             'employee_rank_histories',
             'employee_department_positions',
             'employees',
+            'department_history',
             'departments',
             'positions',
             'ranks',
@@ -237,9 +247,11 @@ export class MigrationService {
             'positions',
             'fcm_tokens',
             'departments',
+            'department_history',
             'employees',
             'employee_department_positions',
             'employee_rank_histories',
+            'employee_department_position_history',
             'employee_tokens',
             'employee_fcm_tokens',
             'employee_system_roles',
@@ -312,8 +324,11 @@ export class MigrationService {
             fcm_tokens: FcmToken,
             tokens: Token,
             employees: Employee,
+            departments: Department,
+            department_history: DepartmentHistory,
             employee_department_positions: EmployeeDepartmentPosition,
             employee_rank_histories: EmployeeRankHistory,
+            employee_department_position_history: EmployeeDepartmentPositionHistory,
             employee_tokens: EmployeeToken,
             employee_fcm_tokens: EmployeeFcmToken,
             employee_system_roles: EmployeeSystemRole,

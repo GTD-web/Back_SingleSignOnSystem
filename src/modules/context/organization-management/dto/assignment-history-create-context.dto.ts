@@ -19,6 +19,11 @@ export class 직원배치이력생성ContextDto {
     positionId: string;
 
     /**
+     * 부서 ID (선택)
+     */
+    parentDepartmentId?: string;
+
+    /**
      * 직급 ID (선택)
      */
     rankId?: string;

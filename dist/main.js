@@ -1220,6 +1220,7 @@ const sso_application_module_1 = __webpack_require__(/*! ./modules/application/s
 const organization_information_application_module_1 = __webpack_require__(/*! ./modules/application/organization-information/organization-information-application.module */ "./src/modules/application/organization-information/organization-information-application.module.ts");
 const fcm_token_management_application_module_1 = __webpack_require__(/*! ./modules/application/fcm-token-management/fcm-token-management-application.module */ "./src/modules/application/fcm-token-management/fcm-token-management-application.module.ts");
 const admin_module_1 = __webpack_require__(/*! ./modules/application/admin/admin.module */ "./src/modules/application/admin/admin.module.ts");
+const organization_history_migration_1 = __webpack_require__(/*! ./modules/context/organization-history-migration */ "./src/modules/context/organization-history-migration/index.ts");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -1239,6 +1240,7 @@ exports.AppModule = AppModule = __decorate([
             organization_information_application_module_1.OrganizationInformationApplicationModule,
             fcm_token_management_application_module_1.FcmTokenManagementApplicationModule,
             admin_module_1.AdminModule,
+            organization_history_migration_1.OrganizationHistoryMigrationModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [
@@ -10614,6 +10616,10 @@ __decorate([
     __metadata("design:type", String)
 ], ExportAssignmentHistoryDto.prototype, "departmentId", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ description: '해당 시점의 상위 부서 ID', required: false }),
+    __metadata("design:type", String)
+], ExportAssignmentHistoryDto.prototype, "parentDepartmentId", void 0);
+__decorate([
     (0, swagger_1.ApiProperty)({ description: '직책 ID' }),
     __metadata("design:type", String)
 ], ExportAssignmentHistoryDto.prototype, "positionId", void 0);
@@ -13392,6 +13398,606 @@ exports.LogManagementContextService = LogManagementContextService = LogManagemen
 
 /***/ }),
 
+/***/ "./src/modules/context/organization-history-migration/index.ts":
+/*!*********************************************************************!*\
+  !*** ./src/modules/context/organization-history-migration/index.ts ***!
+  \*********************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__webpack_require__(/*! ./organization-history-migration.module */ "./src/modules/context/organization-history-migration/organization-history-migration.module.ts"), exports);
+__exportStar(__webpack_require__(/*! ./organization-history-migration.service */ "./src/modules/context/organization-history-migration/organization-history-migration.service.ts"), exports);
+__exportStar(__webpack_require__(/*! ./november-2025-loader.helper */ "./src/modules/context/organization-history-migration/november-2025-loader.helper.ts"), exports);
+
+
+/***/ }),
+
+/***/ "./src/modules/context/organization-history-migration/november-2025-loader.helper.ts":
+/*!*******************************************************************************************!*\
+  !*** ./src/modules/context/organization-history-migration/november-2025-loader.helper.ts ***!
+  \*******************************************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var November2025LoaderHelper_1;
+var _a;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.November2025LoaderHelper = void 0;
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const typeorm_1 = __webpack_require__(/*! typeorm */ "typeorm");
+const november2025OrgDataJson = __webpack_require__(/*! ./november-2025-org-data.json */ "./src/modules/context/organization-history-migration/november-2025-org-data.json");
+let November2025LoaderHelper = November2025LoaderHelper_1 = class November2025LoaderHelper {
+    constructor(dataSource) {
+        this.dataSource = dataSource;
+        this.logger = new common_1.Logger(November2025LoaderHelper_1.name);
+    }
+    async loadFromJson() {
+        this.logger.log('JSON 파일에서 11월 조직도 데이터 로드 시작');
+        const orgData = november2025OrgDataJson;
+        const result = [];
+        await this.processDepartmentRecursive(orgData.organization, result, null);
+        this.logger.log(`JSON 파일에서 ${result.length}건의 데이터 로드 완료`);
+        return result;
+    }
+    async processDepartmentRecursive(department, result, parentDepartmentId) {
+        const departmentName = department.departmentName;
+        const departmentInfo = await this.findDepartmentInfoByName(departmentName);
+        if (!departmentInfo) {
+            this.logger.warn(`⚠️  부서를 찾을 수 없음: ${departmentName}`);
+            this.logger.warn(`   → DB에 정확히 "${departmentName}" 이름으로 존재하는지 확인 필요`);
+        }
+        const currentDepartmentId = departmentInfo?.id || null;
+        if (department.employees && Array.isArray(department.employees)) {
+            for (const employee of department.employees) {
+                const employeeBasicInfo = await this.findEmployeeInfoByName(employee.name);
+                if (!employeeBasicInfo) {
+                    this.logger.warn(`⚠️  직원을 찾을 수 없음: ${employee.name} (부서: ${departmentName})${employee.note ? ` [${employee.note}]` : ''}`);
+                    continue;
+                }
+                if (!departmentInfo) {
+                    this.logger.warn(`   → 스킵: ${employee.name} (부서 정보 없음)`);
+                    continue;
+                }
+                const employeeDetailInfo = await this.getEmployeeDetailInfo(employeeBasicInfo.id);
+                if (!employeeDetailInfo.position) {
+                    this.logger.warn(`⚠️  직책 정보 없음: ${employee.name} (부서: ${departmentName}) - 기본 직책 필요`);
+                    continue;
+                }
+                result.push({
+                    employeeId: employeeBasicInfo.id,
+                    employeeNumber: employeeBasicInfo.employeeNumber,
+                    employeeName: employee.name,
+                    departmentId: departmentInfo.id,
+                    departmentName: departmentInfo.name,
+                    departmentCode: departmentInfo.code,
+                    parentDepartmentId: parentDepartmentId,
+                    positionId: employeeDetailInfo.position.id,
+                    positionTitle: employeeDetailInfo.position.title,
+                    positionCode: employeeDetailInfo.position.code,
+                    rankId: employeeDetailInfo.rank?.id || null,
+                    rankName: employeeDetailInfo.rank?.name || null,
+                    rankCode: employeeDetailInfo.rank?.code || null,
+                    isManager: employee.isManager,
+                });
+            }
+        }
+        if (department.children && Array.isArray(department.children)) {
+            for (const childDept of department.children) {
+                await this.processDepartmentRecursive(childDept, result, currentDepartmentId);
+            }
+        }
+    }
+    async findEmployeeInfoByName(name) {
+        const result = await this.dataSource.query(`SELECT id, "employeeNumber" FROM employees WHERE name = $1 LIMIT 1`, [name]);
+        return result[0] || null;
+    }
+    async findDepartmentInfoByName(departmentName) {
+        const result = await this.dataSource.query(`SELECT id, "departmentName" as name, "departmentCode" as code FROM departments WHERE "departmentName" = $1 LIMIT 1`, [departmentName]);
+        return result[0] || null;
+    }
+    async getEmployeeDetailInfo(employeeId) {
+        const assignmentResult = await this.dataSource.query(`
+            SELECT 
+                p.id as "positionId",
+                p."positionTitle" as "positionTitle",
+                p."positionCode" as "positionCode"
+            FROM employee_department_positions edp
+            JOIN positions p ON edp."positionId" = p.id
+            WHERE edp."employeeId" = $1 
+            LIMIT 1
+            `, [employeeId]);
+        const rankResult = await this.dataSource.query(`
+            SELECT 
+                r.id as "rankId",
+                r."rankName" as "rankName",
+                r."rankCode" as "rankCode"
+            FROM employees e
+            LEFT JOIN ranks r ON e."currentRankId" = r.id
+            WHERE e.id = $1
+            LIMIT 1
+            `, [employeeId]);
+        return {
+            position: assignmentResult[0]
+                ? {
+                    id: assignmentResult[0].positionId,
+                    title: assignmentResult[0].positionTitle,
+                    code: assignmentResult[0].positionCode,
+                }
+                : null,
+            rank: rankResult[0]?.rankId
+                ? {
+                    id: rankResult[0].rankId,
+                    name: rankResult[0].rankName,
+                    code: rankResult[0].rankCode,
+                }
+                : null,
+        };
+    }
+    async getDepartmentStats() {
+        const orgData = november2025OrgDataJson;
+        const stats = new Map();
+        this.collectStatsRecursive(orgData.organization, stats);
+        return stats;
+    }
+    collectStatsRecursive(department, stats) {
+        const departmentName = department.departmentName;
+        const employeeCount = department.employees ? department.employees.length : 0;
+        stats.set(departmentName, employeeCount);
+        if (department.children && Array.isArray(department.children)) {
+            for (const childDept of department.children) {
+                this.collectStatsRecursive(childDept, stats);
+            }
+        }
+    }
+};
+exports.November2025LoaderHelper = November2025LoaderHelper;
+exports.November2025LoaderHelper = November2025LoaderHelper = November2025LoaderHelper_1 = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_1.DataSource !== "undefined" && typeorm_1.DataSource) === "function" ? _a : Object])
+], November2025LoaderHelper);
+
+
+/***/ }),
+
+/***/ "./src/modules/context/organization-history-migration/organization-history-migration.controller.ts":
+/*!*********************************************************************************************************!*\
+  !*** ./src/modules/context/organization-history-migration/organization-history-migration.controller.ts ***!
+  \*********************************************************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var _a;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.OrganizationHistoryMigrationController = void 0;
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const swagger_1 = __webpack_require__(/*! @nestjs/swagger */ "@nestjs/swagger");
+const organization_history_migration_service_1 = __webpack_require__(/*! ./organization-history-migration.service */ "./src/modules/context/organization-history-migration/organization-history-migration.service.ts");
+let OrganizationHistoryMigrationController = class OrganizationHistoryMigrationController {
+    constructor(orgHistoryMigration) {
+        this.orgHistoryMigration = orgHistoryMigration;
+    }
+    async executeMigration() {
+        return await this.orgHistoryMigration.execute통합마이그레이션();
+    }
+};
+exports.OrganizationHistoryMigrationController = OrganizationHistoryMigrationController;
+__decorate([
+    (0, common_1.Post)('execute'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({
+        summary: '조직도 이력 통합 마이그레이션 실행',
+        description: `
+            11월-12월 조직도 이력을 순차적으로 마이그레이션합니다.
+            
+            실행 순서:
+            1. 기존 이력 삭제
+               - assignmentReason이 "초기 데이터 마이그레이션"이 아닌 이력만 삭제
+               - 초기 마이그레이션 데이터는 유지
+            
+            2. 11월 조직도 마이그레이션
+               - JSON 파일에서 11월 조직도 데이터 로드
+               - 각 직원의 11월 배치 이력 생성 (effectiveStartDate: hireDate, effectiveEndDate: 2025-11-30)
+               - 실제 배치이력 생성 로직(직원의_배치이력을_생성한다) 활용
+            
+            3. 12월 조직도 마이그레이션
+               - 11월 조직도와 현재 배치 데이터 비교
+               - 변경이 있는 경우에만 12월 이력 생성 (부서/직책/관리자권한/상위부서 변경)
+               - 변경이 없는 직원은 11월 이력이 계속 유효 (isCurrent 유지)
+               - 12월 이후 신규 입사자는 입사일부터 이력 생성
+               - 실제 배치이력 생성 로직 활용
+            
+            주의: 기존 이력이 모두 삭제되므로 신중하게 실행하세요.
+        `,
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: '마이그레이션 성공',
+        schema: {
+            type: 'object',
+            properties: {
+                success: { type: 'boolean', example: true },
+                deletedHistories: { type: 'number', example: 150, description: '삭제된 이력 수' },
+                november: {
+                    type: 'object',
+                    properties: {
+                        totalEmployees: { type: 'number', example: 73 },
+                        created: { type: 'number', example: 73 },
+                        skipped: { type: 'number', example: 0, description: '11월은 전체 생성이므로 항상 0' },
+                        errors: { type: 'array', items: { type: 'object' } },
+                    },
+                },
+                december: {
+                    type: 'object',
+                    properties: {
+                        totalEmployees: { type: 'number', example: 73 },
+                        created: { type: 'number', example: 15, description: '변경이 있어서 생성된 이력 수' },
+                        skipped: { type: 'number', example: 58, description: '변경이 없어서 스킵된 직원 수' },
+                        errors: { type: 'array', items: { type: 'object' } },
+                    },
+                },
+                executionTime: { type: 'string', example: '15.3초' },
+            },
+        },
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], OrganizationHistoryMigrationController.prototype, "executeMigration", null);
+exports.OrganizationHistoryMigrationController = OrganizationHistoryMigrationController = __decorate([
+    (0, swagger_1.ApiTags)('조직도 이력 마이그레이션'),
+    (0, common_1.Controller)('organization-history-migration'),
+    __metadata("design:paramtypes", [typeof (_a = typeof organization_history_migration_service_1.OrganizationHistoryMigrationService !== "undefined" && organization_history_migration_service_1.OrganizationHistoryMigrationService) === "function" ? _a : Object])
+], OrganizationHistoryMigrationController);
+
+
+/***/ }),
+
+/***/ "./src/modules/context/organization-history-migration/organization-history-migration.module.ts":
+/*!*****************************************************************************************************!*\
+  !*** ./src/modules/context/organization-history-migration/organization-history-migration.module.ts ***!
+  \*****************************************************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.OrganizationHistoryMigrationModule = void 0;
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const typeorm_1 = __webpack_require__(/*! @nestjs/typeorm */ "@nestjs/typeorm");
+const entities_1 = __webpack_require__(/*! libs/database/entities */ "./libs/database/entities/index.ts");
+const organization_history_migration_service_1 = __webpack_require__(/*! ./organization-history-migration.service */ "./src/modules/context/organization-history-migration/organization-history-migration.service.ts");
+const november_2025_loader_helper_1 = __webpack_require__(/*! ./november-2025-loader.helper */ "./src/modules/context/organization-history-migration/november-2025-loader.helper.ts");
+const organization_history_migration_controller_1 = __webpack_require__(/*! ./organization-history-migration.controller */ "./src/modules/context/organization-history-migration/organization-history-migration.controller.ts");
+const organization_management_context_module_1 = __webpack_require__(/*! ../organization-management/organization-management-context.module */ "./src/modules/context/organization-management/organization-management-context.module.ts");
+let OrganizationHistoryMigrationModule = class OrganizationHistoryMigrationModule {
+};
+exports.OrganizationHistoryMigrationModule = OrganizationHistoryMigrationModule;
+exports.OrganizationHistoryMigrationModule = OrganizationHistoryMigrationModule = __decorate([
+    (0, common_1.Module)({
+        imports: [typeorm_1.TypeOrmModule.forFeature(entities_1.Entities), organization_management_context_module_1.OrganizationManagementContextModule],
+        controllers: [organization_history_migration_controller_1.OrganizationHistoryMigrationController],
+        providers: [organization_history_migration_service_1.OrganizationHistoryMigrationService, november_2025_loader_helper_1.November2025LoaderHelper],
+        exports: [organization_history_migration_service_1.OrganizationHistoryMigrationService, november_2025_loader_helper_1.November2025LoaderHelper],
+    })
+], OrganizationHistoryMigrationModule);
+
+
+/***/ }),
+
+/***/ "./src/modules/context/organization-history-migration/organization-history-migration.service.ts":
+/*!******************************************************************************************************!*\
+  !*** ./src/modules/context/organization-history-migration/organization-history-migration.service.ts ***!
+  \******************************************************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var OrganizationHistoryMigrationService_1;
+var _a, _b, _c;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.OrganizationHistoryMigrationService = void 0;
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const typeorm_1 = __webpack_require__(/*! typeorm */ "typeorm");
+const employee_entity_1 = __webpack_require__(/*! ../../domain/employee/employee.entity */ "./src/modules/domain/employee/employee.entity.ts");
+const november_2025_loader_helper_1 = __webpack_require__(/*! ./november-2025-loader.helper */ "./src/modules/context/organization-history-migration/november-2025-loader.helper.ts");
+const assignment_management_context_service_1 = __webpack_require__(/*! ../organization-management/assignment-management-context.service */ "./src/modules/context/organization-management/assignment-management-context.service.ts");
+let OrganizationHistoryMigrationService = OrganizationHistoryMigrationService_1 = class OrganizationHistoryMigrationService {
+    constructor(dataSource, november2025Loader, assignmentContext) {
+        this.dataSource = dataSource;
+        this.november2025Loader = november2025Loader;
+        this.assignmentContext = assignmentContext;
+        this.logger = new common_1.Logger(OrganizationHistoryMigrationService_1.name);
+    }
+    async load11월조직도데이터() {
+        this.logger.log('11월 조직도 데이터 로드 시작');
+        const november2025Data = await this.november2025Loader.loadFromJson();
+        this.logger.log(`11월 조직도 데이터 ${november2025Data.length}건 로드 완료`);
+        return november2025Data;
+    }
+    async execute통합마이그레이션() {
+        const startTime = Date.now();
+        this.logger.log('='.repeat(80));
+        this.logger.log('📋 통합 마이그레이션 시작');
+        this.logger.log('='.repeat(80));
+        let deletedHistories = 0;
+        let november = { totalEmployees: 0, created: 0, skipped: 0, errors: [] };
+        let december = { totalEmployees: 0, created: 0, skipped: 0, errors: [] };
+        try {
+            this.logger.log('');
+            this.logger.log('='.repeat(80));
+            this.logger.log('🗑️  STEP 1: 기존 이력 삭제');
+            this.logger.log('='.repeat(80));
+            const deleteResult = await this.dataSource.query(`
+                DELETE FROM employee_department_position_history
+                WHERE "assignmentReason" != '초기 데이터 마이그레이션'
+                OR "assignmentReason" IS NULL
+                `);
+            deletedHistories = deleteResult[1] || 0;
+            this.logger.log(`✅ ${deletedHistories}건의 이력 삭제 완료 (초기 데이터 마이그레이션 데이터는 유지)`);
+            this.logger.log('');
+            this.logger.log('='.repeat(80));
+            this.logger.log('📅 STEP 2: 11월 조직도 마이그레이션');
+            this.logger.log('='.repeat(80));
+            november = await this.migrate11월조직도();
+            this.logger.log('');
+            this.logger.log('='.repeat(80));
+            this.logger.log('📅 STEP 3: 12월 조직도 마이그레이션');
+            this.logger.log('='.repeat(80));
+            december = await this.migrate12월조직도();
+            const endTime = Date.now();
+            const executionTime = ((endTime - startTime) / 1000).toFixed(1);
+            this.logger.log('');
+            this.logger.log('='.repeat(80));
+            this.logger.log('✅ 통합 마이그레이션 완료');
+            this.logger.log('='.repeat(80));
+            this.logger.log(`삭제된 이력: ${deletedHistories}건`);
+            this.logger.log(`11월 마이그레이션: ${november.created}/${november.totalEmployees}건 생성 (실패: ${november.errors.length}건)`);
+            this.logger.log(`12월 마이그레이션: ${december.created}/${december.totalEmployees}건 생성 (스킵: ${december.skipped}건, 실패: ${december.errors.length}건)`);
+            this.logger.log(`실행 시간: ${executionTime}초`);
+            this.logger.log('='.repeat(80));
+            return {
+                success: november.errors.length === 0 && december.errors.length === 0,
+                deletedHistories,
+                november,
+                december,
+                executionTime: `${executionTime}초`,
+            };
+        }
+        catch (error) {
+            this.logger.error('❌ 통합 마이그레이션 실패', error.stack);
+            throw error;
+        }
+    }
+    async migrate11월조직도() {
+        const november2025Data = await this.load11월조직도데이터();
+        this.logger.log(`11월 조직도 데이터 ${november2025Data.length}건 로드 완료`);
+        let created = 0;
+        const errors = [];
+        for (const data of november2025Data) {
+            try {
+                const employee = await this.dataSource
+                    .getRepository(employee_entity_1.Employee)
+                    .findOne({ where: { id: data.employeeId } });
+                if (!employee) {
+                    throw new Error(`직원 정보를 찾을 수 없습니다: ${data.employeeName}`);
+                }
+                const effectiveStartDate = new Date(employee.hireDate);
+                const effectiveEndDate = '2025-11-30';
+                await this.assignmentContext.직원의_배치이력을_생성한다({
+                    employeeId: data.employeeId,
+                    departmentId: data.departmentId,
+                    parentDepartmentId: data.parentDepartmentId,
+                    positionId: data.positionId,
+                    isManager: data.isManager,
+                    effectiveDate: effectiveStartDate,
+                    assignmentReason: `2025년 11월 조직도 (${data.departmentName}/${data.positionTitle})`,
+                    assignedBy: undefined,
+                });
+                await this.dataSource.query(`
+                    UPDATE employee_department_position_history
+                    SET "effectiveEndDate" = $1, "isCurrent" = false
+                    WHERE "employeeId" = $2
+                    AND "isCurrent" = true
+                    `, [effectiveEndDate, data.employeeId]);
+                created++;
+                this.logger.debug(`  ✓ ${data.employeeName} (${data.departmentName}/${data.positionTitle})`);
+            }
+            catch (error) {
+                this.logger.error(`  ✗ ${data.employeeName}: ${error.message}`);
+                errors.push({
+                    employeeId: data.employeeId,
+                    employeeName: data.employeeName,
+                    error: error.message,
+                });
+            }
+        }
+        this.logger.log(`11월 마이그레이션 완료: ${created}/${november2025Data.length}건 생성`);
+        return {
+            totalEmployees: november2025Data.length,
+            created,
+            skipped: 0,
+            errors,
+        };
+    }
+    async migrate12월조직도() {
+        const november2025Data = await this.load11월조직도데이터();
+        const november2025Map = new Map(november2025Data.map((data) => [data.employeeId, data]));
+        this.logger.log(`11월 조직도 데이터 ${november2025Data.length}건 로드 완료`);
+        const currentAssignments = await this.dataSource.query(`
+            SELECT 
+                edp."employeeId",
+                e."name" as "employeeName",
+                e."employeeNumber",
+                edp."departmentId",
+                d."departmentName",
+                d."parentDepartmentId",
+                edp."positionId",
+                p."positionTitle",
+                edp."isManager"
+            FROM employee_department_positions edp
+            INNER JOIN employees e ON e.id = edp."employeeId"
+            INNER JOIN departments d ON d.id = edp."departmentId"
+            INNER JOIN positions p ON p.id = edp."positionId"
+            WHERE e.status = '재직중'
+        `);
+        this.logger.log(`12월 현재 배치 데이터 ${currentAssignments.length}건 로드 완료`);
+        let created = 0;
+        let skipped = 0;
+        const errors = [];
+        const changes = [];
+        for (const assignment of currentAssignments) {
+            try {
+                const november2025 = november2025Map.get(assignment.employeeId);
+                if (!november2025) {
+                    const employee = await this.dataSource
+                        .getRepository(employee_entity_1.Employee)
+                        .findOne({ where: { id: assignment.employeeId } });
+                    if (!employee) {
+                        throw new Error(`직원 정보를 찾을 수 없습니다: ${assignment.employeeName}`);
+                    }
+                    const hireDate = new Date(employee.hireDate);
+                    const december1st = new Date('2025-12-01');
+                    if (hireDate >= december1st) {
+                        await this.assignmentContext.직원의_배치이력을_생성한다({
+                            employeeId: assignment.employeeId,
+                            departmentId: assignment.departmentId,
+                            parentDepartmentId: assignment.parentDepartmentId,
+                            positionId: assignment.positionId,
+                            isManager: assignment.isManager,
+                            effectiveDate: hireDate,
+                            assignmentReason: '2025년 12월 조직도 (신규 입사)',
+                            assignedBy: undefined,
+                        });
+                        created++;
+                        this.logger.debug(`  ✨ ${assignment.employeeName} (신규 입사)`);
+                    }
+                    continue;
+                }
+                const changedFields = [];
+                if (assignment.departmentId !== november2025.departmentId) {
+                    changedFields.push(`부서 변경 (${november2025.departmentName} → ${assignment.departmentName})`);
+                }
+                if (assignment.parentDepartmentId !== november2025.parentDepartmentId) {
+                    changedFields.push('상위부서 변경');
+                }
+                if (assignment.positionId !== november2025.positionId) {
+                    changedFields.push(`직책 변경 (${november2025.positionTitle} → ${assignment.positionTitle})`);
+                }
+                if (assignment.isManager !== november2025.isManager) {
+                    changedFields.push(`관리자권한 변경 (${november2025.isManager} → ${assignment.isManager})`);
+                }
+                if (changedFields.length > 0) {
+                    const employee = await this.dataSource
+                        .getRepository(employee_entity_1.Employee)
+                        .findOne({ where: { id: assignment.employeeId } });
+                    if (!employee) {
+                        throw new Error(`직원 정보를 찾을 수 없습니다: ${assignment.employeeName}`);
+                    }
+                    const hireDate = new Date(employee.hireDate);
+                    const december1st = new Date('2025-12-01');
+                    const effectiveStartDate = hireDate >= december1st ? hireDate : december1st;
+                    await this.assignmentContext.직원의_배치이력을_생성한다({
+                        employeeId: assignment.employeeId,
+                        departmentId: assignment.departmentId,
+                        parentDepartmentId: assignment.parentDepartmentId,
+                        positionId: assignment.positionId,
+                        isManager: assignment.isManager,
+                        effectiveDate: effectiveStartDate,
+                        assignmentReason: `2025년 12월 조직도 (${changedFields.join(', ')})`,
+                        assignedBy: undefined,
+                    });
+                    created++;
+                    changes.push({
+                        employeeName: assignment.employeeName,
+                        employeeNumber: assignment.employeeNumber,
+                        changes: changedFields,
+                    });
+                    this.logger.debug(`  ✓ ${assignment.employeeName}: ${changedFields.join(', ')}`);
+                }
+                else {
+                    skipped++;
+                    this.logger.debug(`  ⊘ ${assignment.employeeName}: 변경 없음`);
+                }
+            }
+            catch (error) {
+                this.logger.error(`  ✗ ${assignment.employeeName}: ${error.message}`);
+                errors.push({
+                    employeeId: assignment.employeeId,
+                    employeeName: assignment.employeeName,
+                    error: error.message,
+                });
+            }
+        }
+        this.logger.log(`12월 마이그레이션 완료: ${created}/${currentAssignments.length}건 생성 (스킵: ${skipped}건)`);
+        if (changes.length > 0) {
+            this.logger.log('변경된 직원 목록:');
+            changes.forEach((change) => {
+                this.logger.log(`  - ${change.employeeName}(${change.employeeNumber}): ${change.changes.join(', ')}`);
+            });
+        }
+        return {
+            totalEmployees: currentAssignments.length,
+            created,
+            skipped,
+            errors,
+        };
+    }
+};
+exports.OrganizationHistoryMigrationService = OrganizationHistoryMigrationService;
+exports.OrganizationHistoryMigrationService = OrganizationHistoryMigrationService = OrganizationHistoryMigrationService_1 = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_1.DataSource !== "undefined" && typeorm_1.DataSource) === "function" ? _a : Object, typeof (_b = typeof november_2025_loader_helper_1.November2025LoaderHelper !== "undefined" && november_2025_loader_helper_1.November2025LoaderHelper) === "function" ? _b : Object, typeof (_c = typeof assignment_management_context_service_1.AssignmentManagementContextService !== "undefined" && assignment_management_context_service_1.AssignmentManagementContextService) === "function" ? _c : Object])
+], OrganizationHistoryMigrationService);
+
+
+/***/ }),
+
 /***/ "./src/modules/context/organization-management/assignment-management-context.service.ts":
 /*!**********************************************************************************************!*\
   !*** ./src/modules/context/organization-management/assignment-management-context.service.ts ***!
@@ -13466,9 +14072,15 @@ let AssignmentManagementContextService = class AssignmentManagementContextServic
         if (currentAssignment) {
             await this.직원발령이력서비스.이력을종료한다(currentAssignment, previousEndDate, queryRunner);
         }
+        const department = await this.부서서비스.findById(dto.departmentId);
+        if (!department) {
+            throw new Error('부서 정보를 찾을 수 없습니다.');
+        }
+        const parentDepartmentId = dto.parentDepartmentId || department.parentDepartmentId;
         const savedAssignment = await this.직원발령이력서비스.직원발령이력을생성한다({
             employeeId: dto.employeeId,
             departmentId: dto.departmentId,
+            parentDepartmentId: parentDepartmentId || undefined,
             positionId: dto.positionId,
             isManager: dto.isManager,
             effectiveStartDate: this.formatDate(newStartDate),
@@ -13519,6 +14131,11 @@ let AssignmentManagementContextService = class AssignmentManagementContextServic
     }
     async 모든_배치이력을_조회한다() {
         return this.직원발령이력서비스.findAll();
+    }
+    async 부서의_현재배치이력을_조회한다(departmentId) {
+        return this.직원발령이력서비스.findAll({
+            where: { departmentId, isCurrent: true },
+        });
     }
     async 모든_직원부서직책매핑을_조회한다() {
         return this.직원부서직책서비스.findAll();
@@ -14792,6 +15409,18 @@ let OrganizationManagementContextService = class OrganizationManagementContextSe
                 changeReason: '부서 수정',
                 changedBy: executedBy,
             }, queryRunner);
+            if (수정정보.parentDepartmentId !== undefined) {
+                const currentAssignment = await this.assignmentContext.부서의_현재배치이력을_조회한다(departmentId);
+                if (currentAssignment && currentAssignment.length > 0) {
+                    for (const assignment of currentAssignment) {
+                        await this.assignmentContext.직원의_배치정보를_수정한다(assignment.employeeId, {
+                            departmentId: departmentId,
+                            positionId: assignment.positionId,
+                            isManager: assignment.isManager,
+                        }, executedBy, queryRunner);
+                    }
+                }
+            }
         }
         return department;
     }
@@ -16665,7 +17294,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b, _c, _d, _e;
+var _a, _b, _c, _d, _e, _f;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.EmployeeDepartmentPositionHistory = void 0;
 const typeorm_1 = __webpack_require__(/*! typeorm */ "typeorm");
@@ -16676,6 +17305,9 @@ const rank_entity_1 = __webpack_require__(/*! ../rank/rank.entity */ "./src/modu
 let EmployeeDepartmentPositionHistory = class EmployeeDepartmentPositionHistory {
     부서를설정한다(departmentId) {
         this.departmentId = departmentId;
+    }
+    상위부서를설정한다(parentDepartmentId) {
+        this.parentDepartmentId = parentDepartmentId;
     }
     직책을설정한다(positionId) {
         this.positionId = positionId;
@@ -16714,6 +17346,10 @@ __decorate([
     (0, typeorm_1.Column)({ comment: '부서 ID', type: 'uuid' }),
     __metadata("design:type", String)
 ], EmployeeDepartmentPositionHistory.prototype, "departmentId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ comment: '해당 시점의 부서 상위 부서 ID (조직 계층 구조 추적용)', type: 'uuid', nullable: true }),
+    __metadata("design:type", String)
+], EmployeeDepartmentPositionHistory.prototype, "parentDepartmentId", void 0);
 __decorate([
     (0, typeorm_1.Column)({ comment: '직책 ID', type: 'uuid' }),
     __metadata("design:type", String)
@@ -16780,14 +17416,19 @@ __decorate([
     __metadata("design:type", typeof (_c = typeof department_entity_1.Department !== "undefined" && department_entity_1.Department) === "function" ? _c : Object)
 ], EmployeeDepartmentPositionHistory.prototype, "department", void 0);
 __decorate([
+    (0, typeorm_1.ManyToOne)(() => department_entity_1.Department, { eager: false }),
+    (0, typeorm_1.JoinColumn)({ name: 'parentDepartmentId' }),
+    __metadata("design:type", typeof (_d = typeof department_entity_1.Department !== "undefined" && department_entity_1.Department) === "function" ? _d : Object)
+], EmployeeDepartmentPositionHistory.prototype, "parentDepartment", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => position_entity_1.Position, { eager: false }),
     (0, typeorm_1.JoinColumn)({ name: 'positionId' }),
-    __metadata("design:type", typeof (_d = typeof position_entity_1.Position !== "undefined" && position_entity_1.Position) === "function" ? _d : Object)
+    __metadata("design:type", typeof (_e = typeof position_entity_1.Position !== "undefined" && position_entity_1.Position) === "function" ? _e : Object)
 ], EmployeeDepartmentPositionHistory.prototype, "position", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => rank_entity_1.Rank, { eager: false, nullable: true }),
     (0, typeorm_1.JoinColumn)({ name: 'rankId' }),
-    __metadata("design:type", typeof (_e = typeof rank_entity_1.Rank !== "undefined" && rank_entity_1.Rank) === "function" ? _e : Object)
+    __metadata("design:type", typeof (_f = typeof rank_entity_1.Rank !== "undefined" && rank_entity_1.Rank) === "function" ? _f : Object)
 ], EmployeeDepartmentPositionHistory.prototype, "rank", void 0);
 exports.EmployeeDepartmentPositionHistory = EmployeeDepartmentPositionHistory = __decorate([
     (0, typeorm_1.Entity)('employee_department_position_history'),
@@ -16907,6 +17548,7 @@ let DomainEmployeeDepartmentPositionHistoryService = class DomainEmployeeDepartm
         const newAssignment = new employee_department_position_history_entity_1.EmployeeDepartmentPositionHistory();
         newAssignment.employeeId = params.employeeId;
         newAssignment.부서를설정한다(params.departmentId);
+        newAssignment.상위부서를설정한다(params.parentDepartmentId);
         newAssignment.직책을설정한다(params.positionId);
         if (params.rankId) {
             newAssignment.직급을설정한다(params.rankId);
@@ -21816,6 +22458,16 @@ module.exports = require("fs");
 /***/ ((module) => {
 
 module.exports = require("path");
+
+/***/ }),
+
+/***/ "./src/modules/context/organization-history-migration/november-2025-org-data.json":
+/*!****************************************************************************************!*\
+  !*** ./src/modules/context/organization-history-migration/november-2025-org-data.json ***!
+  \****************************************************************************************/
+/***/ ((module) => {
+
+module.exports = /*#__PURE__*/JSON.parse('{"description":"2025년 11월 조직도 데이터 (조직개편 이전)","effectiveDate":"2025-11-30","organization":{"departmentName":"루미르 주식회사","employees":[{"name":"남명용","employeeNumber":"1","isManager":true,"note":"대표이사"}],"children":[{"departmentName":"경영지원본부","employees":[{"name":"이봉은","employeeNumber":"20028","isManager":true,"note":"경영지원실, 사업개발실 겸직자"}],"children":[{"departmentName":"경영지원실","employees":[{"name":"박태연","employeeNumber":"22008","isManager":false},{"name":"정재일","employeeNumber":"23012","isManager":false},{"name":"박승현","employeeNumber":"24043","isManager":false},{"name":"전무현","employeeNumber":"25046","isManager":false},{"name":"우은진","employeeNumber":"22020","isManager":false},{"name":"김민영","employeeNumber":"23006","isManager":false},{"name":"김민찬","employeeNumber":"23032","isManager":false},{"name":"이인상","employeeNumber":"25017","isManager":false},{"name":"남명조","employeeNumber":"24042","isManager":false}],"children":[]},{"departmentName":"사업개발실","employees":[{"name":"이재용","employeeNumber":"25025","isManager":false},{"name":"이서연","employeeNumber":"22042","isManager":false},{"name":"황규대","employeeNumber":"25036","isManager":false}],"children":[]}]},{"departmentName":"우주기술본부","employees":[],"children":[{"departmentName":"시스템파트","employees":[{"name":"조준현","employeeNumber":"25033","isManager":false},{"name":"아메드","employeeNumber":"25034","isManager":false},{"name":"팜테히엔","employeeNumber":"25050","isManager":false}],"children":[]},{"departmentName":"ES파트","employees":[{"name":"정성훈","employeeNumber":"21008","isManager":true,"note":"겸직자"},{"name":"이준","employeeNumber":"21013","isManager":false},{"name":"천윤범","employeeNumber":"25004","isManager":false},{"name":"김민호","employeeNumber":"25022","isManager":false},{"name":"김기표","employeeNumber":"23025","isManager":false},{"name":"김민찬1","employeeNumber":"25041","isManager":false},{"name":"김유상","employeeNumber":"25018","isManager":false}],"children":[]},{"departmentName":"전자1파트","employees":[{"name":"강남규","employeeNumber":"17007","isManager":true,"note":"겸직자"},{"name":"정양희","employeeNumber":"20035","isManager":false},{"name":"하태식","employeeNumber":"23022","isManager":false},{"name":"최은지","employeeNumber":"23034","isManager":false},{"name":"이민수","employeeNumber":"25029","isManager":false},{"name":"김도형","employeeNumber":"25032","isManager":false},{"name":"이재윤","employeeNumber":"25038","isManager":false},{"name":"이규은","employeeNumber":"25051","isManager":false}],"children":[]},{"departmentName":"전자2파트","employees":[{"name":"서상준","employeeNumber":"22038","isManager":true,"note":"겸직자"},{"name":"이승기","employeeNumber":"23048","isManager":false},{"name":"정승헌","employeeNumber":"24005","isManager":false},{"name":"이준형","employeeNumber":"24046","isManager":false},{"name":"김자승","employeeNumber":"25030","isManager":false}],"children":[]},{"departmentName":"RF파트","employees":[{"name":"김경민","employeeNumber":"23028","isManager":true},{"name":"홍연창","employeeNumber":"25006","isManager":false},{"name":"유경준","employeeNumber":"25007","isManager":false},{"name":"담현규","employeeNumber":"25005","isManager":false},{"name":"김은정","employeeNumber":"23035","isManager":false},{"name":"이종현","employeeNumber":"25019","isManager":false},{"name":"김익환","employeeNumber":"24038","isManager":false},{"name":"응웬반탕","employeeNumber":"25042","isManager":false},{"name":"구석현","employeeNumber":"24020","isManager":false}],"children":[]},{"departmentName":"전력파트","employees":[{"name":"권혁규","employeeNumber":"25010","isManager":false},{"name":"김형중","employeeNumber":"25015","isManager":false},{"name":"조전호","employeeNumber":"25035","isManager":false}],"children":[]},{"departmentName":"기구파트","employees":[{"name":"고영훈","employeeNumber":"22002","isManager":true,"note":"겸직자"},{"name":"김동현1","employeeNumber":"23035","isManager":false},{"name":"김대형","employeeNumber":"25021","isManager":false},{"name":"김형진","employeeNumber":"25039","isManager":false}],"children":[]}]},{"departmentName":"지상기술본부","employees":[],"children":[{"departmentName":"Web파트","employees":[{"name":"김종식","employeeNumber":"23027","isManager":true},{"name":"우창욱","employeeNumber":"23047","isManager":false},{"name":"김규현","employeeNumber":"24016","isManager":false},{"name":"조민경","employeeNumber":"24019","isManager":false},{"name":"이화영","employeeNumber":"24024","isManager":false},{"name":"유승훈","employeeNumber":"25040","isManager":false},{"name":"민정호","employeeNumber":"24026","isManager":false},{"name":"박헌남","employeeNumber":"25049","isManager":false}],"children":[]},{"departmentName":"지상운용파트","employees":[{"name":"박일수","employeeNumber":"24031","isManager":true,"note":"겸직자"},{"name":"정해찬","employeeNumber":"25047","isManager":false,"note":"겸직자"}],"children":[]}]},{"departmentName":"기반기술사업부","employees":[{"name":"모현민","employeeNumber":"22007","isManager":true,"note":"QA파트 겸직자"}],"children":[{"departmentName":"제조파트","employees":[{"name":"김기용","employeeNumber":"24004","isManager":true,"note":"겸직자"},{"name":"김동현","employeeNumber":"22005","isManager":false},{"name":"안광헌","employeeNumber":"25001","isManager":false},{"name":"채민수","employeeNumber":"22037","isManager":false},{"name":"최동원","employeeNumber":"25002","isManager":false},{"name":"원동주","employeeNumber":"24035","isManager":false}],"children":[]},{"departmentName":"QA파트","employees":[{"name":"서유민1","employeeNumber":"24010","isManager":false},{"name":"허유리","employeeNumber":"25020","isManager":false}],"children":[]}]}]},"notes":["이 데이터는 2025년 11월 조직도 기준입니다","조직개편 이전의 부서 배치 정보입니다"]}');
 
 /***/ })
 

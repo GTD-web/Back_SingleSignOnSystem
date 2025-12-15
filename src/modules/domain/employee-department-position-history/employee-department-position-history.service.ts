@@ -17,6 +17,7 @@ export class DomainEmployeeDepartmentPositionHistoryService extends BaseService<
         params: {
             employeeId: string;
             departmentId: string;
+            parentDepartmentId?: string;
             positionId: string;
             rankId?: string;
             isManager: boolean;
@@ -31,6 +32,7 @@ export class DomainEmployeeDepartmentPositionHistoryService extends BaseService<
         // 기본 정보
         newAssignment.employeeId = params.employeeId;
         newAssignment.부서를설정한다(params.departmentId);
+        newAssignment.상위부서를설정한다(params.parentDepartmentId);
         newAssignment.직책을설정한다(params.positionId);
 
         if (params.rankId) {
