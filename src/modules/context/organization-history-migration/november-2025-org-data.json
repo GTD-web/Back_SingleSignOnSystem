@@ -86,6 +86,7 @@
                         "departmentName": "전자2파트",
                         "employees": [
                             { "name": "서상준", "employeeNumber": "22038", "isManager": true, "note": "겸직자" },
+                            { "name": "전구영", "employeeNumber": "23010", "isManager": false },
                             { "name": "이승기", "employeeNumber": "23048", "isManager": false },
                             { "name": "정승헌", "employeeNumber": "24005", "isManager": false },
                             { "name": "이준형", "employeeNumber": "24046", "isManager": false },
