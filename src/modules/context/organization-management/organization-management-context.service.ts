@@ -174,7 +174,7 @@ export class OrganizationManagementContextService {
             queryRunner,
         );
 
-        const shouldCreateAssignment = 수정정보.departmentId || 수정정보.positionId;
+        const shouldCreateAssignment = 수정정보.departmentId || 수정정보.positionId || 수정정보.isManager;
 
         if (shouldCreateAssignment) {
             if (수정정보.departmentId) {

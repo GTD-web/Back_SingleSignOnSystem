@@ -8,6 +8,7 @@ import { OrganizationInformationApplicationController } from './controllers/orga
 // Context 모듈들 import
 import { OrganizationManagementContextModule } from '../../context/organization-management/organization-management-context.module';
 import { AuthorizationContextModule } from '../../context/authorization/authorization-context.module';
+import { SystemManagementContextModule } from '../../context/system-management/system-management-context.module';
 
 // JWT 관련 import
 import { jwtConfig } from '../../../../libs/configs/jwt.config';
@@ -16,7 +17,7 @@ import { jwtConfig } from '../../../../libs/configs/jwt.config';
     imports: [
         OrganizationManagementContextModule,
         AuthorizationContextModule,
-
+        SystemManagementContextModule,
         PassportModule,
         JwtModule.registerAsync({
             useFactory: jwtConfig,

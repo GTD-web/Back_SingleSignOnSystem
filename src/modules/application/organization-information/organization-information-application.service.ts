@@ -25,10 +25,14 @@ import {
 } from './dto';
 import { Employee, Department, Position, Rank, DepartmentType } from '../../../../libs/database/entities';
 import { EmployeeStatus } from '../../../../libs/common/enums';
+import { SystemManagementContextService } from '../../context/system-management/system-management-context.service';
 
 @Injectable()
 export class OrganizationInformationApplicationService {
-    constructor(private readonly organizationContextService: OrganizationManagementContextService) {}
+    constructor(
+        private readonly organizationContextService: OrganizationManagementContextService,
+        private readonly systemContext: SystemManagementContextService,
+    ) {}
 
     async 직원정보를_조회한다(requestDto: EmployeeRequestDto): Promise<EmployeeResponseDto> {
         const { employeeId, employeeNumber, withDetail } = requestDto;
@@ -373,6 +377,13 @@ export class OrganizationInformationApplicationService {
                 departmentId: hireEmployeeDto.departmentId,
                 positionId: positionId,
             });
+
+            // 직원 생성 후 기본 역할 자동 할당 (트랜잭션 외부에서 처리 - 실패해도 직원 생성은 유지)
+            try {
+                await this.systemContext.직원에게_기본역할들을_할당한다(result.employee.id);
+            } catch (error) {
+                console.error('직원 생성 후 기본 역할 할당 실패:', error);
+            }
 
             // Response DTO로 변환
             return this.직원생성결과를_응답DTO로_변환한다(result);

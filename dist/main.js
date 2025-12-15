@@ -11065,6 +11065,7 @@ const organization_information_application_service_1 = __webpack_require__(/*! .
 const organization_information_application_controller_1 = __webpack_require__(/*! ./controllers/organization-information-application.controller */ "./src/modules/application/organization-information/controllers/organization-information-application.controller.ts");
 const organization_management_context_module_1 = __webpack_require__(/*! ../../context/organization-management/organization-management-context.module */ "./src/modules/context/organization-management/organization-management-context.module.ts");
 const authorization_context_module_1 = __webpack_require__(/*! ../../context/authorization/authorization-context.module */ "./src/modules/context/authorization/authorization-context.module.ts");
+const system_management_context_module_1 = __webpack_require__(/*! ../../context/system-management/system-management-context.module */ "./src/modules/context/system-management/system-management-context.module.ts");
 const jwt_config_1 = __webpack_require__(/*! ../../../../libs/configs/jwt.config */ "./libs/configs/jwt.config.ts");
 let OrganizationInformationApplicationModule = class OrganizationInformationApplicationModule {
 };
@@ -11074,6 +11075,7 @@ exports.OrganizationInformationApplicationModule = OrganizationInformationApplic
         imports: [
             organization_management_context_module_1.OrganizationManagementContextModule,
             authorization_context_module_1.AuthorizationContextModule,
+            system_management_context_module_1.SystemManagementContextModule,
             passport_1.PassportModule,
             jwt_1.JwtModule.registerAsync({
                 useFactory: jwt_config_1.jwtConfig,
@@ -11105,16 +11107,18 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a;
+var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.OrganizationInformationApplicationService = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 const organization_management_context_service_1 = __webpack_require__(/*! ../../context/organization-management/organization-management-context.service */ "./src/modules/context/organization-management/organization-management-context.service.ts");
 const entities_1 = __webpack_require__(/*! ../../../../libs/database/entities */ "./libs/database/entities/index.ts");
 const enums_1 = __webpack_require__(/*! ../../../../libs/common/enums */ "./libs/common/enums/index.ts");
+const system_management_context_service_1 = __webpack_require__(/*! ../../context/system-management/system-management-context.service */ "./src/modules/context/system-management/system-management-context.service.ts");
 let OrganizationInformationApplicationService = class OrganizationInformationApplicationService {
-    constructor(organizationContextService) {
+    constructor(organizationContextService, systemContext) {
         this.organizationContextService = organizationContextService;
+        this.systemContext = systemContext;
     }
     async 직원정보를_조회한다(requestDto) {
         const { employeeId, employeeNumber, withDetail } = requestDto;
@@ -11351,6 +11355,12 @@ let OrganizationInformationApplicationService = class OrganizationInformationApp
                 departmentId: hireEmployeeDto.departmentId,
                 positionId: positionId,
             });
+            try {
+                await this.systemContext.직원에게_기본역할들을_할당한다(result.employee.id);
+            }
+            catch (error) {
+                console.error('직원 생성 후 기본 역할 할당 실패:', error);
+            }
             return this.직원생성결과를_응답DTO로_변환한다(result);
         }
         catch (error) {
@@ -11571,7 +11581,7 @@ let OrganizationInformationApplicationService = class OrganizationInformationApp
 exports.OrganizationInformationApplicationService = OrganizationInformationApplicationService;
 exports.OrganizationInformationApplicationService = OrganizationInformationApplicationService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [typeof (_a = typeof organization_management_context_service_1.OrganizationManagementContextService !== "undefined" && organization_management_context_service_1.OrganizationManagementContextService) === "function" ? _a : Object])
+    __metadata("design:paramtypes", [typeof (_a = typeof organization_management_context_service_1.OrganizationManagementContextService !== "undefined" && organization_management_context_service_1.OrganizationManagementContextService) === "function" ? _a : Object, typeof (_b = typeof system_management_context_service_1.SystemManagementContextService !== "undefined" && system_management_context_service_1.SystemManagementContextService) === "function" ? _b : Object])
 ], OrganizationInformationApplicationService);
 
 
@@ -14442,7 +14452,7 @@ let OrganizationManagementContextService = class OrganizationManagementContextSe
             hireDate: 수정정보.hireDate,
             currentRankId: 수정정보.currentRankId,
         }, queryRunner);
-        const shouldCreateAssignment = 수정정보.departmentId || 수정정보.positionId;
+        const shouldCreateAssignment = 수정정보.departmentId || 수정정보.positionId || 수정정보.isManager;
         if (shouldCreateAssignment) {
             if (수정정보.departmentId) {
                 const department = await this.departmentContext.부서_ID로_부서를_조회한다(수정정보.departmentId);
