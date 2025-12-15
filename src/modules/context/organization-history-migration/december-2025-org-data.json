@@ -1,9 +1,16 @@
 {
-    "description": "2025년 11월 조직도 데이터 (조직개편 이전)",
-    "effectiveDate": "2025-11-30",
+    "description": "2025년 12월 조직도 데이터 (조직개편 이후)",
+    "effectiveDate": "2025-12-01",
     "organization": {
         "departmentName": "루미르 주식회사",
-        "employees": [{ "name": "남명용", "employeeNumber": "1", "isManager": true, "note": "대표이사" }],
+        "employees": [
+            {
+                "name": "남명용",
+                "employeeNumber": "1",
+                "isManager": true,
+                "note": "대표이사, 시스템파트, EP파트 겸직자"
+            }
+        ],
         "children": [
             {
                 "departmentName": "경영지원본부",
@@ -21,7 +28,6 @@
                         "employees": [
                             { "name": "박태연", "employeeNumber": "22008", "isManager": false },
                             { "name": "정재일", "employeeNumber": "23012", "isManager": false },
-                            { "name": "박승현", "employeeNumber": "24043", "isManager": false },
                             { "name": "전무현", "employeeNumber": "25046", "isManager": false },
                             { "name": "우은진", "employeeNumber": "22020", "isManager": false },
                             { "name": "김민영", "employeeNumber": "23006", "isManager": false },
@@ -34,20 +40,26 @@
                     {
                         "departmentName": "사업개발실",
                         "employees": [
-                            { "name": "이재용", "employeeNumber": "25025", "isManager": false },
+                            { "name": "이재용", "employeeNumber": "25025", "isManager": true },
+                            { "name": "황규대", "employeeNumber": "25036", "isManager": false },
                             { "name": "이서연", "employeeNumber": "22042", "isManager": false },
-                            { "name": "황규대", "employeeNumber": "25036", "isManager": false }
+                            { "name": "박세호", "employeeNumber": "25057", "isManager": false }
                         ],
                         "children": []
                     }
                 ]
             },
             {
-                "departmentName": "우주기술본부",
+                "departmentName": "연구개발본부",
                 "employees": [],
                 "children": [
                     {
-                        "departmentName": "시스템파트",
+                        "departmentName": "PM실",
+                        "employees": [{ "name": "정석화", "employeeNumber": "22025", "isManager": true }],
+                        "children": []
+                    },
+                    {
+                        "departmentName": "시스템팀파트",
                         "employees": [
                             { "name": "조준현", "employeeNumber": "25033", "isManager": false },
                             { "name": "아메드", "employeeNumber": "25034", "isManager": false },
@@ -58,18 +70,23 @@
                     {
                         "departmentName": "ES파트",
                         "employees": [
-                            { "name": "정성훈", "employeeNumber": "21008", "isManager": true, "note": "겸직자" },
-                            { "name": "이준", "employeeNumber": "21013", "isManager": false },
+                            {
+                                "name": "정성훈",
+                                "employeeNumber": "21008",
+                                "isManager": true,
+                                "note": "IP파트 겸직자"
+                            },
+                            { "name": "이준", "employeeNumber": "21013", "isManager": false, "note": "IP파트 겸직자" },
                             { "name": "천윤범", "employeeNumber": "25004", "isManager": false },
                             { "name": "김민호", "employeeNumber": "25022", "isManager": false },
                             { "name": "김기표", "employeeNumber": "23025", "isManager": false },
                             { "name": "김민찬1", "employeeNumber": "25041", "isManager": false },
-                            { "name": "김유상", "employeeNumber": "25018", "isManager": false }
+                            { "name": "신정호", "employeeNumber": "25052", "isManager": false }
                         ],
                         "children": []
                     },
                     {
-                        "departmentName": "전자1파트",
+                        "departmentName": "EC파트",
                         "employees": [
                             { "name": "강남규", "employeeNumber": "17007", "isManager": true, "note": "겸직자" },
                             { "name": "정양희", "employeeNumber": "20035", "isManager": false },
@@ -78,25 +95,29 @@
                             { "name": "이민수", "employeeNumber": "25029", "isManager": false },
                             { "name": "김도형", "employeeNumber": "25032", "isManager": false },
                             { "name": "이재윤", "employeeNumber": "25038", "isManager": false },
-                            { "name": "이규은", "employeeNumber": "25051", "isManager": false }
+                            { "name": "이규은", "employeeNumber": "25051", "isManager": false },
+                            { "name": "권순철", "employeeNumber": "25056", "isManager": false },
+                            { "name": "이수웅", "employeeNumber": "25048", "isManager": false },
+                            { "name": "전구영", "employeeNumber": "23010", "isManager": false }
                         ],
                         "children": []
                     },
                     {
-                        "departmentName": "전자2파트",
+                        "departmentName": "IP파트",
                         "employees": [
-                            { "name": "서상준", "employeeNumber": "22038", "isManager": true, "note": "겸직자" },
+                            { "name": "김유상", "employeeNumber": "25018", "isManager": false },
+                            { "name": "김자승", "employeeNumber": "25030", "isManager": false },
+                            { "name": "서상준", "employeeNumber": "22038", "isManager": false },
                             { "name": "이승기", "employeeNumber": "23048", "isManager": false },
-                            { "name": "정승헌", "employeeNumber": "24005", "isManager": false },
-                            { "name": "이준형", "employeeNumber": "24046", "isManager": false },
-                            { "name": "김자승", "employeeNumber": "25030", "isManager": false }
+                            { "name": "이준형", "employeeNumber": "24046", "isManager": false }
                         ],
                         "children": []
                     },
                     {
                         "departmentName": "RF파트",
                         "employees": [
-                            { "name": "김경민", "employeeNumber": "23028", "isManager": true },
+                            { "name": "김경민", "employeeNumber": "23028", "isManager": true, "note": "겸직자" },
+                            { "name": "구석현", "employeeNumber": "24020", "isManager": false },
                             { "name": "홍연창", "employeeNumber": "25006", "isManager": false },
                             { "name": "유경준", "employeeNumber": "25007", "isManager": false },
                             { "name": "담현규", "employeeNumber": "25005", "isManager": false },
@@ -104,12 +125,14 @@
                             { "name": "이종현", "employeeNumber": "25019", "isManager": false },
                             { "name": "김익환", "employeeNumber": "24038", "isManager": false },
                             { "name": "응웬반탕", "employeeNumber": "25042", "isManager": false },
-                            { "name": "구석현", "employeeNumber": "24020", "isManager": false }
+                            { "name": "시루스바흐라미다슈타키", "employeeNumber": "25053", "isManager": false },
+                            { "name": "신승규", "employeeNumber": "25003", "isManager": false },
+                            { "name": "허제영", "employeeNumber": "25058", "isManager": false }
                         ],
                         "children": []
                     },
                     {
-                        "departmentName": "전력파트",
+                        "departmentName": "EP파트",
                         "employees": [
                             { "name": "권혁규", "employeeNumber": "25010", "isManager": false },
                             { "name": "김형중", "employeeNumber": "25015", "isManager": false },
@@ -118,25 +141,28 @@
                         "children": []
                     },
                     {
-                        "departmentName": "기구파트",
+                        "departmentName": "ME파트",
                         "employees": [
                             { "name": "고영훈", "employeeNumber": "22002", "isManager": true, "note": "겸직자" },
                             { "name": "김동현1", "employeeNumber": "23035", "isManager": false },
                             { "name": "김대형", "employeeNumber": "25021", "isManager": false },
-                            { "name": "김형진", "employeeNumber": "25039", "isManager": false }
+                            { "name": "김형진", "employeeNumber": "25039", "isManager": false },
+                            { "name": "구민아", "employeeNumber": "25055", "isManager": false }
                         ],
                         "children": []
-                    }
-                ]
-            },
-            {
-                "departmentName": "지상기술본부",
-                "employees": [],
-                "children": [
+                    },
                     {
-                        "departmentName": "Web파트",
+                        "departmentName": "SO파트",
                         "employees": [
-                            { "name": "김종식", "employeeNumber": "23027", "isManager": true },
+                            { "name": "박일수", "employeeNumber": "24031", "isManager": true, "note": "겸직자" },
+                            { "name": "정해찬", "employeeNumber": "25047", "isManager": false, "note": "겸직자" }
+                        ],
+                        "children": []
+                    },
+                    {
+                        "departmentName": "WEB파트",
+                        "employees": [
+                            { "name": "김종식", "employeeNumber": "23027", "isManager": true, "note": "겸직자" },
                             { "name": "우창욱", "employeeNumber": "23047", "isManager": false },
                             { "name": "김규현", "employeeNumber": "24016", "isManager": false },
                             { "name": "조민경", "employeeNumber": "24019", "isManager": false },
@@ -144,14 +170,6 @@
                             { "name": "유승훈", "employeeNumber": "25040", "isManager": false },
                             { "name": "민정호", "employeeNumber": "24026", "isManager": false },
                             { "name": "박헌남", "employeeNumber": "25049", "isManager": false }
-                        ],
-                        "children": []
-                    },
-                    {
-                        "departmentName": "지상운용파트",
-                        "employees": [
-                            { "name": "박일수", "employeeNumber": "24031", "isManager": true, "note": "겸직자" },
-                            { "name": "정해찬", "employeeNumber": "25047", "isManager": false, "note": "겸직자" }
                         ],
                         "children": []
                     }
@@ -171,7 +189,8 @@
                             { "name": "안광헌", "employeeNumber": "25001", "isManager": false },
                             { "name": "채민수", "employeeNumber": "22037", "isManager": false },
                             { "name": "최동원", "employeeNumber": "25002", "isManager": false },
-                            { "name": "원동주", "employeeNumber": "24035", "isManager": false }
+                            { "name": "원동주", "employeeNumber": "24035", "isManager": false },
+                            { "name": "정승헌", "employeeNumber": "24005", "isManager": false }
                         ],
                         "children": []
                     },
@@ -187,5 +206,5 @@
             }
         ]
     },
-    "notes": ["이 데이터는 2025년 11월 조직도 기준입니다", "조직개편 이전의 부서 배치 정보입니다"]
+    "notes": ["이 데이터는 2025년 12월 조직도 기준입니다", "조직개편 이후의 부서 배치 정보입니다"]
 }

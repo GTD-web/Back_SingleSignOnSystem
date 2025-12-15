@@ -140,6 +140,9 @@ export class ExportAssignmentHistoryDto {
     @ApiProperty({ description: '부서 ID' })
     departmentId: string;
 
+    @ApiProperty({ description: '해당 시점의 상위 부서 ID', required: false })
+    parentDepartmentId?: string;
+
     @ApiProperty({ description: '직책 ID' })
     positionId: string;
 

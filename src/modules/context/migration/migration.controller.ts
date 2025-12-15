@@ -20,6 +20,8 @@ class SyncDatabaseRequestDto {
             'employee_tokens',
             'employee_fcm_tokens',
             'employee_system_roles',
+            'employee_department_position_history',
+            'department_history',
         ],
         type: [String],
     })
@@ -86,6 +88,8 @@ export class MigrationController {
                         'employee_tokens',
                         'employee_fcm_tokens',
                         'employee_system_roles',
+                        'employee_department_position_history',
+                        'department_history',
                     ],
                     description: '동기화할 테이블 목록',
                 },

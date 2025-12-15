@@ -730,6 +730,23 @@ export class OrganizationManagementContextService {
                 },
                 queryRunner,
             );
+            if (수정정보.parentDepartmentId !== undefined) {
+                const currentAssignment = await this.assignmentContext.부서의_현재배치이력을_조회한다(departmentId);
+                if (currentAssignment && currentAssignment.length > 0) {
+                    for (const assignment of currentAssignment) {
+                        await this.assignmentContext.직원의_배치정보를_수정한다(
+                            assignment.employeeId,
+                            {
+                                departmentId: departmentId,
+                                positionId: assignment.positionId,
+                                isManager: assignment.isManager,
+                            },
+                            executedBy,
+                            queryRunner,
+                        );
+                    }
+                }
+            }
         }
         return department;
     }

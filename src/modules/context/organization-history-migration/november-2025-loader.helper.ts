@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as november2025OrgDataJson from './november-2025-org-data.json';
 
 /**
  * 11월 조직도 JSON 로더 헬퍼
@@ -23,6 +22,7 @@ export class November2025LoaderHelper {
             departmentId: string;
             departmentName: string;
             departmentCode: string;
+            parentDepartmentId: string | null;
             positionId: string;
             positionTitle: string;
             positionCode: string;
@@ -34,10 +34,8 @@ export class November2025LoaderHelper {
     > {
         this.logger.log('JSON 파일에서 11월 조직도 데이터 로드 시작');
 
-        // JSON 파일 읽기 (같은 폴더에 있는 파일)
-        const jsonPath = path.join(__dirname, 'november-2025-org-data.json');
-        const jsonContent = fs.readFileSync(jsonPath, 'utf-8');
-        const orgData = JSON.parse(jsonContent);
+        // import된 JSON 데이터 사용
+        const orgData = november2025OrgDataJson as any;
 
         const result: Array<{
             employeeId: string;
@@ -46,6 +44,7 @@ export class November2025LoaderHelper {
             departmentId: string;
             departmentName: string;
             departmentCode: string;
+            parentDepartmentId: string | null;
             positionId: string;
             positionTitle: string;
             positionCode: string;
@@ -55,8 +54,8 @@ export class November2025LoaderHelper {
             isManager: boolean;
         }> = [];
 
-        // 재귀적으로 조직도 처리
-        await this.processDepartmentRecursive(orgData.organization, result);
+        // 재귀적으로 조직도 처리 (최상위 부서는 부모가 null)
+        await this.processDepartmentRecursive(orgData.organization, result, null);
 
         this.logger.log(`JSON 파일에서 ${result.length}건의 데이터 로드 완료`);
         return result;
@@ -64,6 +63,9 @@ export class November2025LoaderHelper {
 
     /**
      * 재귀적으로 부서와 직원 처리
+     * @param department 처리할 부서 데이터
+     * @param result 결과 배열
+     * @param parentDepartmentId 상위 부서 ID (최상위는 null)
      */
     private async processDepartmentRecursive(
         department: any,
@@ -74,6 +76,7 @@ export class November2025LoaderHelper {
             departmentId: string;
             departmentName: string;
             departmentCode: string;
+            parentDepartmentId: string | null;
             positionId: string;
             positionTitle: string;
             positionCode: string;
@@ -82,6 +85,7 @@ export class November2025LoaderHelper {
             rankCode: string | null;
             isManager: boolean;
         }>,
+        parentDepartmentId: string | null,
     ): Promise<void> {
         const departmentName = department.departmentName;
 
@@ -91,6 +95,9 @@ export class November2025LoaderHelper {
             this.logger.warn(`⚠️  부서를 찾을 수 없음: ${departmentName}`);
             this.logger.warn(`   → DB에 정확히 "${departmentName}" 이름으로 존재하는지 확인 필요`);
         }
+
+        // 현재 부서의 ID (자식 부서들의 parentDepartmentId로 사용됨)
+        const currentDepartmentId = departmentInfo?.id || null;
 
         // 해당 부서의 직원들 처리
         if (department.employees && Array.isArray(department.employees)) {
@@ -128,6 +135,7 @@ export class November2025LoaderHelper {
                     departmentId: departmentInfo.id,
                     departmentName: departmentInfo.name,
                     departmentCode: departmentInfo.code,
+                    parentDepartmentId: parentDepartmentId, // 11월 당시의 부모 부서 ID
                     positionId: employeeDetailInfo.position.id,
                     positionTitle: employeeDetailInfo.position.title,
                     positionCode: employeeDetailInfo.position.code,
@@ -139,10 +147,10 @@ export class November2025LoaderHelper {
             }
         }
 
-        // 자식 부서들 재귀 처리
+        // 자식 부서들 재귀 처리 (현재 부서 ID를 부모로 전달)
         if (department.children && Array.isArray(department.children)) {
             for (const childDept of department.children) {
-                await this.processDepartmentRecursive(childDept, result);
+                await this.processDepartmentRecursive(childDept, result, currentDepartmentId);
             }
         }
     }
@@ -230,9 +238,7 @@ export class November2025LoaderHelper {
      * 부서별 직원 수 통계
      */
     async getDepartmentStats(): Promise<Map<string, number>> {
-        const jsonPath = path.join(__dirname, 'november-2025-org-data.json');
-        const jsonContent = fs.readFileSync(jsonPath, 'utf-8');
-        const orgData = JSON.parse(jsonContent);
+        const orgData = november2025OrgDataJson as any;
 
         const stats = new Map<string, number>();
 

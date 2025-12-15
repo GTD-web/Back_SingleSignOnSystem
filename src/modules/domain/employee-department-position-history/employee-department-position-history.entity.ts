@@ -18,6 +18,9 @@ export class EmployeeDepartmentPositionHistory {
     @Column({ comment: '부서 ID', type: 'uuid' })
     departmentId: string;
 
+    @Column({ comment: '해당 시점의 부서 상위 부서 ID (조직 계층 구조 추적용)', type: 'uuid', nullable: true })
+    parentDepartmentId?: string;
+
     @Column({ comment: '직책 ID', type: 'uuid' })
     positionId: string;
 
@@ -75,6 +78,10 @@ export class EmployeeDepartmentPositionHistory {
     @JoinColumn({ name: 'departmentId' })
     department: Department;
 
+    @ManyToOne(() => Department, { eager: false })
+    @JoinColumn({ name: 'parentDepartmentId' })
+    parentDepartment: Department;
+
     @ManyToOne(() => Position, { eager: false })
     @JoinColumn({ name: 'positionId' })
     position: Position;
@@ -90,6 +97,13 @@ export class EmployeeDepartmentPositionHistory {
      */
     부서를설정한다(departmentId: string): void {
         this.departmentId = departmentId;
+    }
+
+    /**
+     * 상위부서를설정한다
+     */
+    상위부서를설정한다(parentDepartmentId?: string): void {
+        this.parentDepartmentId = parentDepartmentId;
     }
 
     /**

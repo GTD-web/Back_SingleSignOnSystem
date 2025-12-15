@@ -98,11 +98,18 @@ export class AssignmentManagementContextService {
             await this.직원발령이력서비스.이력을종료한다(currentAssignment, previousEndDate, queryRunner);
         }
 
+        const department = await this.부서서비스.findById(dto.departmentId);
+        if (!department) {
+            throw new Error('부서 정보를 찾을 수 없습니다.');
+        }
+        const parentDepartmentId = dto.parentDepartmentId || department.parentDepartmentId;
+
         // 3. Domain Service를 통해 새 배치 이력 생성
         const savedAssignment = await this.직원발령이력서비스.직원발령이력을생성한다(
             {
                 employeeId: dto.employeeId,
                 departmentId: dto.departmentId,
+                parentDepartmentId: parentDepartmentId || undefined,
                 positionId: dto.positionId,
                 isManager: dto.isManager,
                 effectiveStartDate: this.formatDate(newStartDate),
@@ -171,6 +178,12 @@ export class AssignmentManagementContextService {
 
     async 모든_배치이력을_조회한다(): Promise<EmployeeDepartmentPositionHistory[]> {
         return this.직원발령이력서비스.findAll();
+    }
+
+    async 부서의_현재배치이력을_조회한다(departmentId: string): Promise<EmployeeDepartmentPositionHistory[]> {
+        return this.직원발령이력서비스.findAll({
+            where: { departmentId, isCurrent: true },
+        });
     }
 
     // =================================================================== 구분선 ==========================================
