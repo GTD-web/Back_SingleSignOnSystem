@@ -486,13 +486,16 @@ export class OrganizationInformationApplicationService {
         };
     }
 
-    async 전체_조직_데이터를_조회한다(includeInactiveDepartments: boolean): Promise<ExportAllDataResponseDto> {
+    async 전체_조직_데이터를_조회한다(
+        includeTerminated: boolean,
+        includeInactiveDepartments: boolean,
+    ): Promise<ExportAllDataResponseDto> {
         try {
             // 모든 데이터를 병렬로 조회
             const [departments, employees, positions, ranks, employeeDepartmentPositions, assignmentHistories] =
                 await Promise.all([
                     this.organizationContextService.모든_부서를_조회한다(),
-                    this.organizationContextService.모든_직원을_조회한다(),
+                    this.organizationContextService.모든_직원을_조회한다(includeTerminated),
                     this.organizationContextService.모든_직책을_조회한다(),
                     this.organizationContextService.모든_직급을_조회한다(),
                     this.organizationContextService.모든_직원부서직책매핑을_조회한다(),
