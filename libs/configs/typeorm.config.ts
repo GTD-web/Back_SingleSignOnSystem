@@ -16,6 +16,12 @@ export const typeOrmConfig = (configService: ConfigService): TypeOrmModuleOption
         database: configService.get('database.database'),
         entities: Entities,
         schema: configService.get('database.schema'),
+
+        poolSize: 3,
+        poolErrorHandler: (err) => {
+            console.error('Pool error:', err);
+        },
+
         synchronize: false, // 마이그레이션 사용을 위해 false로 설정
         // logging: !isProduction,
         // migrations: [join(__dirname, '../common/migrations/*.ts')],
