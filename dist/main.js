@@ -899,6 +899,10 @@ const typeOrmConfig = (configService) => {
         database: configService.get('database.database'),
         entities: entities_1.Entities,
         schema: configService.get('database.schema'),
+        poolSize: 3,
+        poolErrorHandler: (err) => {
+            console.error('Pool error:', err);
+        },
         synchronize: false,
     };
 };
@@ -987,12 +991,45 @@ exports.Entities = [
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
@@ -1005,7 +1042,7 @@ exports.AppController = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 const express_1 = __webpack_require__(/*! express */ "express");
 const path_1 = __webpack_require__(/*! path */ "path");
-const fs = __webpack_require__(/*! fs */ "fs");
+const fs = __importStar(__webpack_require__(/*! fs */ "fs"));
 const app_service_1 = __webpack_require__(/*! ./app.service */ "./src/app.service.ts");
 const swagger_1 = __webpack_require__(/*! @nestjs/swagger */ "@nestjs/swagger");
 const core_1 = __webpack_require__(/*! @nestjs/core */ "@nestjs/core");
@@ -1197,12 +1234,45 @@ exports.AppController = AppController = __decorate([
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppModule = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
@@ -1214,7 +1284,7 @@ const app_controller_1 = __webpack_require__(/*! ./app.controller */ "./src/app.
 const app_service_1 = __webpack_require__(/*! ./app.service */ "./src/app.service.ts");
 const typeorm_config_1 = __webpack_require__(/*! ../libs/configs/typeorm.config */ "./libs/configs/typeorm.config.ts");
 const config_2 = __webpack_require__(/*! @nestjs/config */ "@nestjs/config");
-const env_config_1 = __webpack_require__(/*! ../libs/configs/env.config */ "./libs/configs/env.config.ts");
+const env_config_1 = __importStar(__webpack_require__(/*! ../libs/configs/env.config */ "./libs/configs/env.config.ts"));
 const entities_1 = __webpack_require__(/*! ../libs/database/entities */ "./libs/database/entities/index.ts");
 const sso_application_module_1 = __webpack_require__(/*! ./modules/application/single-sign-on/sso-application.module */ "./src/modules/application/single-sign-on/sso-application.module.ts");
 const organization_information_application_module_1 = __webpack_require__(/*! ./modules/application/organization-information/organization-information-application.module */ "./src/modules/application/organization-information/organization-information-application.module.ts");
@@ -1311,9 +1381,31 @@ var __createBinding = (this && this.__createBinding) || (Object.create ? (functi
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
 }));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SSODto = exports.EmployeeDetailListResponseDto = exports.EmployeeDetailInfoDto = exports.NextEmployeeNumberResponseDto = exports.EmployeeListResponseDto = exports.AdminEmployeeResponseDto = exports.BulkUpdateResultDto = exports.BulkUpdateStatusRequestDto = exports.BulkUpdateRankRequestDto = exports.BulkUpdatePositionRequestDto = exports.BulkUpdateTeamRequestDto = exports.BulkUpdateDepartmentRequestDto = exports.EmployeeAssignmentDetailDto = exports.EmployeeRankHistoryResponseDto = exports.PromoteEmployeeRequestDto = exports.EmployeeAssignmentDetailResponseDto = exports.EmployeeAssignmentListResponseDto = exports.EmployeeAssignmentResponseDto = exports.UpdateManagerStatusRequestDto = exports.UpdateEmployeeAssignmentRequestDto = exports.AssignEmployeeRequestDto = exports.RankResponseDto = exports.UpdateRankRequestDto = exports.CreateRankRequestDto = exports.PositionResponseDto = exports.UpdatePositionRequestDto = exports.CreatePositionRequestDto = exports.UpdateDepartmentParentRequestDto = exports.UpdateDepartmentOrderRequestDto = exports.DepartmentListResponseDto = exports.DepartmentResponseDto = exports.UpdateDepartmentRequestDto = exports.CreateDepartmentRequestDto = void 0;
 __exportStar(__webpack_require__(/*! ../libs/common/dto */ "./libs/common/dto/index.ts"), exports);
@@ -1354,8 +1446,101 @@ Object.defineProperty(exports, "EmployeeDetailListResponseDto", ({ enumerable: t
 __exportStar(__webpack_require__(/*! ./modules/application/admin/employee/dto */ "./src/modules/application/admin/employee/dto/index.ts"), exports);
 __exportStar(__webpack_require__(/*! ./modules/application/admin/log/dto */ "./src/modules/application/admin/log/dto/index.ts"), exports);
 __exportStar(__webpack_require__(/*! ./modules/application/admin/system/dto */ "./src/modules/application/admin/system/dto/index.ts"), exports);
-exports.SSODto = __webpack_require__(/*! ./modules/application/single-sign-on/dto */ "./src/modules/application/single-sign-on/dto/index.ts");
+exports.SSODto = __importStar(__webpack_require__(/*! ./modules/application/single-sign-on/dto */ "./src/modules/application/single-sign-on/dto/index.ts"));
 __exportStar(__webpack_require__(/*! ./modules/application/fcm-token-management/dto */ "./src/modules/application/fcm-token-management/dto/index.ts"), exports);
+
+
+/***/ }),
+
+/***/ "./src/main.ts":
+/*!*********************!*\
+  !*** ./src/main.ts ***!
+  \*********************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const core_1 = __webpack_require__(/*! @nestjs/core */ "@nestjs/core");
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const app_module_1 = __webpack_require__(/*! ./app.module */ "./src/app.module.ts");
+const swagger_1 = __webpack_require__(/*! ../libs/common/utils/swagger */ "./libs/common/utils/swagger.ts");
+const dtos = __importStar(__webpack_require__(/*! ./dtos.index */ "./src/dtos.index.ts"));
+const path_1 = __webpack_require__(/*! path */ "path");
+const logging_interceptor_1 = __webpack_require__(/*! ../libs/common/interceptors/logging.interceptor */ "./libs/common/interceptors/logging.interceptor.ts");
+const log_application_service_1 = __webpack_require__(/*! ./modules/application/admin/log/log-application.service */ "./src/modules/application/admin/log/log-application.service.ts");
+const request_interceptor_1 = __webpack_require__(/*! ../libs/common/interceptors/request.interceptor */ "./libs/common/interceptors/request.interceptor.ts");
+const error_interceptor_1 = __webpack_require__(/*! ../libs/common/interceptors/error.interceptor */ "./libs/common/interceptors/error.interceptor.ts");
+async function bootstrap() {
+    if (process.env.VERCEL || process.env.NOW_REGION) {
+        console.log('Running in Vercel environment, skipping bootstrap');
+        return;
+    }
+    const app = await core_1.NestFactory.create(app_module_1.AppModule);
+    const ALLOW_ORIGINS = [
+        'https://lsso.vercel.app',
+        'https://lsso-git-dev-lumir-tech7s-projects.vercel.app',
+        'https://lsso-git-dev-lumir-web-dev.vercel.app',
+        'https://lsso-admin.vercel.app',
+        'https://lsso-admin-git-dev-lumir-tech7s-projects.vercel.app',
+        'https://portal.lumir.space',
+        'https://lsms.lumir.space',
+        'https://lsso-dev.vercel.app',
+        'http://localhost:3000',
+    ];
+    app.enableCors({
+        origin: ALLOW_ORIGINS,
+        methods: 'GET,HEAD,POST,PATCH,PUT,DELETE,OPTIONS',
+    });
+    app.useGlobalPipes(new common_1.ValidationPipe({
+        whitelist: true,
+        transform: true,
+        forbidNonWhitelisted: true,
+    }));
+    app.setGlobalPrefix('api', {
+        exclude: ['/set-initial-password', '/change-password'],
+    });
+    (0, swagger_1.setupSwagger)(app, [...Object.values(dtos)]);
+    app.useGlobalInterceptors(new request_interceptor_1.RequestInterceptor(), new error_interceptor_1.ErrorInterceptor());
+    app.useGlobalInterceptors(new logging_interceptor_1.LoggingInterceptor(app.get(log_application_service_1.LogApplicationService)));
+    app.useStaticAssets((0, path_1.join)(__dirname, '..', 'public'), {
+        prefix: '/static',
+    });
+    await app.listen(process.env.PORT ?? 3000);
+}
+bootstrap();
 
 
 /***/ }),
@@ -18862,12 +19047,45 @@ exports.DomainEmployeeRepository = DomainEmployeeRepository = __decorate([
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
@@ -18880,7 +19098,7 @@ const base_service_1 = __webpack_require__(/*! ../../../../libs/common/services/
 const employee_entity_1 = __webpack_require__(/*! ./employee.entity */ "./src/modules/domain/employee/employee.entity.ts");
 const enums_1 = __webpack_require__(/*! ../../../../libs/common/enums */ "./libs/common/enums/index.ts");
 const typeorm_1 = __webpack_require__(/*! typeorm */ "typeorm");
-const bcrypt = __webpack_require__(/*! @node-rs/bcrypt */ "@node-rs/bcrypt");
+const bcrypt = __importStar(__webpack_require__(/*! @node-rs/bcrypt */ "@node-rs/bcrypt"));
 let DomainEmployeeService = class DomainEmployeeService extends base_service_1.BaseService {
     constructor(employeeRepository) {
         super(employeeRepository);
@@ -21110,12 +21328,45 @@ exports.DomainSystemRepository = DomainSystemRepository = __decorate([
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
@@ -21126,7 +21377,7 @@ const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 const system_repository_1 = __webpack_require__(/*! ./system.repository */ "./src/modules/domain/system/system.repository.ts");
 const base_service_1 = __webpack_require__(/*! ../../../../libs/common/services/base.service */ "./libs/common/services/base.service.ts");
 const crypto_1 = __webpack_require__(/*! crypto */ "crypto");
-const bcrypt = __webpack_require__(/*! @node-rs/bcrypt */ "@node-rs/bcrypt");
+const bcrypt = __importStar(__webpack_require__(/*! @node-rs/bcrypt */ "@node-rs/bcrypt"));
 const uuid_1 = __webpack_require__(/*! uuid */ "uuid");
 const typeorm_1 = __webpack_require__(/*! typeorm */ "typeorm");
 let DomainSystemService = class DomainSystemService extends base_service_1.BaseService {
@@ -21789,16 +22040,6 @@ module.exports = require("express");
 
 /***/ }),
 
-/***/ "hbs":
-/*!**********************!*\
-  !*** external "hbs" ***!
-  \**********************/
-/***/ ((module) => {
-
-module.exports = require("hbs");
-
-/***/ }),
-
 /***/ "rxjs":
 /*!***********************!*\
   !*** external "rxjs" ***!
@@ -21896,69 +22137,11 @@ module.exports = require("path");
 /******/ 	}
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
-(() => {
-var exports = __webpack_exports__;
-/*!*********************!*\
-  !*** ./src/main.ts ***!
-  \*********************/
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core_1 = __webpack_require__(/*! @nestjs/core */ "@nestjs/core");
-const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
-const app_module_1 = __webpack_require__(/*! ./app.module */ "./src/app.module.ts");
-const swagger_1 = __webpack_require__(/*! ../libs/common/utils/swagger */ "./libs/common/utils/swagger.ts");
-const dtos = __webpack_require__(/*! ./dtos.index */ "./src/dtos.index.ts");
-const path_1 = __webpack_require__(/*! path */ "path");
-const logging_interceptor_1 = __webpack_require__(/*! ../libs/common/interceptors/logging.interceptor */ "./libs/common/interceptors/logging.interceptor.ts");
-const log_application_service_1 = __webpack_require__(/*! ./modules/application/admin/log/log-application.service */ "./src/modules/application/admin/log/log-application.service.ts");
-const hbs = __webpack_require__(/*! hbs */ "hbs");
-const request_interceptor_1 = __webpack_require__(/*! ../libs/common/interceptors/request.interceptor */ "./libs/common/interceptors/request.interceptor.ts");
-const error_interceptor_1 = __webpack_require__(/*! ../libs/common/interceptors/error.interceptor */ "./libs/common/interceptors/error.interceptor.ts");
-async function bootstrap() {
-    if (process.env.VERCEL || process.env.NOW_REGION) {
-        console.log('Running in Vercel environment, skipping bootstrap');
-        return;
-    }
-    const app = await core_1.NestFactory.create(app_module_1.AppModule);
-    const ALLOW_ORIGINS = [
-        'https://lsso.vercel.app',
-        'https://lsso-git-dev-lumir-tech7s-projects.vercel.app',
-        'https://lsso-git-dev-lumir-web-dev.vercel.app',
-        'https://lsso-admin.vercel.app',
-        'https://lsso-admin-git-dev-lumir-tech7s-projects.vercel.app',
-        'https://portal.lumir.space',
-        'https://lsms.lumir.space',
-        'https://lsso-dev.vercel.app',
-        'http://localhost:3000',
-    ];
-    app.enableCors({
-        origin: ALLOW_ORIGINS,
-        methods: 'GET,HEAD,POST,PATCH,PUT,DELETE,OPTIONS',
-    });
-    app.useGlobalPipes(new common_1.ValidationPipe({
-        whitelist: true,
-        transform: true,
-        forbidNonWhitelisted: true,
-    }));
-    app.setGlobalPrefix('api', {
-        exclude: ['/set-initial-password', '/change-password'],
-    });
-    (0, swagger_1.setupSwagger)(app, [...Object.values(dtos)]);
-    app.useGlobalInterceptors(new request_interceptor_1.RequestInterceptor(), new error_interceptor_1.ErrorInterceptor());
-    app.useGlobalInterceptors(new logging_interceptor_1.LoggingInterceptor(app.get(log_application_service_1.LogApplicationService)));
-    app.useStaticAssets((0, path_1.join)(__dirname, '..', 'public'), {
-        prefix: '/static',
-    });
-    app.setBaseViewsDir((0, path_1.join)(__dirname, '..', 'src', 'views'));
-    app.setViewEngine('hbs');
-    hbs.registerPartials((0, path_1.join)(__dirname, '..', 'views/partials'));
-    await app.listen(process.env.PORT ?? 3000);
-}
-bootstrap();
-
-})();
-
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	var __webpack_exports__ = __webpack_require__("./src/main.ts");
+/******/ 	
 /******/ })()
 ;

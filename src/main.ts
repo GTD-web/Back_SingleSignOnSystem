@@ -66,13 +66,6 @@ async function bootstrap() {
         prefix: '/static',
     });
 
-    // Handlebars 설정
-    app.setBaseViewsDir(join(__dirname, '..', 'src', 'views'));
-    app.setViewEngine('hbs');
-
-    // Handlebars 파셜 설정
-    hbs.registerPartials(join(__dirname, '..', 'views/partials'));
-
     await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
