@@ -71,7 +71,6 @@ export class SsoApplicationService {
         }
 
         const token = await this.authorizationContextService.토큰정보를_생성한다(employee, systemRolesMap);
-        console.log('token', token);
         return {
             tokenType: 'Bearer',
             accessToken: token.accessToken,
@@ -101,7 +100,6 @@ export class SsoApplicationService {
             throw new UnauthorizedException('유효하지 않은 인증정보입니다.');
         }
         const { accessToken } = result;
-        console.log('accessToken', accessToken);
         const { employee, token } = await this.authorizationContextService.엑세스토큰을_검증한다(accessToken);
 
         return {

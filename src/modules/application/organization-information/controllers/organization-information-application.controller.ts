@@ -80,9 +80,6 @@ export class OrganizationInformationApplicationController {
         @Query('employeeNumber') employeeNumber?: string,
         @Query('withDetail') withDetail?: boolean,
     ): Promise<EmployeeResponseDto> {
-        // 인증된 사용자 정보 로깅 (개발용)
-        console.log('인증된 사용자:', user);
-
         // Query 파라미터를 DTO로 변환
         const requestDto: EmployeeRequestDto = {
             employeeId,
@@ -216,9 +213,6 @@ export class OrganizationInformationApplicationController {
         @Query('includeEmptyDepartments') includeEmptyDepartments?: boolean,
         @Query('includeInactiveDepartments') includeInactiveDepartments?: boolean,
     ): Promise<DepartmentHierarchyResponseDto> {
-        // 인증된 사용자 정보 로깅 (개발용)
-        console.log('부서 계층구조 조회 - 인증된 사용자:', user);
-
         // Query 파라미터를 DTO로 변환
         const requestDto: DepartmentHierarchyRequestDto = {
             rootDepartmentId,
@@ -378,19 +372,11 @@ export class OrganizationInformationApplicationController {
         @Query('includeTerminated') includeTerminated?: boolean,
         @Query('includeInactiveDepartments') includeInactiveDepartments?: boolean,
     ): Promise<ExportAllDataResponseDto> {
-        console.log('[Export All Data] 전체 조직 데이터 조회 시작');
         const result = await this.organizationInformationApplicationService.전체_조직_데이터를_조회한다(
             includeTerminated === true || String(includeTerminated) === 'true',
             includeInactiveDepartments === true || String(includeInactiveDepartments) === 'true',
         );
-        // console.log('result', result.departments);
-        console.log('[Export All Data] 조회 완료:', {
-            departments: result.totalCounts.departments,
-            employees: result.totalCounts.employees,
-            positions: result.totalCounts.positions,
-            ranks: result.totalCounts.ranks,
-            employeeDepartmentPositions: result.totalCounts.employeeDepartmentPositions,
-        });
+
         return result;
     }
 
@@ -409,9 +395,6 @@ export class OrganizationInformationApplicationController {
     @ApiResponse({ status: 401, description: '인증이 필요합니다' })
     @ApiResponse({ status: 404, description: '관리자 라인 정보를 조회할 수 없음' })
     async getEmployeesManagers(@User() user: AuthenticatedUser): Promise<EmployeesManagersResponseDto> {
-        // 인증된 사용자 정보 로깅 (개발용)
-        console.log('직원 관리자 라인 조회 - 인증된 사용자:', user);
-
         const includeTerminatedFlag = false;
 
         return this.organizationInformationApplicationService.전체_직원의_관리자_라인을_조회한다(includeTerminatedFlag);

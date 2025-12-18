@@ -214,7 +214,6 @@ export class EmployeeApplicationService {
                     queryRunner,
                 );
             }
-            console.log(updateEmployeeDto.status, employee.status);
             // 재직상태 변경
             if (updateEmployeeDto.status !== undefined && updateEmployeeDto.status !== employee.status) {
                 employee = await this.organizationContext.직원재직상태를_변경한다(

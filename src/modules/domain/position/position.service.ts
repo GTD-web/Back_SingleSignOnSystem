@@ -189,7 +189,6 @@ export class DomainPositionService extends BaseService<Position> {
      */
     async exists(positionId: string): Promise<boolean> {
         const position = await this.findById(positionId);
-        console.log('position', position);
         if (position) {
             await this.findById(positionId);
             return true;
@@ -202,7 +201,6 @@ export class DomainPositionService extends BaseService<Position> {
      */
     async isCodeDuplicate(positionCode: string, excludeId?: string): Promise<boolean> {
         const position = await this.findByCode(positionCode);
-        console.log('position', position);
         if (position) {
             return true;
         }

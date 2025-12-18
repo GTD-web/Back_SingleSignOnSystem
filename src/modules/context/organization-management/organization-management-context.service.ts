@@ -158,7 +158,6 @@ export class OrganizationManagementContextService {
         executedBy?: string,
         queryRunner?: QueryRunner,
     ): Promise<Employee> {
-        console.log('수정정보', 수정정보);
         const updatedEmployee = await this.employeeContext.직원의_기본정보를_수정한다(
             employeeId,
             {

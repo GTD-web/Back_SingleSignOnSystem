@@ -127,7 +127,6 @@ export class DomainDepartmentService extends BaseService<Department> {
      */
     async exists(departmentId: string): Promise<boolean> {
         const department = await this.findById(departmentId);
-        console.log('department', department);
         if (department) {
             return true;
         }
