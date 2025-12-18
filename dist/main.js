@@ -5821,13 +5821,14 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.BulkUpdateResultDto = exports.BulkUpdateStatusRequestDto = exports.BulkUpdateRankRequestDto = exports.BulkUpdatePositionRequestDto = exports.BulkUpdateTeamRequestDto = exports.BulkUpdateDepartmentRequestDto = exports.EmployeeDetailListResponseDto = exports.EmployeeDetailInfoDto = exports.NextEmployeeNumberResponseDto = exports.EmployeeListResponseDto = exports.AdminEmployeeResponseDto = exports.EmployeeAssignmentDetailDto = exports.UpdateEmployeeRequestDto = exports.CreateEmployeeRequestDto = void 0;
 const swagger_1 = __webpack_require__(/*! @nestjs/swagger */ "@nestjs/swagger");
 const class_validator_1 = __webpack_require__(/*! class-validator */ "class-validator");
 const enums_1 = __webpack_require__(/*! ../../../../../../libs/common/enums */ "./libs/common/enums/index.ts");
 const department_entity_1 = __webpack_require__(/*! ../../../../domain/department/department.entity */ "./src/modules/domain/department/department.entity.ts");
+const rank_entity_1 = __webpack_require__(/*! ../../../../domain/rank/rank.entity */ "./src/modules/domain/rank/rank.entity.ts");
 class CreateEmployeeRequestDto {
 }
 exports.CreateEmployeeRequestDto = CreateEmployeeRequestDto;
@@ -6077,12 +6078,16 @@ __decorate([
     __metadata("design:type", String)
 ], AdminEmployeeResponseDto.prototype, "currentRankId", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ description: '현재 직급', required: false }),
+    __metadata("design:type", typeof (_l = typeof rank_entity_1.Rank !== "undefined" && rank_entity_1.Rank) === "function" ? _l : Object)
+], AdminEmployeeResponseDto.prototype, "currentRank", void 0);
+__decorate([
     (0, swagger_1.ApiProperty)({ description: '퇴사일', required: false }),
-    __metadata("design:type", typeof (_l = typeof Date !== "undefined" && Date) === "function" ? _l : Object)
+    __metadata("design:type", typeof (_m = typeof Date !== "undefined" && Date) === "function" ? _m : Object)
 ], AdminEmployeeResponseDto.prototype, "terminationDate", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ description: '메타데이터', type: 'object', required: false }),
-    __metadata("design:type", typeof (_m = typeof Record !== "undefined" && Record) === "function" ? _m : Object)
+    __metadata("design:type", typeof (_o = typeof Record !== "undefined" && Record) === "function" ? _o : Object)
 ], AdminEmployeeResponseDto.prototype, "metadata", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: '초기 비밀번호 설정 여부' }),
@@ -6090,11 +6095,11 @@ __decorate([
 ], AdminEmployeeResponseDto.prototype, "isInitialPasswordSet", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: '생성일' }),
-    __metadata("design:type", typeof (_o = typeof Date !== "undefined" && Date) === "function" ? _o : Object)
+    __metadata("design:type", typeof (_p = typeof Date !== "undefined" && Date) === "function" ? _p : Object)
 ], AdminEmployeeResponseDto.prototype, "createdAt", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: '수정일' }),
-    __metadata("design:type", typeof (_p = typeof Date !== "undefined" && Date) === "function" ? _p : Object)
+    __metadata("design:type", typeof (_q = typeof Date !== "undefined" && Date) === "function" ? _q : Object)
 ], AdminEmployeeResponseDto.prototype, "updatedAt", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({
@@ -6165,19 +6170,19 @@ __decorate([
 ], EmployeeDetailInfoDto.prototype, "phoneNumber", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: '생년월일', required: false }),
-    __metadata("design:type", typeof (_q = typeof Date !== "undefined" && Date) === "function" ? _q : Object)
+    __metadata("design:type", typeof (_r = typeof Date !== "undefined" && Date) === "function" ? _r : Object)
 ], EmployeeDetailInfoDto.prototype, "dateOfBirth", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: '성별', enum: enums_1.Gender, required: false }),
-    __metadata("design:type", typeof (_r = typeof enums_1.Gender !== "undefined" && enums_1.Gender) === "function" ? _r : Object)
+    __metadata("design:type", typeof (_s = typeof enums_1.Gender !== "undefined" && enums_1.Gender) === "function" ? _s : Object)
 ], EmployeeDetailInfoDto.prototype, "gender", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: '입사일' }),
-    __metadata("design:type", typeof (_s = typeof Date !== "undefined" && Date) === "function" ? _s : Object)
+    __metadata("design:type", typeof (_t = typeof Date !== "undefined" && Date) === "function" ? _t : Object)
 ], EmployeeDetailInfoDto.prototype, "hireDate", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: '재직 상태', enum: enums_1.EmployeeStatus }),
-    __metadata("design:type", typeof (_t = typeof enums_1.EmployeeStatus !== "undefined" && enums_1.EmployeeStatus) === "function" ? _t : Object)
+    __metadata("design:type", typeof (_u = typeof enums_1.EmployeeStatus !== "undefined" && enums_1.EmployeeStatus) === "function" ? _u : Object)
 ], EmployeeDetailInfoDto.prototype, "status", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: '현재 직급 ID', required: false }),
@@ -6185,11 +6190,11 @@ __decorate([
 ], EmployeeDetailInfoDto.prototype, "currentRankId", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: '퇴사일', required: false }),
-    __metadata("design:type", typeof (_u = typeof Date !== "undefined" && Date) === "function" ? _u : Object)
+    __metadata("design:type", typeof (_v = typeof Date !== "undefined" && Date) === "function" ? _v : Object)
 ], EmployeeDetailInfoDto.prototype, "terminationDate", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ description: '메타데이터', type: 'object', required: false }),
-    __metadata("design:type", typeof (_v = typeof Record !== "undefined" && Record) === "function" ? _v : Object)
+    __metadata("design:type", typeof (_w = typeof Record !== "undefined" && Record) === "function" ? _w : Object)
 ], EmployeeDetailInfoDto.prototype, "metadata", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: '초기 비밀번호 설정 여부' }),
@@ -6197,11 +6202,11 @@ __decorate([
 ], EmployeeDetailInfoDto.prototype, "isInitialPasswordSet", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: '생성일' }),
-    __metadata("design:type", typeof (_w = typeof Date !== "undefined" && Date) === "function" ? _w : Object)
+    __metadata("design:type", typeof (_x = typeof Date !== "undefined" && Date) === "function" ? _x : Object)
 ], EmployeeDetailInfoDto.prototype, "createdAt", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: '수정일' }),
-    __metadata("design:type", typeof (_x = typeof Date !== "undefined" && Date) === "function" ? _x : Object)
+    __metadata("design:type", typeof (_y = typeof Date !== "undefined" && Date) === "function" ? _y : Object)
 ], EmployeeDetailInfoDto.prototype, "updatedAt", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: '부서 정보 목록', type: 'array', items: { type: 'object' }, required: false }),
@@ -6298,7 +6303,7 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({ description: '변경할 재직상태', enum: enums_1.EmployeeStatus }),
     (0, class_validator_1.IsEnum)(enums_1.EmployeeStatus),
-    __metadata("design:type", typeof (_y = typeof enums_1.EmployeeStatus !== "undefined" && enums_1.EmployeeStatus) === "function" ? _y : Object)
+    __metadata("design:type", typeof (_z = typeof enums_1.EmployeeStatus !== "undefined" && enums_1.EmployeeStatus) === "function" ? _z : Object)
 ], BulkUpdateStatusRequestDto.prototype, "status", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ description: '퇴사일 (재직상태가 퇴사인 경우)', example: '2024-12-31' }),
@@ -6992,6 +6997,10 @@ let EmployeeApplicationService = class EmployeeApplicationService {
     }
     async 직원상세조회(id) {
         const employee = await this.organizationContext.직원을_조회한다(id);
+        const rank = employee.currentRankId
+            ? await this.organizationContext.직급_ID로_직급을_조회한다(employee.currentRankId)
+            : null;
+        employee.currentRank = rank;
         const baseDto = this.직원을_응답DTO로_변환한다(employee);
         const assignments = await this.organizationContext.직원의_모든_배치정보를_조회한다(id);
         if (assignments.length > 0) {
