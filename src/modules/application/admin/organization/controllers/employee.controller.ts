@@ -75,7 +75,6 @@ export class EmployeeController {
         @Body() createEmployeeDto: CreateEmployeeRequestDto,
         @User() user?: AuthenticatedUser,
     ): Promise<AdminEmployeeResponseDto> {
-        console.log('user', user);
         return await this.employeeApplicationService.직원생성(createEmployeeDto, user?.id);
     }
 

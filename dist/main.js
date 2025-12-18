@@ -4904,7 +4904,6 @@ let EmployeeController = class EmployeeController {
         return await this.employeeApplicationService.직원상세조회(id);
     }
     async createEmployee(createEmployeeDto, user) {
-        console.log('user', user);
         return await this.employeeApplicationService.직원생성(createEmployeeDto, user?.id);
     }
     async updateEmployee(id, updateEmployeeDto, user) {
@@ -7127,7 +7126,6 @@ let EmployeeApplicationService = class EmployeeApplicationService {
                     isManager: updateEmployeeDto.isManager,
                 }, executedBy, queryRunner);
             }
-            console.log(updateEmployeeDto.status, employee.status);
             if (updateEmployeeDto.status !== undefined && updateEmployeeDto.status !== employee.status) {
                 employee = await this.organizationContext.직원재직상태를_변경한다(id, {
                     status: updateEmployeeDto.status,
@@ -9322,11 +9320,7 @@ let FcmTokenManagementApplicationService = class FcmTokenManagementApplicationSe
     async FCM토큰을_구독한다(requestDto) {
         const { fcmToken, deviceType, deviceInfo } = requestDto;
         const employee = await this.getEmployeeFromIdentifier(requestDto);
-        console.log('employee', employee);
         await this.fcmTokenManagementContextService.FCM토큰을_직원에게_등록한다(employee.id, fcmToken, deviceType, deviceInfo);
-        console.log('fcmToken', fcmToken);
-        console.log('deviceType', deviceType);
-        console.log('deviceInfo', deviceInfo);
         return {
             fcmToken: fcmToken,
         };
@@ -9461,7 +9455,6 @@ let OrganizationInformationApplicationController = class OrganizationInformation
         this.organizationInformationApplicationService = organizationInformationApplicationService;
     }
     async getEmployee(user, employeeId, employeeNumber, withDetail) {
-        console.log('인증된 사용자:', user);
         const requestDto = {
             employeeId,
             employeeNumber,
@@ -9484,7 +9477,6 @@ let OrganizationInformationApplicationController = class OrganizationInformation
         return this.organizationInformationApplicationService.여러_직원정보를_조회한다(requestDto);
     }
     async getDepartmentHierarchy(user, rootDepartmentId, maxDepth, withEmployeeDetail, includeTerminated, includeEmptyDepartments, includeInactiveDepartments) {
-        console.log('부서 계층구조 조회 - 인증된 사용자:', user);
         const requestDto = {
             rootDepartmentId,
             maxDepth: maxDepth ? Number(maxDepth) : undefined,
@@ -9502,19 +9494,10 @@ let OrganizationInformationApplicationController = class OrganizationInformation
         return await this.organizationInformationApplicationService.직원을_퇴사처리한다(terminateEmployeeDto);
     }
     async exportAllOrganizationData(includeTerminated, includeInactiveDepartments) {
-        console.log('[Export All Data] 전체 조직 데이터 조회 시작');
         const result = await this.organizationInformationApplicationService.전체_조직_데이터를_조회한다(includeTerminated === true || String(includeTerminated) === 'true', includeInactiveDepartments === true || String(includeInactiveDepartments) === 'true');
-        console.log('[Export All Data] 조회 완료:', {
-            departments: result.totalCounts.departments,
-            employees: result.totalCounts.employees,
-            positions: result.totalCounts.positions,
-            ranks: result.totalCounts.ranks,
-            employeeDepartmentPositions: result.totalCounts.employeeDepartmentPositions,
-        });
         return result;
     }
     async getEmployeesManagers(user) {
-        console.log('직원 관리자 라인 조회 - 인증된 사용자:', user);
         const includeTerminatedFlag = false;
         return this.organizationInformationApplicationService.전체_직원의_관리자_라인을_조회한다(includeTerminatedFlag);
     }
@@ -12574,7 +12557,6 @@ let SsoApplicationService = class SsoApplicationService {
             }
         }
         const token = await this.authorizationContextService.토큰정보를_생성한다(employee, systemRolesMap);
-        console.log('token', token);
         return {
             tokenType: 'Bearer',
             accessToken: token.accessToken,
@@ -12603,7 +12585,6 @@ let SsoApplicationService = class SsoApplicationService {
             throw new common_1.UnauthorizedException('유효하지 않은 인증정보입니다.');
         }
         const { accessToken } = result;
-        console.log('accessToken', accessToken);
         const { employee, token } = await this.authorizationContextService.엑세스토큰을_검증한다(accessToken);
         return {
             valid: true,
@@ -12837,8 +12818,6 @@ let AuthorizationContextService = class AuthorizationContextService {
                 systemRolesMap[systemCode].push(roleCode);
             }
         }
-        console.log('systemRolesMap', systemRolesMap);
-        console.log('roles', roles);
         let hasRoleChanged = false;
         let hasValidRole = false;
         const allSystemCodes = new Set([...Object.keys(systemRolesMap), ...Object.keys(roles)]);
@@ -14661,7 +14640,6 @@ let OrganizationManagementContextService = class OrganizationManagementContextSe
         return { employee, department, position };
     }
     async 직원정보를_수정한다(employeeId, 수정정보, executedBy, queryRunner) {
-        console.log('수정정보', 수정정보);
         const updatedEmployee = await this.employeeContext.직원의_기본정보를_수정한다(employeeId, {
             employeeNumber: 수정정보.employeeNumber,
             name: 수정정보.name,
@@ -16704,7 +16682,6 @@ let DomainDepartmentService = class DomainDepartmentService extends base_service
     }
     async exists(departmentId) {
         const department = await this.findById(departmentId);
-        console.log('department', department);
         if (department) {
             return true;
         }
@@ -19213,7 +19190,6 @@ let DomainEmployeeService = class DomainEmployeeService extends base_service_1.B
         const currentYear = new Date().getFullYear();
         const yearSuffix = currentYear.toString().slice(-2);
         const employees = await this.findByEmployeeNumberPattern(yearSuffix);
-        console.log(employees);
         const sequences = employees
             .map((employee) => employee.employeeNumber)
             .filter((employeeNumber) => employeeNumber.length === 5 && employeeNumber.startsWith(yearSuffix))
@@ -19374,7 +19350,6 @@ let DomainEmployeeService = class DomainEmployeeService extends base_service_1.B
         if (params.metadata !== undefined) {
             employee.메타데이터를설정한다(params.metadata);
         }
-        console.log('employee', employee);
         return await this.save(employee, { queryRunner });
     }
     async 비밀번호를초기화한다(employee, queryRunner) {
@@ -20308,7 +20283,6 @@ let DomainPositionService = class DomainPositionService extends base_service_1.B
     }
     async exists(positionId) {
         const position = await this.findById(positionId);
-        console.log('position', position);
         if (position) {
             await this.findById(positionId);
             return true;
@@ -20317,7 +20291,6 @@ let DomainPositionService = class DomainPositionService extends base_service_1.B
     }
     async isCodeDuplicate(positionCode, excludeId) {
         const position = await this.findByCode(positionCode);
-        console.log('position', position);
         if (position) {
             return true;
         }
@@ -20570,7 +20543,6 @@ let DomainRankService = class DomainRankService extends base_service_1.BaseServi
     }
     async exists(rankId) {
         const rank = await this.findById(rankId);
-        console.log('rank', rank);
         if (rank) {
             return true;
         }
@@ -20578,7 +20550,6 @@ let DomainRankService = class DomainRankService extends base_service_1.BaseServi
     }
     async isCodeDuplicate(rankCode, excludeId) {
         const rank = await this.findByCode(rankCode);
-        console.log('rank', rank);
         if (rank) {
             return true;
         }

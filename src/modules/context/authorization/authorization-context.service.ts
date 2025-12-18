@@ -94,9 +94,6 @@ export class AuthorizationContextService {
             }
         }
 
-        console.log('systemRolesMap', systemRolesMap);
-        console.log('roles', roles);
-
         // 시스템별로 역할 변경사항을 확인한다.
         let hasRoleChanged = false;
         let hasValidRole = false;

@@ -95,7 +95,6 @@ export class FcmTokenManagementApplicationService {
 
         // 직원 정보 조회 (employeeId 우선, 없으면 employeeNumber)
         const employee = await this.getEmployeeFromIdentifier(requestDto);
-        console.log('employee', employee);
         // FCM 토큰 등록
         await this.fcmTokenManagementContextService.FCM토큰을_직원에게_등록한다(
             employee.id,
@@ -103,9 +102,7 @@ export class FcmTokenManagementApplicationService {
             deviceType,
             deviceInfo,
         );
-        console.log('fcmToken', fcmToken);
-        console.log('deviceType', deviceType);
-        console.log('deviceInfo', deviceInfo);
+
         return {
             fcmToken: fcmToken,
         };

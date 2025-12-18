@@ -94,7 +94,6 @@ export class DomainRankService extends BaseService<Rank> {
      */
     async exists(rankId: string): Promise<boolean> {
         const rank = await this.findById(rankId);
-        console.log('rank', rank);
         if (rank) {
             return true;
         }
@@ -106,7 +105,6 @@ export class DomainRankService extends BaseService<Rank> {
      */
     async isCodeDuplicate(rankCode: string, excludeId?: string): Promise<boolean> {
         const rank = await this.findByCode(rankCode);
-        console.log('rank', rank);
         if (rank) {
             return true;
         }

@@ -187,7 +187,6 @@ export class DomainEmployeeService extends BaseService<Employee> {
 
         // 해당 연도의 직원들을 조회
         const employees = await this.findByEmployeeNumberPattern(yearSuffix);
-        console.log(employees);
         // prefix로 시작하는 5자리 사번들 중에서 가장 큰 sequence 찾기
         const sequences = employees
             .map((employee) => employee.employeeNumber)
@@ -473,7 +472,6 @@ export class DomainEmployeeService extends BaseService<Employee> {
         if (params.metadata !== undefined) {
             employee.메타데이터를설정한다(params.metadata);
         }
-        console.log('employee', employee);
         return await this.save(employee, { queryRunner });
     }
 

@@ -122,7 +122,6 @@ export class MigrationController {
         description: '동기화 실패',
     })
     async syncFromProduction(@Body() dto: SyncDatabaseRequestDto) {
-        console.log(dto);
         return await this.migrationService.syncFromProductionToDevDatabase(dto.tables);
     }
 }
