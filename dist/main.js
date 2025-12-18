@@ -11817,18 +11817,6 @@ let SsoApplicationController = class SsoApplicationController {
         return result;
     }
     async verifyToken(authHeader) {
-        if (process.env.NODE_ENV !== 'production') {
-            return {
-                valid: true,
-                user_info: {
-                    id: '1e9cc4b3-affb-4f63-9749-3480cd5261b9',
-                    name: '조민경',
-                    email: 'jo.minkyeong@lumir.space',
-                    employee_number: '24019',
-                },
-                expires_in: 86400,
-            };
-        }
         return this.ssoApplicationService.verifyToken(authHeader);
     }
     async changePassword(authHeader, body) {
