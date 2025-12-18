@@ -51,9 +51,8 @@ export class EmployeeApplicationService {
         const rank = employee.currentRankId
             ? await this.organizationContext.직급_ID로_직급을_조회한다(employee.currentRankId)
             : null;
-        employee.currentRank = rank;
+        employee.rank = rank;
         const baseDto = this.직원을_응답DTO로_변환한다(employee);
-
         // 배치 정보 조회 및 매핑
         const assignments = await this.organizationContext.직원의_모든_배치정보를_조회한다(id);
 
@@ -299,6 +298,7 @@ export class EmployeeApplicationService {
         hireDate: employee.hireDate,
         status: employee.status,
         currentRankId: employee.currentRankId,
+        rank: employee.rank,
         terminationDate: employee.terminationDate,
         metadata: employee.metadata,
         isInitialPasswordSet: employee.isInitialPasswordSet,
