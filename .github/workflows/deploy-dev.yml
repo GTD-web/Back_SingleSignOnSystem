@@ -32,15 +32,9 @@ jobs:
             # 최신 커밋 정보 출력
             echo "📌 Current commit: $(git log -1 --oneline)"
             
-            # Node.js 의존성 확인 및 설치 (필요시)
-            echo "📦 Checking dependencies..."
-            if [ ! -d node_modules ]; then
-              echo "node_modules 없음 → dependencies 설치"
-              npm ci --production=false
-            else
-              echo "node_modules 존재 → package.json 변경 확인 후 필요시 업데이트"
-              npm install --production=false
-            fi
+            # Node.js 의존성 설치 (항상 깨끗하게 재설치)
+            echo "📦 Installing dependencies..."
+            npm ci --production=false
             
             # 빌드 (필요시)
             echo "🔨 Building application..."
