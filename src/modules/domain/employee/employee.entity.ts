@@ -64,7 +64,7 @@ export class Employee {
 
     @ManyToOne(() => Rank)
     @JoinColumn({ name: 'currentRankId' })
-    currentRank?: Rank;
+    rank?: Rank;
 
     @Column({ comment: '퇴사일', type: 'date', nullable: true })
     terminationDate?: Date;

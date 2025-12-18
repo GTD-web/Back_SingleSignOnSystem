@@ -204,7 +204,7 @@ export class AdminEmployeeResponseDto {
     currentRankId?: string;
 
     @ApiProperty({ description: '현재 직급', required: false })
-    currentRank?: Rank;
+    rank?: Rank;
 
     @ApiProperty({ description: '퇴사일', required: false })
     terminationDate?: Date;

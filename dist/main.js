@@ -6080,7 +6080,7 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({ description: '현재 직급', required: false }),
     __metadata("design:type", typeof (_l = typeof rank_entity_1.Rank !== "undefined" && rank_entity_1.Rank) === "function" ? _l : Object)
-], AdminEmployeeResponseDto.prototype, "currentRank", void 0);
+], AdminEmployeeResponseDto.prototype, "rank", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: '퇴사일', required: false }),
     __metadata("design:type", typeof (_m = typeof Date !== "undefined" && Date) === "function" ? _m : Object)
@@ -6950,6 +6950,7 @@ let EmployeeApplicationService = class EmployeeApplicationService {
             hireDate: employee.hireDate,
             status: employee.status,
             currentRankId: employee.currentRankId,
+            rank: employee.rank,
             terminationDate: employee.terminationDate,
             metadata: employee.metadata,
             isInitialPasswordSet: employee.isInitialPasswordSet,
@@ -7000,7 +7001,7 @@ let EmployeeApplicationService = class EmployeeApplicationService {
         const rank = employee.currentRankId
             ? await this.organizationContext.직급_ID로_직급을_조회한다(employee.currentRankId)
             : null;
-        employee.currentRank = rank;
+        employee.rank = rank;
         const baseDto = this.직원을_응답DTO로_변환한다(employee);
         const assignments = await this.organizationContext.직원의_모든_배치정보를_조회한다(id);
         if (assignments.length > 0) {
@@ -18774,7 +18775,7 @@ __decorate([
     (0, typeorm_1.ManyToOne)(() => rank_entity_1.Rank),
     (0, typeorm_1.JoinColumn)({ name: 'currentRankId' }),
     __metadata("design:type", typeof (_e = typeof rank_entity_1.Rank !== "undefined" && rank_entity_1.Rank) === "function" ? _e : Object)
-], Employee.prototype, "currentRank", void 0);
+], Employee.prototype, "rank", void 0);
 __decorate([
     (0, typeorm_1.Column)({ comment: '퇴사일', type: 'date', nullable: true }),
     __metadata("design:type", typeof (_f = typeof Date !== "undefined" && Date) === "function" ? _f : Object)
