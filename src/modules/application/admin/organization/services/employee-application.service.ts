@@ -48,6 +48,10 @@ export class EmployeeApplicationService {
 
     async 직원상세조회(id: string): Promise<AdminEmployeeResponseDto> {
         const employee = await this.organizationContext.직원을_조회한다(id);
+        const rank = employee.currentRankId
+            ? await this.organizationContext.직급_ID로_직급을_조회한다(employee.currentRankId)
+            : null;
+        employee.currentRank = rank;
         const baseDto = this.직원을_응답DTO로_변환한다(employee);
 
         // 배치 정보 조회 및 매핑

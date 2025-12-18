@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsOptional, IsEnum, IsEmail, IsDateString, IsUUID, IsBoolean, IsArray } from 'class-validator';
 import { Gender, EmployeeStatus } from '../../../../../../libs/common/enums';
 import { DepartmentType } from '../../../../domain/department/department.entity';
+import { Rank } from '../../../../domain/rank/rank.entity';
 
 export class CreateEmployeeRequestDto {
     @ApiProperty({ description: '사번', example: '25001' })
@@ -201,6 +202,9 @@ export class AdminEmployeeResponseDto {
 
     @ApiProperty({ description: '현재 직급 ID', required: false })
     currentRankId?: string;
+
+    @ApiProperty({ description: '현재 직급', required: false })
+    currentRank?: Rank;
 
     @ApiProperty({ description: '퇴사일', required: false })
     terminationDate?: Date;
