@@ -37,17 +37,32 @@ export class DomainFcmTokenService extends BaseService<FcmToken> {
         deviceType: string,
         deviceInfo: string,
     ): Promise<FcmToken> {
-        // 직원ID + 디바이스 타입 + 디바이스 정보로 기존 토큰 조회
-        const existingToken = await this.findByEmployeeAndDeviceType(employeeId, deviceType, deviceInfo);
+        // 병렬로 두 조회 실행 (성능 개선)
+        const [existingToken, tokenWithSameFcmToken] = await Promise.all([
+            this.fcmTokenRepository.findByEmployeeAndFcmToken(employeeId, fcmToken),
+            this.fcmTokenRepository.findOne({
+                where: { fcmToken },
+            }),
+        ]);
 
+        // 케이스 1: 기존 토큰이 있는 경우
         if (existingToken) {
-            // 기존 토큰이 있으면 fcmToken 값과 디바이스 정보 업데이트
+            if (existingToken.deviceType === deviceType && existingToken.deviceInfo === deviceInfo) {
+                return existingToken;
+            }
             return this.fcmTokenRepository.update(existingToken.id, {
-                fcmToken,
+                deviceType,
+                deviceInfo,
             });
         }
 
-        // 기존 토큰이 없으면 새로 생성
+        // 케이스 2: 기존 토큰이 없고, 동일한 fcmToken이 다른 레코드에 있는 경우
+        if (tokenWithSameFcmToken) {
+            // 기존 fcmToken 레코드의 디바이스 정보 업데이트
+            throw new ConflictException('FCM 토큰이 이미 등록되어 있습니다. 기기와 사용자를 확인해 주세요.');
+        }
+
+        // 케이스 3: 둘 다 없으면 새로 생성
         try {
             return await this.fcmTokenRepository.save({
                 fcmToken,
@@ -55,6 +70,13 @@ export class DomainFcmTokenService extends BaseService<FcmToken> {
                 deviceInfo,
             });
         } catch (error) {
+            // unique constraint 위반 시 기존 토큰 조회 후 반환
+            // if (error.code === '23505') {
+            //     const token = await this.findByFcmToken(fcmToken);
+            //     if (token) {
+            //         return token;
+            //     }
+            // }
             throw new ConflictException('FCM 토큰을 생성할 수 없습니다.');
         }
     }
