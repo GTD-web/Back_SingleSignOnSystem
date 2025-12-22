@@ -561,7 +561,7 @@ const typeOrmConfig = (configService) => {
         poolErrorHandler: (err) => {
             console.error('Pool error:', err);
         },
-        synchronize: false,
+        synchronize: true,
     };
 };
 exports.typeOrmConfig = typeOrmConfig;
@@ -12445,11 +12445,23 @@ let DomainFcmTokenService = class DomainFcmTokenService extends base_service_1.B
         return this.fcmTokenRepository.findByEmployeeAndDeviceType(employeeId, deviceType, deviceInfo);
     }
     async createOrFindByEmployeeAndDevice(employeeId, fcmToken, deviceType, deviceInfo) {
-        const existingToken = await this.findByEmployeeAndDeviceType(employeeId, deviceType, deviceInfo);
+        const [existingToken, tokenWithSameFcmToken] = await Promise.all([
+            this.fcmTokenRepository.findByEmployeeAndFcmToken(employeeId, fcmToken),
+            this.fcmTokenRepository.findOne({
+                where: { fcmToken },
+            }),
+        ]);
         if (existingToken) {
+            if (existingToken.deviceType === deviceType && existingToken.deviceInfo === deviceInfo) {
+                return existingToken;
+            }
             return this.fcmTokenRepository.update(existingToken.id, {
-                fcmToken,
+                deviceType,
+                deviceInfo,
             });
+        }
+        if (tokenWithSameFcmToken) {
+            throw new common_1.ConflictException('FCM 토큰이 이미 등록되어 있습니다. 기기와 사용자를 확인해 주세요.');
         }
         try {
             return await this.fcmTokenRepository.save({
@@ -12611,6 +12623,14 @@ let DomainFcmTokenRepository = class DomainFcmTokenRepository extends base_repos
             .andWhere('fcmToken.deviceType = :deviceType', { deviceType })
             .andWhere('fcmToken.deviceInfo = :deviceInfo', { deviceInfo })
             .andWhere('fcmToken.isActive = :isActive', { isActive: true })
+            .getOne();
+    }
+    async findByEmployeeAndFcmToken(employeeId, fcmToken) {
+        return this.repository
+            .createQueryBuilder('fcmToken')
+            .innerJoin('employee_fcm_tokens', 'eft', 'eft.fcmTokenId = fcmToken.id')
+            .where('eft.employeeId = :employeeId', { employeeId })
+            .andWhere('fcmToken.fcmToken = :fcmToken', { fcmToken })
             .getOne();
     }
     async deleteOrphanTokens() {
