@@ -2,8 +2,9 @@ module.exports = {
   apps: [
     {
       name: 'back-single-sign-on-system',
-      script: 'npm',
-      args: 'run start',
+      script: 'dist/main.js',
+      cwd: './',
+      interpreter: 'node',
       instances: 1,
       autorestart: true,
       watch: false,
