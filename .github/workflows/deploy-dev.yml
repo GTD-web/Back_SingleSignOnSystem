@@ -1,0 +1,55 @@
+name: Deploy to Dev Server on dev branch
+
+on:
+  push:
+    branches:
+      - dev  # dev 브랜치로 머지/푸시될 때만 실행
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST_DEV }}
+          username: ${{ secrets.EC2_USER_DEV }}
+          key: ${{ secrets.EC2_SSH_KEY_DEV }}
+          script: |
+            # 프로젝트 디렉토리로 이동
+            cd /home/ubuntu/services/Back_SingleSignOnSystem
+            
+            # Git 최신 코드 가져오기 (dev 브랜치)
+            echo "📥 Fetching latest code from dev branch..."
+            git fetch origin
+            git checkout dev
+            git reset --hard origin/dev
+            
+            # 최신 커밋 정보 출력
+            echo "📌 Current commit: $(git log -1 --oneline)"
+            
+            # Node.js 의존성 설치 (항상 깨끗하게 재설치)
+            echo "📦 Installing dependencies..."
+            npm ci --production=false
+            
+            # 빌드 (필요시)
+            echo "🔨 Building application..."
+            npm run build || echo "Build skipped or failed"
+            
+            # PM2로 서버 재시작 (ecosystem.config.js 사용)
+            echo "🚀 Restarting application with PM2..."
+            pm2 restart back-single-sign-on-system || pm2 start /home/ubuntu/services/ecosystem.config.js --only back-single-sign-on-system
+            
+            # PM2 설정 저장
+            pm2 save
+            
+            # 배포 상태 확인
+            echo "✅ Deployment completed!"
+            echo "📊 PM2 Status:"
+            pm2 list
+            pm2 logs back-single-sign-on-system --lines 5 --nostream || true
+

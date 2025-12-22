@@ -18,7 +18,7 @@ const dbConfig = {
     port: configService.get('database.port') || parseInt(process.env.POSTGRES_PORT || '5432') || 5432,
     username: configService.get('database.username') || process.env.POSTGRES_USER || 'admin',
     password: configService.get('database.password') || process.env.POSTGRES_PASSWORD || 'tech7admin!',
-    database: configService.get('database.database') || process.env.POSTGRES_DATABASE || 'resource-server',
+    database: configService.get('database.database') || process.env.POSTGRES_DATABASE || 'sso-db',
     schema: configService.get('database.schema') || process.env.POSTGRES_SCHEMA || 'public',
 };
 
